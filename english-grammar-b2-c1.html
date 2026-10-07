@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+  :root{
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  body{margin:0}
+  img{max-width:100%}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+<title>English Grammar Drill</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a single reading column of question cards, grouped into acts that
+   follow the deck. Palette lifted from the grammar deck's builder, so the page
+   reads as part of it: chalkboard green, chalk white, yellow chalk. */
+:root{
+  --ground:#172225;
+  --surface:#1E2B2E;
+  --card:#263A3E;
+  --edge:#3D575C;
+  --cream:#F1EEE4;
+  --tan:#A7B9B7;
+  --gold:#EBC665;
+  --gold-lt:#F3DC9C;
+  --teal:#8FC4D4;
+  --terra:#EF9A84;
+  --sage:#93CC9E;
+  --serif:"Source Serif 4",Cambria,Georgia,serif;
+  --sans:"Public Sans",Calibri,-apple-system,system-ui,sans-serif;
+  --mono:"IBM Plex Mono",Consolas,ui-monospace,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  background:var(--ground);color:var(--cream);font-family:var(--sans);
+  font-size:16px;line-height:1.55;margin:0;
+}
+.wrap{max-width:780px;margin:0 auto;padding-inline:16px;padding-block:40px 64px}
+
+header h1{
+  font-family:var(--serif);font-weight:700;color:var(--gold);
+  font-size:clamp(2rem,7vw,3rem);line-height:1.05;margin:0 0 .3em;text-wrap:balance;
+}
+.kicker{
+  font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--tan);margin:0 0 1.6rem;
+}
+.lede{color:var(--tan);font-size:1.05rem;margin:0 0 2rem;max-width:62ch}
+.lede strong{color:var(--cream);font-weight:600}
+
+.board{
+  position:sticky;top:env(safe-area-inset-top,0px);z-index:10;
+  background:var(--surface);border:1px solid var(--edge);border-radius:10px;
+  padding:14px 16px;margin-bottom:2.4rem;
+  display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;
+}
+.tally{display:flex;gap:18px;flex:1 1 auto;min-width:0}
+.stat{display:flex;flex-direction:column;line-height:1.15}
+.stat b{
+  font-family:var(--mono);font-size:1.25rem;font-weight:500;
+  font-variant-numeric:tabular-nums;color:var(--gold-lt);
+}
+.stat span{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--tan)}
+.stat.ok b{color:var(--sage)}
+.stat.no b{color:var(--terra)}
+.bar{flex:1 1 100%;height:4px;background:var(--edge);border-radius:2px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--gold);transition:width .3s ease}
+button{font-family:var(--sans);font-size:.85rem;cursor:pointer;border-radius:7px;transition:background .15s,border-color .15s,color .15s}
+button:focus-visible{outline:2px solid var(--gold-lt);outline-offset:2px}
+.ghost{background:transparent;border:1px solid var(--edge);color:var(--tan);padding:7px 13px}
+.ghost:hover{border-color:var(--gold);color:var(--gold-lt)}
+
+h2{
+  font-family:var(--serif);font-size:1.45rem;font-weight:600;color:var(--gold);
+  margin:2.8rem 0 .2rem;display:flex;align-items:baseline;gap:.6rem;text-wrap:balance;
+}
+h2 em{
+  font-family:var(--mono);font-style:normal;font-size:.7rem;color:var(--tan);
+  letter-spacing:.1em;flex:0 0 auto;
+}
+.act-note{color:var(--tan);font-size:.9rem;margin:0 0 1.4rem}
+
+.q{background:var(--card);border:1px solid var(--edge);border-radius:10px;padding:18px 20px;margin-bottom:14px}
+.q[data-state="ok"]{border-color:color-mix(in srgb,var(--sage) 55%,var(--edge))}
+.q[data-state="no"]{border-color:color-mix(in srgb,var(--terra) 55%,var(--edge))}
+.qhead{display:flex;gap:12px;align-items:flex-start}
+.num{
+  font-family:var(--mono);font-size:.78rem;color:var(--gold);
+  flex:0 0 auto;padding-top:.2em;font-variant-numeric:tabular-nums;
+}
+.prompt{margin:0;flex:1 1 auto;min-width:0;font-size:1rem}
+.prompt code,.a code{
+  font-family:var(--mono);font-size:.86em;background:var(--ground);
+  border:1px solid var(--edge);border-radius:4px;padding:.08em .35em;color:var(--gold-lt);
+}
+.tag{
+  display:inline-block;font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;
+  text-transform:uppercase;padding:.2em .5em;border-radius:4px;margin-left:.5rem;
+  vertical-align:.12em;border:1px solid;
+}
+.tag.numbers{color:var(--gold-lt);border-color:color-mix(in srgb,var(--gold) 45%,transparent)}
+.tag.trap{color:var(--terra);border-color:color-mix(in srgb,var(--terra) 45%,transparent)}
+.tag.apply{color:var(--teal);border-color:color-mix(in srgb,var(--teal) 45%,transparent)}
+
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;padding-left:calc(.78rem + 12px)}
+.reveal{background:transparent;border:1px solid var(--gold);color:var(--gold-lt);padding:7px 15px}
+.reveal:hover{background:color-mix(in srgb,var(--gold) 14%,transparent)}
+.mark{border:1px solid var(--edge);background:transparent;padding:7px 15px}
+.mark.yes{color:var(--sage)}
+.mark.yes:hover,.mark.yes[aria-pressed="true"]{background:color-mix(in srgb,var(--sage) 18%,transparent);border-color:var(--sage)}
+.mark.nope{color:var(--terra)}
+.mark.nope:hover,.mark.nope[aria-pressed="true"]{background:color-mix(in srgb,var(--terra) 18%,transparent);border-color:var(--terra)}
+
+.a{
+  margin:14px 0 0;padding:14px 16px;background:var(--ground);
+  border-left:3px solid var(--gold);border-radius:0 7px 7px 0;font-size:.96rem;
+}
+.a p{margin:0 0 .7em}
+.a p:last-child{margin-bottom:0}
+.a b{color:var(--gold-lt);font-weight:600}
+.a .why{color:var(--tan);font-size:.9rem;display:block;margin-top:.7em;padding-top:.7em;border-top:1px solid var(--edge)}
+
+details.ref{margin-top:3rem;border:1px solid var(--edge);border-radius:10px;background:var(--surface)}
+details.ref summary{
+  cursor:pointer;padding:14px 18px;font-family:var(--mono);font-size:.78rem;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--gold);
+}
+details.ref summary:focus-visible{outline:2px solid var(--gold-lt);outline-offset:-2px}
+.tablewrap{overflow-x:auto;padding:0 18px 18px}
+table{border-collapse:collapse;width:100%;min-width:460px;font-size:.92rem}
+th,td{text-align:right;padding:8px 10px;border-bottom:1px solid var(--edge)}
+th:first-child,td:first-child{text-align:left}
+thead th{color:var(--tan);font-weight:500;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase}
+tbody td{font-family:var(--mono);font-variant-numeric:tabular-nums}
+tbody td:first-child{font-family:var(--sans)}
+.win{color:var(--sage)}
+.lose{color:var(--terra)}
+.refnote{padding:0 18px 18px;margin:0;color:var(--tan);font-size:.85rem}
+
+footer{margin-top:3rem;padding-top:1.6rem;border-top:1px solid var(--edge);color:var(--tan);font-size:.88rem}
+footer b{color:var(--gold-lt)}
+#missed{margin:.8rem 0 0;padding-left:1.1rem}
+#missed li{margin-bottom:.3rem}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+<header>
+  <p class="kicker">English Grammar &middot; B2&ndash;C1 &middot; self-test</p>
+  <h1>English Grammar Drill</h1>
+  <p class="lede">Forty-two questions on <strong>English Grammar &mdash; B2&ndash;C1: What You Should Know</strong>. Say each answer out loud, in a whole sentence, before revealing, then mark yourself honestly. The hinge is <strong>I saw him yesterday</strong> versus <strong>I&rsquo;ve seen him</strong>: a finished time takes the past simple, and most of the mistakes on this page are that rule in another form.</p>
+</header>
+
+<div class="board">
+  <div class="tally">
+    <div class="stat"><b id="done">0</b><span>answered</span></div>
+    <div class="stat ok"><b id="right">0</b><span>got it</span></div>
+    <div class="stat no"><b id="wrong">0</b><span>missed</span></div>
+  </div>
+  <button class="ghost" id="reset">Reset</button>
+  <div class="bar"><i id="fill"></i></div>
+</div>
+
+<main id="quiz"></main>
+
+<details class="ref">
+  <summary>Reference &mdash; the patterns and the mistakes at a glance</summary>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Structure</th><th>Pattern</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td>Mixed conditional</td><td>if + past perfect, would + verb</td><td>If I had studied law, I&rsquo;d be a lawyer now.</td></tr>
+      <tr><td>Wish (present / past)</td><td>past simple / past perfect</td><td>I wish I knew. I wish I had listened.</td></tr>
+      <tr><td>Past deduction</td><td>must / can&rsquo;t / might + have + participle</td><td>She must have forgotten.</td></tr>
+      <tr><td>Unnecessary, but done</td><td>needn&rsquo;t have + participle</td><td>I needn&rsquo;t have bought milk.</td></tr>
+      <tr><td>Reporting passive</td><td>be said / believed + to (have)</td><td>He is believed to have left.</td></tr>
+      <tr><td>Causative</td><td>have / get + object + participle</td><td>I had my car repaired.</td></tr>
+      <tr><td>Inversion</td><td>negative phrase + question order</td><td>Never have I seen such a mess.</td></tr>
+      <tr><td>Cleft</td><td>it was &hellip; who / that</td><td>It was Anna who broke the window.</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Not this</th><th>But this</th></tr></thead>
+    <tbody>
+      <tr><td class="lose">I am agree.</td><td class="win">I agree.</td></tr>
+      <tr><td class="lose">It depends from you.</td><td class="win">It depends on you.</td></tr>
+      <tr><td class="lose">Explain me, please.</td><td class="win">Please explain it to me.</td></tr>
+      <tr><td class="lose">I live here since three years.</td><td class="win">I&rsquo;ve lived here for three years.</td></tr>
+      <tr><td class="lose">I have 25 years.</td><td class="win">I&rsquo;m 25.</td></tr>
+      <tr><td class="lose">How it is called?</td><td class="win">What is it called?</td></tr>
+      <tr><td class="lose">some informations, advices</td><td class="win">some information, some advice</td></tr>
+      <tr><td class="lose">We discussed about the plan.</td><td class="win">We discussed the plan.</td></tr>
+      <tr><td class="lose">Can you make a photo?</td><td class="win">Can you take a photo?</td></tr>
+      <tr><td class="lose">I&rsquo;m interesting in history.</td><td class="win">I&rsquo;m interested in history.</td></tr>
+    </tbody>
+  </table>
+  </div>
+</details>
+
+<footer>
+  <p id="verdict">Nothing answered yet.</p>
+  <ul id="missed" hidden></ul>
+</footer>
+</div>
+
+<script>
+const ACTS = [
+  { title: "Tenses: time and aspect", note: "Slides 3–5. Fact, process or result.", qs: [
+    { q: "Every English tense is two things. Which two?",
+      a: "<p><b>A time</b> — present, past or future — and <b>an aspect</b>, which is how you look at the action.</p><p>Simple: the fact or the whole event. Continuous: in progress. Perfect: looking back at a result. Perfect continuous: an activity up to a point, with its duration.</p>" },
+    { q: "Correct it: “I have seen him yesterday.”", tag: "trap",
+      a: "<p><b>I saw him yesterday.</b></p><p><b>Yesterday</b> is a finished time, and a finished time takes the <b>past simple</b>. The present perfect connects the past to <em>now</em>, so it cannot sit beside a time that is over.</p>" },
+    { q: "Name four signal words that lean to the present perfect, and four that demand the past simple.",
+      a: "<p>Perfect: <b>ever, never, already, yet, just, since, for, so far</b>.</p><p>Past simple: <b>yesterday, ago, last week, in 2019</b>, and the question <b>when?</b></p>" },
+    { q: "Complete it: “She ___ (live) in Lviv since 2019.” What does your answer say about today?", tag: "apply",
+      a: "<p><b>She has lived in Lviv since 2019</b> — or <b>has been living</b>.</p><p>Either way, <b>she still lives there</b>. “She lived in Lviv in 2019” would say nothing about now.</p>" },
+    { q: "What is the difference between “I’ve read the book” and “I’ve been reading the book”?",
+      a: "<p><b>I’ve read it</b> — the result: it is finished.</p><p><b>I’ve been reading it</b> — the activity: I have not finished. The quick rule is <b>how many → simple, how long → continuous</b>.</p>" },
+    { q: "Correct it: “I’ve been knowing her for years.”", tag: "trap",
+      a: "<p><b>I’ve known her for years.</b></p><p><b>Know</b> is a state verb, like <b>own, believe, belong</b>, and state verbs do not take the continuous.</p>" },
+  ]},
+  { title: "Telling stories, and the future", note: "Slides 6–7. Narrative tenses and six futures.", qs: [
+    { q: "Name the four narrative tenses and the job each one does.",
+      a: "<p><b>Past continuous</b> — the background, already in progress: <em>it was raining</em>.<br><b>Past simple</b> — the main events, in order: <em>I got to the station</em>.<br><b>Past perfect</b> — something earlier than the story’s moment: <em>the train had left</em>.<br><b>Past perfect continuous</b> — an activity up to that earlier moment: <em>I had been waiting for an hour</em>.</p>" },
+    { q: "Is “After I had eaten, I left” better than “After I ate, I left”?", tag: "trap",
+      a: "<p><b>No — both are correct, and the second is more natural.</b> Use the past perfect only when the order is not already clear; here <b>after</b> does the work.</p>" },
+    { q: "Which future fits, and why? “Look at those clouds — it ___ rain.” And: “I ___ Olena at six.”", tag: "apply",
+      a: "<p><b>It’s going to rain</b> — a prediction from evidence you can see.</p><p><b>I’m meeting Olena at six</b> — the present continuous, for a fixed arrangement with a time and another person.</p>" },
+    { q: "Complete both: “By June I ___ (finish) the course.” “This time tomorrow I ___ (sit) my exam.”", tag: "apply",
+      a: "<p><b>By June I’ll have finished the course</b> — future perfect: finished before a future time.</p><p><b>This time tomorrow I’ll be sitting my exam</b> — future continuous: in progress at a future time.</p>" },
+    { q: "Correct it: “Call me when you will arrive.”", tag: "trap",
+      a: "<p><b>Call me when you arrive.</b></p><p>After <b>when, as soon as, before, until</b> and <b>if</b>, English uses a <b>present form for the future</b>.</p>" },
+  ]},
+  { title: "Conditionals, wishes and past modals", note: "Slides 8–10. Moving the verb back in time.", qs: [
+    { q: "You didn’t study law, and you are not a lawyer now. Say it as one conditional.", tag: "apply",
+      a: "<p><b>If I had studied law, I’d be a lawyer now.</b></p><p>A <b>mixed conditional</b>: a past cause (third conditional) with a present result (second conditional).</p>" },
+    { q: "Correct it: “If I would know, I would tell you.”", tag: "trap",
+      a: "<p><b>If I knew, I would tell you.</b></p><p><b>Never put would in the if-clause.</b></p>" },
+    { q: "Name three ways to set a condition without “if”.",
+      a: "<p><b>Unless</b> (if not), <b>provided that</b> / <b>as long as</b>, <b>otherwise</b>, and <b>but for</b> + a noun: <em>but for your help, I’d have failed</em>.</p>" },
+    { q: "Which form follows “wish” for the present, for the past, and for somebody else’s annoying behaviour?",
+      a: "<p>Present → <b>past simple</b>: <em>I wish I knew the answer</em>.<br>Past → <b>past perfect</b>: <em>I wish I had listened to you</em>.<br>Somebody else → <b>would</b>: <em>I wish you would stop interrupting</em>. Never “I wish I would”.</p>" },
+    { q: "Complete both: “It’s time we ___ (leave).” “I’d rather you ___ (not tell) her.”", tag: "apply",
+      a: "<p><b>It’s time we left.</b> <b>I’d rather you didn’t tell her.</b></p><p>Both take the same backward shift as <b>wish</b>: a past form about the present.</p>" },
+    { q: "“I needn’t have bought milk” or “I didn’t need to buy milk” — which one means you bought it?", tag: "trap",
+      a: "<p><b>I needn’t have bought milk</b> — I bought it, and it was not necessary.</p><p><b>I didn’t need to buy milk</b> — it was not necessary, and usually I did not buy it.</p>" },
+    { q: "What is the opposite of “She must have forgotten”?", tag: "trap",
+      a: "<p><b>She can’t have forgotten.</b> Not “mustn’t have”.</p><p>For something possible: <b>might have</b>. For regret or criticism: <b>should have</b> / <b>shouldn’t have</b>, and <b>could have</b> for a chance someone did not take.</p>" },
+  ]},
+  { title: "Reporting, and the passive", note: "Slides 11–12. Who said it, and what kind of saying it was.", qs: [
+    { q: "Say “People believe he left the country” in two formal ways.", tag: "apply",
+      a: "<p><b>It is believed that he left the country.</b></p><p><b>He is believed to have left the country.</b> — <b>to have</b> + the participle moves the fact into the past.</p>" },
+    { q: "A mechanic repaired your car. Say it with you as the subject.", tag: "apply",
+      a: "<p><b>I had my car repaired</b> — or <b>I got my car repaired</b>.</p><p>The causative also covers bad things done to you: <em>we had our flat broken into</em>.</p>" },
+    { q: "Correct it: “She suggested me to go.”", tag: "trap",
+      a: "<p><b>She suggested going</b>, or <b>She suggested that I go</b>.</p><p><b>Suggest</b> never takes an object and an infinitive.</p>" },
+    { q: "Give the pattern that follows each: refuse, advise, deny, insist.",
+      a: "<p><b>Refuse to</b> sign it. <b>Advise me to</b> wait. <b>Deny taking</b> the money. <b>Insist on paying</b>.</p><p>Each reporting verb carries its own pattern, so learn it with the verb.</p>" },
+  ]},
+  { title: "Clauses, articles and verb patterns", note: "Slides 13–15. Small words, big differences.", qs: [
+    { q: "“The students who passed got a certificate.” Add commas. What changes?", tag: "trap",
+      a: "<p><b>Without commas</b> (defining): only the students who passed got one.</p><p><b>With commas</b> (non-defining): all of them passed, and all of them got one. And a non-defining clause <b>cannot use that</b>.</p>" },
+    { q: "What are the three article questions, in order?",
+      a: "<p><b>1.</b> Is it singular and countable? Then it needs an article — <em>I’m a student</em>.<br><b>2.</b> Do we both know which one? Then <b>the</b> — <em>close the door</em>.<br><b>3.</b> Speaking in general, with a plural or uncountable noun? Then <b>no article</b> — <em>life is hard</em>.</p>" },
+    { q: "Correct both: “The life is hard.” “She is doctor.”", tag: "trap",
+      a: "<p><b>Life is hard</b> — in general, so no article.</p><p><b>She’s a doctor</b> — a job takes <b>a</b> or <b>an</b>.</p>" },
+    { q: "What is the difference between “He stopped smoking” and “He stopped to smoke”?",
+      a: "<p><b>Stopped smoking</b> — he does not smoke any more.</p><p><b>Stopped to smoke</b> — he stopped what he was doing <b>in order to</b> smoke.</p><p>Same trap: <em>I remember locking the door</em> (a memory) / <em>remember to lock the door</em> (do not forget).</p>" },
+    { q: "Correct it: “I look forward to see you.”", tag: "trap",
+      a: "<p><b>I look forward to seeing you.</b></p><p>Here <b>to</b> is a preposition, and after a preposition English always uses <b>-ing</b>.</p>" },
+  ]},
+  { title: "Emphasis and linking", note: "Slides 16–18. Inversion, clefts and linkers.", qs: [
+    { q: "Invert for emphasis: “I have never seen such a mess.” And: “I had hardly arrived when the phone rang.”", tag: "apply",
+      a: "<p><b>Never have I seen such a mess.</b></p><p><b>Hardly had I arrived when the phone rang.</b> Remember the pairs: <b>hardly … when</b>, <b>no sooner … than</b>.</p>" },
+    { q: "Drop the “if”: “If I had known, I would have come.”", tag: "apply",
+      a: "<p><b>Had I known, I would have come.</b></p><p>The same works with <b>should</b> (<em>Should you need help, call me</em>) and <b>were</b> (<em>Were I you, I’d accept</em>).</p>" },
+    { q: "Where does inversion belong, and where does it sound wrong?", tag: "trap",
+      a: "<p><b>Writing and speeches.</b> In conversation it sounds like a novel — say <em>I’ve never seen such a mess</em>.</p>" },
+    { q: "“Anna broke the window.” Make it clear it was Anna, not Max.", tag: "apply",
+      a: "<p><b>It was Anna who broke the window.</b></p><p>Ukrainian moves the word: <em>Вікно розбила Анна</em>. English word order is fixed, so it uses a <b>cleft</b> instead.</p>" },
+    { q: "Correct both: “Despite of the rain, we went.” “Despite it was late, we stayed.”", tag: "trap",
+      a: "<p><b>Despite the rain, we went.</b> Never “despite of”.</p><p><b>Although it was late, we stayed</b> — or <b>despite it being late</b>. <b>Although</b> takes a clause; <b>despite</b> takes a noun or -ing.</p>" },
+    { q: "“Take an umbrella in case it rains” or “if it rains” — what is the difference?",
+      a: "<p><b>In case</b> — a precaution: you take it <b>anyway</b>.</p><p><b>If</b> — you only take it <b>when it actually rains</b>.</p>" },
+  ]},
+  { title: "Mistakes Ukrainian and Russian speakers make", note: "Slides 19–20. Patterns translated word for word.", qs: [
+    { q: "Correct all three: “I am agree.” “It depends from you.” “Explain me, please.”", tag: "trap",
+      a: "<p><b>I agree.</b> — <em>agree</em> is the verb.<br><b>It depends on you.</b><br><b>Please explain it to me.</b></p>" },
+    { q: "Correct both: “I have 25 years.” “I live here since three years.”", tag: "trap",
+      a: "<p><b>I’m 25.</b></p><p><b>I’ve lived here for three years</b> — the present perfect, and <b>for</b> with a period of time.</p>" },
+    { q: "Correct all three: “some informations”, “We discussed about the plan”, “Can you make a photo?”", tag: "trap",
+      a: "<p><b>Some information</b> — uncountable, like <em>advice</em>.<br><b>We discussed the plan</b> — no preposition.<br><b>Can you take a photo?</b></p>" },
+    { q: "“I’m interesting in history.” What did the speaker actually say, and what is the rule?", tag: "trap",
+      a: "<p>Literally, that <em>they</em> are interesting — that they cause the interest. They meant <b>I’m interested in history</b>.</p><p><b>-ed</b> is how you feel; <b>-ing</b> is what causes the feeling. “I’m boring” describes you, not your mood.</p>" },
+  ]},
+  { title: "Idioms", note: "Slides 21–22. Learn each one inside a sentence.", qs: [
+    { q: "Give the idiom: “very rarely”, “say exactly the right thing”, “it’s your decision now”.", tag: "apply",
+      a: "<p><b>Once in a blue moon.</b> <b>Hit the nail on the head.</b> <b>The ball is in your court.</b></p>" },
+    { q: "Which English idioms match набити руку, розтопити кригу and ходити манівцями?",
+      a: "<p><b>Get the hang of</b> (something). <b>Break the ice.</b> <b>Beat around the bush.</b></p>" },
+    { q: "Use one in the past: you took on far too much work last month.", tag: "apply",
+      a: "<p><b>I bit off more than I could chew.</b></p><p>An idiom changes its verb like any other phrase: <em>she hit the nail on the head</em>, <em>they’re sitting on the fence</em>.</p>" },
+    { q: "Where should you not use these idioms?", tag: "trap",
+      a: "<p><b>In an essay, a report or a cover letter.</b> Idioms are informal: use them in conversation and in friendly emails to colleagues.</p>" },
+    { q: "What do “under the weather”, “pull someone’s leg” and “the elephant in the room” mean?",
+      a: "<p><b>Under the weather</b> — slightly ill.<br><b>Pull someone’s leg</b> — joke, tease.<br><b>The elephant in the room</b> — an obvious problem nobody mentions.</p>" },
+  ]},
+];
+
+const quiz = document.getElementById("quiz");
+const state = new Map();
+let n = 0;
+const total = ACTS.reduce((s, a) => s + a.qs.length, 0);
+
+ACTS.forEach((act, ai) => {
+  const h = document.createElement("h2");
+  h.innerHTML = `${act.title} <em>Act ${ai + 1}</em>`;
+  quiz.appendChild(h);
+  const note = document.createElement("p");
+  note.className = "act-note";
+  note.textContent = act.note;
+  quiz.appendChild(note);
+
+  act.qs.forEach(item => {
+    n += 1;
+    const id = n;
+    const card = document.createElement("section");
+    card.className = "q";
+    card.dataset.id = id;
+    const tag = item.tag ? `<span class="tag ${item.tag}">${item.tag}</span>` : "";
+    card.innerHTML = `
+      <div class="qhead">
+        <span class="num">${String(id).padStart(2, "0")}</span>
+        <p class="prompt">${item.q}${tag}</p>
+      </div>
+      <div class="a" id="a${id}" hidden>
+        ${item.a}${item.why ? `<span class="why">${item.why}</span>` : ""}
+      </div>
+      <div class="actions">
+        <button class="reveal" type="button">Show answer</button>
+        <button class="mark yes" type="button" aria-pressed="false" hidden>Got it</button>
+        <button class="mark nope" type="button" aria-pressed="false" hidden>Missed</button>
+      </div>`;
+    quiz.appendChild(card);
+
+    const ans = card.querySelector(".a");
+    const reveal = card.querySelector(".reveal");
+    const yes = card.querySelector(".mark.yes");
+    const nope = card.querySelector(".mark.nope");
+
+    reveal.addEventListener("click", () => {
+      const open = !ans.hidden;
+      ans.hidden = open;
+      reveal.textContent = open ? "Show answer" : "Hide answer";
+      yes.hidden = nope.hidden = open;
+    });
+    const mark = (v) => {
+      state.set(id, state.get(id) === v ? null : v);
+      const cur = state.get(id);
+      card.dataset.state = cur || "";
+      yes.setAttribute("aria-pressed", String(cur === "ok"));
+      nope.setAttribute("aria-pressed", String(cur === "no"));
+      score();
+    };
+    yes.addEventListener("click", () => mark("ok"));
+    nope.addEventListener("click", () => mark("no"));
+  });
+});
+
+const elDone = document.getElementById("done");
+const elRight = document.getElementById("right");
+const elWrong = document.getElementById("wrong");
+const fill = document.getElementById("fill");
+const verdict = document.getElementById("verdict");
+const missedList = document.getElementById("missed");
+
+function score() {
+  let ok = 0, no = 0;
+  state.forEach(v => { if (v === "ok") ok++; else if (v === "no") no++; });
+  const done = ok + no;
+  elDone.textContent = done;
+  elRight.textContent = ok;
+  elWrong.textContent = no;
+  fill.style.width = `${(done / total) * 100}%`;
+
+  missedList.innerHTML = "";
+  if (!done) {
+    verdict.textContent = "Nothing answered yet.";
+    missedList.hidden = true;
+    return;
+  }
+  const pct = Math.round((ok / done) * 100);
+  verdict.innerHTML = done === total
+    ? `All ${total} answered — <b>${ok} right, ${no} missed (${pct}%)</b>.`
+    : `<b>${done} of ${total}</b> answered — ${ok} right, ${no} missed (${pct}%).`;
+
+  const misses = [];
+  state.forEach((v, id) => { if (v === "no") misses.push(id); });
+  if (misses.length) {
+    missedList.hidden = false;
+    misses.sort((a, b) => a - b).forEach(id => {
+      const li = document.createElement("li");
+      const p = document.querySelector(`.q[data-id="${id}"] .prompt`);
+      li.textContent = `${String(id).padStart(2, "0")} — ${p.textContent.replace(/\s*(numbers|trap|apply)\s*$/, "")}`;
+      li.style.cursor = "pointer";
+      li.addEventListener("click", () => {
+        document.querySelector(`.q[data-id="${id}"]`).scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+      missedList.appendChild(li);
+    });
+  } else {
+    missedList.hidden = true;
+  }
+}
+
+document.getElementById("reset").addEventListener("click", () => {
+  state.clear();
+  document.querySelectorAll(".q").forEach(c => {
+    c.dataset.state = "";
+    c.querySelector(".a").hidden = true;
+    c.querySelector(".reveal").textContent = "Show answer";
+    c.querySelector(".mark.yes").hidden = true;
+    c.querySelector(".mark.nope").hidden = true;
+    c.querySelectorAll(".mark").forEach(b => b.setAttribute("aria-pressed", "false"));
+  });
+  score();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+score();
+</script>
+
+</body>
+</html>
