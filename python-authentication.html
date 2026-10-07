@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta property="og:title" content="Authentication Drill — Ship It Live!" />
+<meta property="og:description" content="Interactive self-test: Authentication." />
+<meta property="og:image" content="https://kuantor.github.io/drills/background.jpg" />
+<meta property="og:url" content="https://kuantor.github.io/drills/python-authentication.html" />
+<meta property="og:type" content="website" />
+<style>
+  :root{
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  body{margin:0}
+  img{max-width:100%}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+<title>Authentication Drill</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a single reading column of question cards, grouped into seven acts
+   that follow the talk. Palette lifted from the Ship It Live deck builder so
+   this reads as part of the series: roasted brown ground, brass accents. */
+:root{
+  --ground:#1A150E;
+  --surface:#262014;
+  --card:#312918;
+  --edge:#4A3D22;
+  --cream:#F1EADA;
+  --tan:#AC9F84;
+  --gold:#C8A24B;
+  --gold-lt:#E8CD86;
+  --teal:#6FB0A6;
+  --terra:#D0845A;
+  --sage:#8BA678;
+  --serif:"Source Serif 4",Cambria,Georgia,serif;
+  --sans:"Public Sans",Calibri,-apple-system,system-ui,sans-serif;
+  --mono:"IBM Plex Mono",Consolas,ui-monospace,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  background:var(--ground);color:var(--cream);font-family:var(--sans);
+  font-size:16px;line-height:1.55;margin:0;
+}
+.wrap{max-width:780px;margin:0 auto;padding-inline:16px;padding-block:40px 64px}
+
+header h1{
+  font-family:var(--serif);font-weight:700;color:var(--gold);
+  font-size:clamp(2rem,7vw,3rem);line-height:1.05;margin:0 0 .3em;text-wrap:balance;
+}
+.kicker{
+  font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--tan);margin:0 0 1.6rem;
+}
+.lede{color:var(--tan);font-size:1.05rem;margin:0 0 2rem;max-width:62ch}
+.lede strong{color:var(--cream);font-weight:600}
+
+.board{
+  position:sticky;top:env(safe-area-inset-top,0px);z-index:10;
+  background:var(--surface);border:1px solid var(--edge);border-radius:10px;
+  padding:14px 16px;margin-bottom:2.4rem;
+  display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;
+}
+.tally{display:flex;gap:18px;flex:1 1 auto;min-width:0}
+.stat{display:flex;flex-direction:column;line-height:1.15}
+.stat b{
+  font-family:var(--mono);font-size:1.25rem;font-weight:500;
+  font-variant-numeric:tabular-nums;color:var(--gold-lt);
+}
+.stat span{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--tan)}
+.stat.ok b{color:var(--sage)}
+.stat.no b{color:var(--terra)}
+.bar{flex:1 1 100%;height:4px;background:var(--edge);border-radius:2px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--gold);transition:width .3s ease}
+button{font-family:var(--sans);font-size:.85rem;cursor:pointer;border-radius:7px;transition:background .15s,border-color .15s,color .15s}
+button:focus-visible{outline:2px solid var(--gold-lt);outline-offset:2px}
+.ghost{background:transparent;border:1px solid var(--edge);color:var(--tan);padding:7px 13px}
+.ghost:hover{border-color:var(--gold);color:var(--gold-lt)}
+
+h2{
+  font-family:var(--serif);font-size:1.45rem;font-weight:600;color:var(--gold);
+  margin:2.8rem 0 .2rem;display:flex;align-items:baseline;gap:.6rem;text-wrap:balance;
+}
+h2 em{
+  font-family:var(--mono);font-style:normal;font-size:.7rem;color:var(--tan);
+  letter-spacing:.1em;flex:0 0 auto;
+}
+.act-note{color:var(--tan);font-size:.9rem;margin:0 0 1.4rem}
+
+.q{background:var(--card);border:1px solid var(--edge);border-radius:10px;padding:18px 20px;margin-bottom:14px}
+.q[data-state="ok"]{border-color:color-mix(in srgb,var(--sage) 55%,var(--edge))}
+.q[data-state="no"]{border-color:color-mix(in srgb,var(--terra) 55%,var(--edge))}
+.qhead{display:flex;gap:12px;align-items:flex-start}
+.num{
+  font-family:var(--mono);font-size:.78rem;color:var(--gold);
+  flex:0 0 auto;padding-top:.2em;font-variant-numeric:tabular-nums;
+}
+.prompt{margin:0;flex:1 1 auto;min-width:0;font-size:1rem}
+.prompt code,.a code{
+  font-family:var(--mono);font-size:.86em;background:var(--ground);
+  border:1px solid var(--edge);border-radius:4px;padding:.08em .35em;color:var(--gold-lt);
+}
+.tag{
+  display:inline-block;font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;
+  text-transform:uppercase;padding:.2em .5em;border-radius:4px;margin-left:.5rem;
+  vertical-align:.12em;border:1px solid;
+}
+.tag.numbers{color:var(--gold-lt);border-color:color-mix(in srgb,var(--gold) 45%,transparent)}
+.tag.trap{color:var(--terra);border-color:color-mix(in srgb,var(--terra) 45%,transparent)}
+.tag.apply{color:var(--teal);border-color:color-mix(in srgb,var(--teal) 45%,transparent)}
+
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;padding-left:calc(.78rem + 12px)}
+.reveal{background:transparent;border:1px solid var(--gold);color:var(--gold-lt);padding:7px 15px}
+.reveal:hover{background:color-mix(in srgb,var(--gold) 14%,transparent)}
+.mark{border:1px solid var(--edge);background:transparent;padding:7px 15px}
+.mark.yes{color:var(--sage)}
+.mark.yes:hover,.mark.yes[aria-pressed="true"]{background:color-mix(in srgb,var(--sage) 18%,transparent);border-color:var(--sage)}
+.mark.nope{color:var(--terra)}
+.mark.nope:hover,.mark.nope[aria-pressed="true"]{background:color-mix(in srgb,var(--terra) 18%,transparent);border-color:var(--terra)}
+
+.a{
+  margin:14px 0 0;padding:14px 16px;background:var(--ground);
+  border-left:3px solid var(--gold);border-radius:0 7px 7px 0;font-size:.96rem;
+}
+.a p{margin:0 0 .7em}
+.a p:last-child{margin-bottom:0}
+.a b{color:var(--gold-lt);font-weight:600}
+.a .why{color:var(--tan);font-size:.9rem;display:block;margin-top:.7em;padding-top:.7em;border-top:1px solid var(--edge)}
+
+details.ref{margin-top:3rem;border:1px solid var(--edge);border-radius:10px;background:var(--surface)}
+details.ref summary{
+  cursor:pointer;padding:14px 18px;font-family:var(--mono);font-size:.78rem;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--gold);
+}
+details.ref summary:focus-visible{outline:2px solid var(--gold-lt);outline-offset:-2px}
+.tablewrap{overflow-x:auto;padding:0 18px 18px}
+table{border-collapse:collapse;width:100%;min-width:460px;font-size:.92rem}
+th,td{text-align:right;padding:8px 10px;border-bottom:1px solid var(--edge)}
+th:first-child,td:first-child{text-align:left}
+thead th{color:var(--tan);font-weight:500;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase}
+tbody td{font-family:var(--mono);font-variant-numeric:tabular-nums}
+tbody td:first-child{font-family:var(--sans)}
+.win{color:var(--sage)}
+.lose{color:var(--terra)}
+.refnote{padding:0 18px 18px;margin:0;color:var(--tan);font-size:.85rem}
+
+footer{margin-top:3rem;padding-top:1.6rem;border-top:1px solid var(--edge);color:var(--tan);font-size:.88rem}
+footer b{color:var(--gold-lt)}
+#missed{margin:.8rem 0 0;padding-left:1.1rem}
+#missed li{margin-bottom:.3rem}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+<header>
+  <p class="kicker">Ship It Live! &middot; self-test</p>
+  <h1>Authentication Drill</h1>
+  <p class="lede">Thirty-nine questions on <strong>Authentication &mdash; Sessions, Tokens and Sign-In</strong>. Answer out loud before revealing, then mark yourself honestly. The hinge is <strong>the sign-out that does not sign you out</strong>: a server-side session is gone, a JWT still verifies for 15 minutes &mdash; and knowing which you can live with.</p>
+</header>
+
+<div class="board">
+  <div class="tally">
+    <div class="stat"><b id="done">0</b><span>answered</span></div>
+    <div class="stat ok"><b id="right">0</b><span>got it</span></div>
+    <div class="stat no"><b id="wrong">0</b><span>missed</span></div>
+  </div>
+  <button class="ghost" id="reset">Reset</button>
+  <div class="bar"><i id="fill"></i></div>
+</div>
+
+<main id="quiz"></main>
+
+<details class="ref">
+  <summary>Reference &mdash; every measured number in the talk</summary>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>What the browser holds</th><th>Characters</th></tr></thead>
+    <tbody>
+      <tr><td>server-side session id</td><td class="win">43</td></tr>
+      <tr><td>Flask signed cookie, {id, name}</td><td>81</td></tr>
+      <tr><td>JWT, HS256</td><td>164</td></tr>
+      <tr><td>JWT, RS256 (2048-bit)</td><td class="lose">463</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Checking who is asking</th><th>&micro;s</th></tr></thead>
+    <tbody>
+      <tr><td>dict lookup</td><td>0.12</td></tr>
+      <tr><td>SQLite lookup, 10,000 sessions</td><td class="win">3.36</td></tr>
+      <tr><td>PyJWT HS256 verify</td><td class="lose">93.41</td></tr>
+      <tr><td>PyJWT RS256 verify</td><td class="lose">129.99</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Experiment</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr><td>JWT after sign-out</td><td class="lose">still verifies, 15 min</td></tr>
+      <tr><td>server-side session after sign-out</td><td class="win">gone</td></tr>
+      <tr><td>bool("false")</td><td class="lose">True</td></tr>
+      <tr><td>PKCE vs RFC 7636 example</td><td class="win">match</td></tr>
+      <tr><td>TOTP vs RFC 6238 vectors</td><td class="win">6 of 6</td></tr>
+      <tr><td>reset token, second use</td><td class="win">refused</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>pyjwt 2.15.1, cryptography 50.0.2, flask 3.1.3, Python 3.14; from <code>auth_bench.py</code>, 4 October 2026. Everything local: no network, no real accounts.</p>
+</details>
+
+<footer>
+  <p id="verdict">Nothing answered yet.</p>
+  <ul id="missed" hidden></ul>
+</footer>
+</div>
+
+<script>
+const ACTS = [
+  { title: "Who, what, and remembering", note: "Slides 2–3.", qs: [
+    { q: "Authentication or authorization: which is which, and which status code goes with each failing?",
+      a: "<p><b>Authentication</b> — who you are; failing it is a <b>401</b>.<br><b>Authorization</b> — what you may do; failing it is a <b>403</b>.</p>" },
+    { q: "Why does a web app need a session at all?",
+      a: "<p><b>HTTP forgets everything between requests.</b> Something has to carry \"this is Anna\" from one request to the next.</p>" },
+    { q: "Sizes measured: a session id, a Flask signed cookie, an HS256 JWT, an RS256 JWT?", tag: "numbers",
+      a: "<p><b>43</b>, <b>81</b>, <b>164</b> and <b>463</b> characters — sent with every request.</p>" },
+    { q: "The one distinction that organises the whole talk?",
+      a: "<p>Where the truth lives: <b>on the server</b> (the cookie is only a key) or <b>in the thing the browser holds</b>, signed.</p>" },
+  ]},
+  { title: "Sessions and signed cookies", note: "Slides 4–5.", qs: [
+    { q: "Describe a server-side session from sign-in to sign-out.",
+      a: "<p>Sign in: a random id (<code>secrets.token_urlsafe(32)</code>) stored against the user, sent as an <b>HttpOnly cookie</b>. Each request: <b>look it up</b>. Sign out: <b>delete the row</b> — measured \"gone\".</p>" },
+    { q: "What does a server-side session give you that a signed cookie does not?", tag: "trap",
+      a: "<p><b>Revocation at once.</b> Delete one row and that session is over everywhere. A signed cookie stays valid until it expires or SECRET_KEY changes — which signs out everyone.</p>" },
+    { q: "What happens to a Flask session cookie over about 4 KB?",
+      a: "<p>The browser <b>drops it, silently</b>. Keep an id in the session, not the user's data.</p>" },
+    { q: "How does KuantorFlow close the signed cookie's revocation gap?", tag: "apply",
+      a: "<p>The cookie carries identity; on <b>every request</b> the server checks live in the database whether the account is <b>blocked</b> (#126). The database keeps the power to say no.</p>" },
+  ]},
+  { title: "JWTs", note: "Slides 6–7.", qs: [
+    { q: "Name the three parts of a JWT and what the first two decode to.",
+      a: "<p><b>header.payload.signature</b>, base64url. Header: <code>{\"alg\":\"HS256\",\"typ\":\"JWT\"}</code>. Payload: plain JSON claims — sub, name, iat, exp.</p>" },
+    { q: "Is a JWT's payload private?", tag: "trap",
+      a: "<p><b>No.</b> It is signed, not encrypted — readable by anyone. Nothing secret goes in it.</p>" },
+    { q: "What do sub, exp, iat, aud, iss and jti mean?",
+      a: "<p><b>sub</b> who · <b>exp</b> until when · <b>iat</b> issued at · <b>aud</b> for which service · <b>iss</b> by whom · <b>jti</b> this token's id.</p>" },
+    { q: "Four tokens given to PyJWT: valid, expired a second ago, another key, no algorithms= passed. Results?", tag: "numbers",
+      a: "<p>Accepted · <b>ExpiredSignatureError</b> · <b>InvalidSignatureError</b> · <b>DecodeError</b>: you must pass algorithms.</p>" },
+    { q: "Why must the server name the algorithm rather than read it from the header?", tag: "trap",
+      a: "<p>The header was <b>written by whoever made the token</b>. Letting it choose how to verify lets the token judge itself.</p>" },
+    { q: "Write a strict decode: HS256, require exp and sub, for this service, 30 s skew.", tag: "apply",
+      a: "<p><code>jwt.decode(t, key, algorithms=[\"HS256\"], options={\"require\": [\"exp\", \"sub\"]}, audience=\"kuantorflow\", leeway=30)</code></p>" },
+  ]},
+  { title: "Signing out, and where tokens live", note: "Slides 8–10.", qs: [
+    { q: "After the user presses Sign out, what did each design do?", tag: "numbers",
+      a: "<p>Server-side session: <b>gone</b>. JWT: <b>still verifies</b>, until exp 15 minutes later. JWT with its jti on a denylist: <b>refused</b> — after a server-side lookup.</p>" },
+    { q: "Why does a JWT survive sign-out?",
+      a: "<p>It is valid because of <b>what it contains</b>. Nothing on the server changed, so nothing about the token did.</p>" },
+    { q: "Describe the access-and-refresh design and its worst case.", tag: "apply",
+      a: "<p><b>Access token</b>: minutes, checked without a lookup. <b>Refresh token</b>: days, stored server-side, deleted on sign-out, <b>rotated on every use</b>. Worst case: <b>one access token's lifetime</b>.</p>" },
+    { q: "When is that design overkill?", tag: "trap",
+      a: "<p><b>One server and one browser.</b> A server-side or signed session is simpler. It earns its keep with many services or mobile clients.</p>" },
+    { q: "HttpOnly cookie or localStorage for a token in a browser app — and why?",
+      a: "<p><b>HttpOnly cookie.</b> Page JavaScript — including injected script — cannot read it; its risk, CSRF, has SameSite and tokens. localStorage is readable by any script on the page.</p>" },
+  ]},
+  { title: "Cost and keys", note: "Slides 11–12.", qs: [
+    { q: "Per check: dict lookup, SQLite lookup over 10,000 sessions, PyJWT HS256, PyJWT RS256?", tag: "numbers",
+      a: "<p><b>0.12</b>, <b>3.36</b>, <b>93.41</b> and <b>129.99</b> µs.</p>" },
+    { q: "Is a JWT faster than a session lookup?", tag: "trap",
+      a: "<p><b>Not locally</b> — the SQLite lookup beat it. What a token saves is a <b>network round trip to a shared store</b>, and only when there is one. Choose on revocation and architecture.</p>" },
+    { q: "HS256 or RS256 — what is the real question?",
+      a: "<p><b>Who should be able to mint a token.</b> HS256: whoever can verify can also sign. RS256: a private key signs, a public key verifies — many services can check, none can forge.</p>" },
+    { q: "How can your server check a Google ID token without sharing a secret with Google?",
+      a: "<p>Google signs with its <b>private key</b> and <b>publishes the public keys</b> at a well-known URL (OpenID Connect discovery).</p>" },
+  ]},
+  { title: "Signing in with Google", note: "Slides 13–17.", qs: [
+    { q: "OAuth 2.0 or OpenID Connect: what does each answer and produce?",
+      a: "<p><b>OAuth 2.0</b>: may this app act on my behalf? → an <b>access token</b> for an API.<br><b>OIDC</b>: who is this person? → an <b>ID token</b>, a JWT about the user.</p>" },
+    { q: "Put the code flow's five steps in order.",
+      a: "<p><b>1</b> redirect with client_id, redirect_uri, scope, state, PKCE challenge · <b>2</b> user signs in on Google · <b>3</b> back with code + state — check state · <b>4</b> swap code for tokens server-to-server · <b>5</b> verify the ID token, start your own session.</p>" },
+    { q: "What do state and PKCE each prevent?",
+      a: "<p><b>state</b>: a callback this browser did not start. <b>PKCE</b>: a code copied in transit being usable — it needs the verifier.</p>" },
+    { q: "How is a PKCE code_challenge computed, and did the script match the RFC?", tag: "numbers",
+      a: "<p><b>base64url(sha256(verifier))</b>, no padding. It matched RFC 7636's example: <b>True</b> — after the draft's value from memory printed False.</p>" },
+    { q: "Why key users on sub, not email?", tag: "apply",
+      a: "<p><b>sub</b> is Google's permanent account id. People change email; keyed on email, the change creates a <b>second, empty account</b> (#148).</p>" },
+    { q: "What is bool(\"false\"), and why does it matter here?", tag: "trap",
+      a: "<p><b>True.</b> email_verified sometimes arrives as a string, and the admin check depends on it — so it is <b>compared</b>, never tested for truthiness (#158).</p>" },
+  ]},
+  { title: "Reset links and second factors", note: "Slides 18–19.", qs: [
+    { q: "How should a password-reset token be stored, and what did the demo show?", tag: "numbers",
+      a: "<p>Store its <b>sha256</b>, never the token. First use <b>accepted</b>, second use <b>refused</b>, the stored hash presented as a token <b>refused</b>.</p>" },
+    { q: "Why is a fast hash fine for a reset token but not for a password?", tag: "trap",
+      a: "<p>The token is <b>256 random bits</b>, not a human's guessable password — there is nothing to guess faster.</p>" },
+    { q: "What should the reset form say for an address with no account?",
+      a: "<p>The same as for one with an account: <b>\"If that address has an account, we have sent a link.\"</b></p>" },
+    { q: "How does TOTP work, and how was the ten-line version checked?",
+      a: "<p>HMAC of <b>time ÷ 30 s</b> with a shared secret, cut to six digits. It matched <b>all six</b> RFC 6238 SHA-1 test vectors.</p>" },
+  ]},
+  { title: "Habits that backfire", note: "Slide 20. Checked against NIST SP 800-63B.", qs: [
+    { q: "Why does a 90-day expiry make passwords weaker, and what replaces it?", tag: "trap",
+      a: "<p>People rotate predictably — <b>Spring2026!</b> becomes <b>Summer2026!</b>. Change only on <b>evidence of compromise</b>, and refuse passwords on breach lists.</p>" },
+    { q: "NIST's minimum length for a password used on its own, and with a second factor?", tag: "numbers",
+      a: "<p><b>15</b> characters alone; <b>8</b> as part of MFA. Accept at least <b>64</b>, and no mix-of-character rules.</p>" },
+    { q: "What did bcrypt do with a password longer than 72 bytes?", tag: "numbers",
+      a: "<p><b>bcrypt 4.3</b>: accepted a <b>different</b> password sharing the first 72 bytes. <b>bcrypt 5.0</b>: refuses to hash it (ValueError). scrypt and Argon2 have no such limit.</p>" },
+    { q: "Why is locking an account after three failures a bad idea, and what instead?", tag: "trap",
+      a: "<p>Anyone can <b>lock a real user out</b>, and one password tried across many accounts <b>never trips it</b>. Slow down per account <b>and</b> per address; NIST locks only at <b>100</b> in a row.</p>" },
+    { q: "SMS codes are weak — should you remove them?", tag: "apply",
+      a: "<p><b>Not before a replacement exists.</b> SIM swaps and phishing relays defeat them, so move to <b>passkeys</b> or an authenticator app — but SMS still beats no second factor.</p>" },
+    { q: "If an attacker can run script on your page, does an HttpOnly cookie still help?",
+      a: "<p>Partly. They can <b>act as the user from inside the page</b> either way; the cookie stops the token being <b>copied out and used elsewhere</b>. Short lifetimes and CSP matter either way.</p>" },
+  ]},
+];
+
+const quiz = document.getElementById("quiz");
+const state = new Map();
+let n = 0;
+const total = ACTS.reduce((s, a) => s + a.qs.length, 0);
+
+ACTS.forEach((act, ai) => {
+  const h = document.createElement("h2");
+  h.innerHTML = `${act.title} <em>Act ${ai + 1}</em>`;
+  quiz.appendChild(h);
+  const note = document.createElement("p");
+  note.className = "act-note";
+  note.textContent = act.note;
+  quiz.appendChild(note);
+
+  act.qs.forEach(item => {
+    n += 1;
+    const id = n;
+    const card = document.createElement("section");
+    card.className = "q";
+    card.dataset.id = id;
+    const tag = item.tag ? `<span class="tag ${item.tag}">${item.tag}</span>` : "";
+    card.innerHTML = `
+      <div class="qhead">
+        <span class="num">${String(id).padStart(2, "0")}</span>
+        <p class="prompt">${item.q}${tag}</p>
+      </div>
+      <div class="a" id="a${id}" hidden>
+        ${item.a}${item.why ? `<span class="why">${item.why}</span>` : ""}
+      </div>
+      <div class="actions">
+        <button class="reveal" type="button">Show answer</button>
+        <button class="mark yes" type="button" aria-pressed="false" hidden>Got it</button>
+        <button class="mark nope" type="button" aria-pressed="false" hidden>Missed</button>
+      </div>`;
+    quiz.appendChild(card);
+
+    const ans = card.querySelector(".a");
+    const reveal = card.querySelector(".reveal");
+    const yes = card.querySelector(".mark.yes");
+    const nope = card.querySelector(".mark.nope");
+
+    reveal.addEventListener("click", () => {
+      const open = !ans.hidden;
+      ans.hidden = open;
+      reveal.textContent = open ? "Show answer" : "Hide answer";
+      yes.hidden = nope.hidden = open;
+    });
+    const mark = (v) => {
+      state.set(id, state.get(id) === v ? null : v);
+      const cur = state.get(id);
+      card.dataset.state = cur || "";
+      yes.setAttribute("aria-pressed", String(cur === "ok"));
+      nope.setAttribute("aria-pressed", String(cur === "no"));
+      score();
+    };
+    yes.addEventListener("click", () => mark("ok"));
+    nope.addEventListener("click", () => mark("no"));
+  });
+});
+
+const elDone = document.getElementById("done");
+const elRight = document.getElementById("right");
+const elWrong = document.getElementById("wrong");
+const fill = document.getElementById("fill");
+const verdict = document.getElementById("verdict");
+const missedList = document.getElementById("missed");
+
+function score() {
+  let ok = 0, no = 0;
+  state.forEach(v => { if (v === "ok") ok++; else if (v === "no") no++; });
+  const done = ok + no;
+  elDone.textContent = done;
+  elRight.textContent = ok;
+  elWrong.textContent = no;
+  fill.style.width = `${(done / total) * 100}%`;
+
+  missedList.innerHTML = "";
+  if (!done) {
+    verdict.textContent = "Nothing answered yet.";
+    missedList.hidden = true;
+    return;
+  }
+  const pct = Math.round((ok / done) * 100);
+  verdict.innerHTML = done === total
+    ? `All ${total} answered — <b>${ok} right, ${no} missed (${pct}%)</b>.`
+    : `<b>${done} of ${total}</b> answered — ${ok} right, ${no} missed (${pct}%).`;
+
+  const misses = [];
+  state.forEach((v, id) => { if (v === "no") misses.push(id); });
+  if (misses.length) {
+    missedList.hidden = false;
+    misses.sort((a, b) => a - b).forEach(id => {
+      const li = document.createElement("li");
+      const p = document.querySelector(`.q[data-id="${id}"] .prompt`);
+      li.textContent = `${String(id).padStart(2, "0")} — ${p.textContent.replace(/\s*(numbers|trap|apply)\s*$/, "")}`;
+      li.style.cursor = "pointer";
+      li.addEventListener("click", () => {
+        document.querySelector(`.q[data-id="${id}"]`).scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+      missedList.appendChild(li);
+    });
+  } else {
+    missedList.hidden = true;
+  }
+}
+
+document.getElementById("reset").addEventListener("click", () => {
+  state.clear();
+  document.querySelectorAll(".q").forEach(c => {
+    c.dataset.state = "";
+    c.querySelector(".a").hidden = true;
+    c.querySelector(".reveal").textContent = "Show answer";
+    c.querySelector(".mark.yes").hidden = true;
+    c.querySelector(".mark.nope").hidden = true;
+    c.querySelectorAll(".mark").forEach(b => b.setAttribute("aria-pressed", "false"));
+  });
+  score();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+score();
+</script>
+
+</body>
+</html>

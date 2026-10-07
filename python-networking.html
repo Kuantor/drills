@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta property="og:title" content="Networking Drill — Ship It Live!" />
+<meta property="og:description" content="Interactive self-test: Networking." />
+<meta property="og:image" content="https://kuantor.github.io/drills/background.jpg" />
+<meta property="og:url" content="https://kuantor.github.io/drills/python-networking.html" />
+<meta property="og:type" content="website" />
+<style>
+  :root{
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  body{margin:0}
+  img{max-width:100%}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+<title>Networking Drill</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a single reading column of question cards, grouped into seven acts
+   that follow the talk. Palette lifted from the Ship It Live deck builder so
+   this reads as part of the series: roasted brown ground, brass accents. */
+:root{
+  --ground:#1A150E;
+  --surface:#262014;
+  --card:#312918;
+  --edge:#4A3D22;
+  --cream:#F1EADA;
+  --tan:#AC9F84;
+  --gold:#C8A24B;
+  --gold-lt:#E8CD86;
+  --teal:#6FB0A6;
+  --terra:#D0845A;
+  --sage:#8BA678;
+  --serif:"Source Serif 4",Cambria,Georgia,serif;
+  --sans:"Public Sans",Calibri,-apple-system,system-ui,sans-serif;
+  --mono:"IBM Plex Mono",Consolas,ui-monospace,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  background:var(--ground);color:var(--cream);font-family:var(--sans);
+  font-size:16px;line-height:1.55;margin:0;
+}
+.wrap{max-width:780px;margin:0 auto;padding-inline:16px;padding-block:40px 64px}
+
+header h1{
+  font-family:var(--serif);font-weight:700;color:var(--gold);
+  font-size:clamp(2rem,7vw,3rem);line-height:1.05;margin:0 0 .3em;text-wrap:balance;
+}
+.kicker{
+  font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--tan);margin:0 0 1.6rem;
+}
+.lede{color:var(--tan);font-size:1.05rem;margin:0 0 2rem;max-width:62ch}
+.lede strong{color:var(--cream);font-weight:600}
+
+.board{
+  position:sticky;top:env(safe-area-inset-top,0px);z-index:10;
+  background:var(--surface);border:1px solid var(--edge);border-radius:10px;
+  padding:14px 16px;margin-bottom:2.4rem;
+  display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;
+}
+.tally{display:flex;gap:18px;flex:1 1 auto;min-width:0}
+.stat{display:flex;flex-direction:column;line-height:1.15}
+.stat b{
+  font-family:var(--mono);font-size:1.25rem;font-weight:500;
+  font-variant-numeric:tabular-nums;color:var(--gold-lt);
+}
+.stat span{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--tan)}
+.stat.ok b{color:var(--sage)}
+.stat.no b{color:var(--terra)}
+.bar{flex:1 1 100%;height:4px;background:var(--edge);border-radius:2px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--gold);transition:width .3s ease}
+button{font-family:var(--sans);font-size:.85rem;cursor:pointer;border-radius:7px;transition:background .15s,border-color .15s,color .15s}
+button:focus-visible{outline:2px solid var(--gold-lt);outline-offset:2px}
+.ghost{background:transparent;border:1px solid var(--edge);color:var(--tan);padding:7px 13px}
+.ghost:hover{border-color:var(--gold);color:var(--gold-lt)}
+
+h2{
+  font-family:var(--serif);font-size:1.45rem;font-weight:600;color:var(--gold);
+  margin:2.8rem 0 .2rem;display:flex;align-items:baseline;gap:.6rem;text-wrap:balance;
+}
+h2 em{
+  font-family:var(--mono);font-style:normal;font-size:.7rem;color:var(--tan);
+  letter-spacing:.1em;flex:0 0 auto;
+}
+.act-note{color:var(--tan);font-size:.9rem;margin:0 0 1.4rem}
+
+.q{background:var(--card);border:1px solid var(--edge);border-radius:10px;padding:18px 20px;margin-bottom:14px}
+.q[data-state="ok"]{border-color:color-mix(in srgb,var(--sage) 55%,var(--edge))}
+.q[data-state="no"]{border-color:color-mix(in srgb,var(--terra) 55%,var(--edge))}
+.qhead{display:flex;gap:12px;align-items:flex-start}
+.num{
+  font-family:var(--mono);font-size:.78rem;color:var(--gold);
+  flex:0 0 auto;padding-top:.2em;font-variant-numeric:tabular-nums;
+}
+.prompt{margin:0;flex:1 1 auto;min-width:0;font-size:1rem}
+.prompt code,.a code{
+  font-family:var(--mono);font-size:.86em;background:var(--ground);
+  border:1px solid var(--edge);border-radius:4px;padding:.08em .35em;color:var(--gold-lt);
+}
+.tag{
+  display:inline-block;font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;
+  text-transform:uppercase;padding:.2em .5em;border-radius:4px;margin-left:.5rem;
+  vertical-align:.12em;border:1px solid;
+}
+.tag.numbers{color:var(--gold-lt);border-color:color-mix(in srgb,var(--gold) 45%,transparent)}
+.tag.trap{color:var(--terra);border-color:color-mix(in srgb,var(--terra) 45%,transparent)}
+.tag.apply{color:var(--teal);border-color:color-mix(in srgb,var(--teal) 45%,transparent)}
+
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;padding-left:calc(.78rem + 12px)}
+.reveal{background:transparent;border:1px solid var(--gold);color:var(--gold-lt);padding:7px 15px}
+.reveal:hover{background:color-mix(in srgb,var(--gold) 14%,transparent)}
+.mark{border:1px solid var(--edge);background:transparent;padding:7px 15px}
+.mark.yes{color:var(--sage)}
+.mark.yes:hover,.mark.yes[aria-pressed="true"]{background:color-mix(in srgb,var(--sage) 18%,transparent);border-color:var(--sage)}
+.mark.nope{color:var(--terra)}
+.mark.nope:hover,.mark.nope[aria-pressed="true"]{background:color-mix(in srgb,var(--terra) 18%,transparent);border-color:var(--terra)}
+
+.a{
+  margin:14px 0 0;padding:14px 16px;background:var(--ground);
+  border-left:3px solid var(--gold);border-radius:0 7px 7px 0;font-size:.96rem;
+}
+.a p{margin:0 0 .7em}
+.a p:last-child{margin-bottom:0}
+.a b{color:var(--gold-lt);font-weight:600}
+.a .why{color:var(--tan);font-size:.9rem;display:block;margin-top:.7em;padding-top:.7em;border-top:1px solid var(--edge)}
+
+details.ref{margin-top:3rem;border:1px solid var(--edge);border-radius:10px;background:var(--surface)}
+details.ref summary{
+  cursor:pointer;padding:14px 18px;font-family:var(--mono);font-size:.78rem;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--gold);
+}
+details.ref summary:focus-visible{outline:2px solid var(--gold-lt);outline-offset:-2px}
+.tablewrap{overflow-x:auto;padding:0 18px 18px}
+table{border-collapse:collapse;width:100%;min-width:460px;font-size:.92rem}
+th,td{text-align:right;padding:8px 10px;border-bottom:1px solid var(--edge)}
+th:first-child,td:first-child{text-align:left}
+thead th{color:var(--tan);font-weight:500;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase}
+tbody td{font-family:var(--mono);font-variant-numeric:tabular-nums}
+tbody td:first-child{font-family:var(--sans)}
+.win{color:var(--sage)}
+.lose{color:var(--terra)}
+.refnote{padding:0 18px 18px;margin:0;color:var(--tan);font-size:.85rem}
+
+footer{margin-top:3rem;padding-top:1.6rem;border-top:1px solid var(--edge);color:var(--tan);font-size:.88rem}
+footer b{color:var(--gold-lt)}
+#missed{margin:.8rem 0 0;padding-left:1.1rem}
+#missed li{margin-bottom:.3rem}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+<header>
+  <p class="kicker">Ship It Live! &middot; self-test</p>
+  <h1>Networking Drill</h1>
+  <p class="lede">Thirty-nine questions on <strong>Networking &mdash; From localhost to Production</strong>. Answer out loud before revealing, then mark yourself honestly. The hinge is <strong>197 ms for a 1,067-byte page</strong>: almost all of it waiting. The trap most people fall into on a first deploy is <strong>127.0.0.1</strong>.</p>
+</header>
+
+<div class="board">
+  <div class="tally">
+    <div class="stat"><b id="done">0</b><span>answered</span></div>
+    <div class="stat ok"><b id="right">0</b><span>got it</span></div>
+    <div class="stat no"><b id="wrong">0</b><span>missed</span></div>
+  </div>
+  <button class="ghost" id="reset">Reset</button>
+  <div class="bar"><i id="fill"></i></div>
+</div>
+
+<main id="quiz"></main>
+
+<details class="ref">
+  <summary>Reference &mdash; every measured number in the talk</summary>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>One HTTPS request</th><th>Median</th><th>Range</th></tr></thead>
+    <tbody>
+      <tr><td>DNS, from the cache</td><td>0.5 ms</td><td>0.3&ndash;18.9</td></tr>
+      <tr><td>TCP connect</td><td>40.5 ms</td><td>33.6&ndash;47.1</td></tr>
+      <tr><td>TLS handshake</td><td>56.9 ms</td><td>54.6&ndash;70.6</td></tr>
+      <tr><td>request &rarr; first byte</td><td>97.1 ms</td><td>92.0&ndash;100.1</td></tr>
+      <tr><td>rest of the page</td><td class="win">under 0.1 ms</td><td>0.0&ndash;0.1</td></tr>
+      <tr><td>total</td><td class="lose">197.4 ms</td><td>184.2&ndash;233.3</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>One round trip to</th><th>Median</th><th>At most</th></tr></thead>
+    <tbody>
+      <tr><td>this laptop (127.0.0.1)</td><td>0.28 ms</td><td>no distance</td></tr>
+      <tr><td>nearest Cloudflare server</td><td class="win">1.65 ms</td><td>~165 km</td></tr>
+      <tr><td>example.com, port 443</td><td class="lose">23.75 ms</td><td>~2,375 km</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Also measured</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr><td>DNS question / answer</td><td>29 / 61 bytes, TTL 291 s</td></tr>
+      <tr><td>DNS: resolver / OS cache</td><td>4.0 / 0.5 ms</td></tr>
+      <tr><td>HTTP request / response</td><td>82 / 1,067 bytes</td></tr>
+      <tr><td>10 requests: 10 connections / 1</td><td>1,304 / 432 ms &mdash; 3.0&times;</td></tr>
+      <tr><td>local HTTP request</td><td>2.10 ms &mdash; 94&times; faster than the real page</td></tr>
+      <tr><td>never-answering address</td><td>2.0 s with timeout=2 &middot; 21.0 s without</td></tr>
+      <tr><td>bound to 127.0.0.1 / 0.0.0.0</td><td>network address: failed / connected</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="refnote">Medians of 8 runs by <code>net_bench.py</code> from one laptop on 2 October 2026; the run is saved as <code>net_bench_output.txt</code>. Your connection will give different numbers &mdash; run the script.</p>
+</details>
+
+<footer>
+  <p id="verdict">Nothing answered yet.</p>
+  <ul id="missed" hidden></ul>
+</footer>
+</div>
+
+<script>
+const ACTS = [
+  { title: "Why, and the journey", note: "Slides 2–4. The thesis, the five steps, the layers.", qs: [
+    { q: "Does a full stack developer need networking — and how deeply?",
+      a: "<p><b>Yes</b> — not with a network engineer's or sysadmin's depth, but networking is <b>what bridges code on your laptop and an application in production</b>.</p><p>It shows up in three places: <b>frontend to backend</b> (HTTP, CORS, WebSockets), <b>containers and cloud</b> (Docker networks, ports, subnets), and <b>security and performance</b> (TLS, proxies, round trips).</p>" },
+    { q: "Name the five steps of one HTTPS request, in order.", tag: "numbers",
+      a: "<p><b>1. DNS</b> — find the address.<br><b>2. TCP</b> — open a connection: a handshake, one round trip.<br><b>3. TLS</b> — prove identity and agree keys: at least one more round trip.<br><b>4. HTTP</b> — send the request as text, wait for the response.<br><b>5. Keep or close</b> — reuse the connection, or pay for 2 and 3 again.</p>" },
+    { q: "Name the four layers and the one job of each.",
+      a: "<p><b>HTTP</b> — what you are asking for, and the answer.<br><b>TLS</b> — privacy, and proof of who the server is.<br><b>TCP / UDP</b> — a reliable ordered stream, or single packets.<br><b>IP</b> — getting a packet to the right machine.</p><p>Each layer does one job and trusts the one beneath it.</p>" },
+    { q: "A ConnectionError, an SSLError and a 500. What is each telling you?", tag: "apply",
+      a: "<p>Three <b>different layers</b>: the connection could not be made; the TLS handshake or certificate check failed; the server was reached, understood you, and <b>failed on its side</b>.</p><p>One <code>requests.get()</code> uses all four layers, which is why it can fail in four different ways. <b>Read which layer it is before fixing anything.</b></p>" },
+  ]},
+  { title: "Addresses, ports and DNS", note: "Slides 5–7. Who is where, and how names become numbers.", qs: [
+    { q: "What does the address pick, and what does the port pick?",
+      a: "<p>The <b>address picks the machine</b>; the <b>port picks the program</b> on it.</p><p>And a connection is <b>four numbers</b> — your address and port, and theirs — which is how one server holds thousands of connections on the same port 443 at once.</p>" },
+    { q: "Who usually listens on 22, 53, 443, 5000, 8000, 5432 and 6379?", tag: "numbers",
+      a: "<p><b>22</b> SSH · <b>53</b> DNS · <b>80 / 443</b> HTTP / HTTPS · <b>5000</b> Flask's development server · <b>8000</b> Django, Uvicorn, Gunicorn · <b>5432</b> PostgreSQL · <b>3306</b> MySQL · <b>6379</b> Redis.</p>" },
+    { q: "Which address ranges are private, and why does a server never see yours?",
+      a: "<p><b>10.x</b>, <b>172.16–31.x</b> and <b>192.168.x</b>. Your home router swaps the private address for <b>one public address</b> on the way out, so the server only ever sees the router's.</p>" },
+    { q: "&ldquo;Address already in use&rdquo; — what is almost always wrong?", tag: "trap",
+      a: "<p><b>Something is already listening on that port</b> — usually the dev server you started an hour ago and forgot. It is about the port, not really the address.</p>" },
+    { q: "The hand-built DNS question: how many bytes, and what are the three parts?", tag: "numbers",
+      a: "<p><b>29 bytes.</b> A <b>12-byte header</b> (an id, &ldquo;please recurse&rdquo;, one question); <b>13 bytes of name</b> — 7 · example · 3 · com · end; and <b>4 bytes</b> asking for type A, an IPv4 address, class IN.</p><p>The answer was <b>61 bytes</b>: two addresses, each with a <b>TTL of 291 s</b>. Resolver round trip <b>4.0 ms</b>; the OS cache <b>0.5 ms</b>.</p>" },
+    { q: "Why does a DNS change &ldquo;take time to propagate&rdquo;?", tag: "trap",
+      a: "<p><b>It does not propagate.</b> Everyone holding the old answer keeps it until its <b>TTL</b> runs out. Most DNS questions never leave your machine — they are answered from a cache somebody filled earlier.</p>" },
+    { q: "TCP or UDP: the trade, and who uses which?",
+      a: "<p><b>TCP is a phone call</b> — a handshake, then an ordered, reliable stream; costs a round trip before the first byte. HTTP/HTTPS, SSH, database connections, WebSockets.</p><p><b>UDP is a postcard</b> — no connection, no promise. DNS, voice and video, games — and <b>QUIC</b>, which carries <b>HTTP/3</b> so connection and encryption are set up together in one round trip.</p>" },
+  ]},
+  { title: "Where the time goes", note: "Slides 8–9. The measured request, and TLS.", qs: [
+    { q: "Give the measured phases of one HTTPS request to example.com.", tag: "numbers",
+      a: "<p>Median of 8: DNS from the cache <b>0.5 ms</b> (one miss took 18.9) · TCP connect <b>40.5</b> · TLS handshake <b>56.9</b> · request to first byte <b>97.1</b> · the rest of the page <b>under 0.1 ms</b> · total <b>197.4 ms</b>.</p>" },
+    { q: "Would a faster internet connection make that page much quicker?", tag: "trap",
+      a: "<p><b>Barely.</b> The page is <b>1,067 bytes</b> and arrived in under a tenth of a millisecond. Almost all of the 197 ms was <b>waiting for replies</b>.</p><p>Fewer round trips help; more bandwidth hardly does.</p>" },
+    { q: "What did the TLS handshake agree on that connection?", tag: "numbers",
+      a: "<p><b>TLS 1.3</b>, cipher <b>AES-256-GCM</b>, a certificate <b>for example.com</b> issued by <b>SSL Corporation</b>, valid until <b>25 December 2026</b>. The handshake took <b>56.9 ms</b>.</p><p>TLS 1.3 completes its handshake in <b>one round trip</b>; TLS 1.2 needed two.</p>" },
+    { q: "What does a certificate prove, and how do you get one?",
+      a: "<p>That this server <b>holds the private key for this name</b>, vouched for by a <b>certificate authority your OS already trusts</b>. Privacy is half of TLS; proof of identity is the other half.</p><p>You prove to an authority that you <b>control the domain</b>. <b>Let's Encrypt</b> does it free and automatically.</p>" },
+    { q: "A certificate error goes away with <code>verify=False</code>. Fixed?", tag: "trap",
+      a: "<p><b>No.</b> It switches off the half of TLS that tells you <b>who you are talking to</b>. The traffic is still encrypted — possibly to an impostor.</p>" },
+  ]},
+  { title: "HTTP, reuse and distance", note: "Slides 10–12. Text, connections and milliseconds.", qs: [
+    { q: "How big were the measured request and response, and what was in them?", tag: "numbers",
+      a: "<p><b>Request: 82 bytes</b> — <code>GET / HTTP/1.1</code>, the Host, a User-Agent, <code>Connection: close</code>. You could type it by hand.</p><p><b>Response: 1,067 bytes</b> — <b>342 of headers, 725 of page</b>: <code>200 OK</code>, the Content-Type, <code>Server: cloudflare</code>.</p>" },
+    { q: "Why must a GET never change anything?", tag: "trap",
+      a: "<p>Because <b>browsers, caches and crawlers repeat GETs whenever they like</b> — prefetching, retrying, indexing. GET reads; POST creates; PUT replaces; DELETE removes.</p>" },
+    { q: "What do the four status-code classes mean?",
+      a: "<p><b>2xx</b> it worked · <b>3xx</b> look somewhere else · <b>4xx</b> the request was wrong — the client's side · <b>5xx</b> the server failed — our side.</p>" },
+    { q: "Ten requests, ten connections versus one: give the numbers and the reason.", tag: "numbers",
+      a: "<p><b>Ten connections: 1,304 ms</b> (130.4 per request). <b>One kept-alive connection: 432 ms</b> (43.2 per request). <b>3.0× faster.</b></p><p>Every new connection pays for <b>TCP and TLS again</b>; a reused one pays once.</p>" },
+    { q: "A script calls <code>requests.get()</code> in a loop. What is it paying for, and what is the fix?", tag: "apply",
+      a: "<p><b>A brand-new connection every time</b> — handshakes and all. The fix is one line: <b><code>requests.Session()</code></b>, which keeps connections open.</p><p>A database pool does the same for queries; browsers do it for every page.</p>" },
+    { q: "One round trip to three places: give the medians, and what they bound.", tag: "numbers",
+      a: "<p>Light in fibre covers about <b>100 km per ms of round trip</b>, so a round trip is an <b>upper bound</b> on distance.</p><p>This laptop: <b>0.28 ms</b> — no distance, the OS's own time. Nearest Cloudflare server: <b>1.65 ms</b>, so within <b>~165 km</b> — <b>that is what a CDN is</b>. example.com on 443: <b>23.75 ms</b>.</p>" },
+    { q: "Why does everything feel instant in development?", tag: "apply",
+      a: "<p>Because <b>nothing is far away</b>. A whole HTTP request to a server on the laptop took <b>2.10 ms</b>; the real page took <b>about 94 times</b> as long.</p><p>That is where the <b>N+1 problem</b> from the ORMs talk hides: a hundred queries at a fraction of a millisecond is nothing, a hundred real round trips is not.</p>" },
+  ]},
+  { title: "CORS and WebSockets", note: "Slides 13–14. The browser's rules, and keeping the line open.", qs: [
+    { q: "Are <code>http://localhost:3000</code> and <code>http://localhost:5000</code> the same origin?", tag: "trap",
+      a: "<p><b>No.</b> An origin is <b>scheme, host and port</b> — all three. Your frontend and your API on one laptop are two origins from day one.</p>" },
+    { q: "Who enforces CORS — and why does the same request work from curl or Python?", tag: "trap",
+      a: "<p><b>The browser.</b> It will not let a page <b>read</b> a response from another origin unless that server says it may. It protects <b>the browser's user</b>, not your server — curl and Python never meet CORS, and your API received the request either way.</p>" },
+    { q: "How does a server opt in, and why do you see two requests for one JSON POST?",
+      a: "<p>It answers with <b><code>Access-Control-Allow-Origin</code></b>, naming the origin that may read it. A cross-origin JSON POST is preceded by an <b>OPTIONS preflight</b> asking permission first.</p><p>With cookies involved, name the origin exactly: a <b>wildcard <code>*</code> is refused</b>.</p>" },
+    { q: "Where do you fix a CORS error?", tag: "apply",
+      a: "<p><b>On the server that owns the data.</b> A frontend cannot grant itself permission. In Flask, <code>flask-cors</code> does it in two lines.</p>" },
+    { q: "How does a WebSocket start, when do you use one — and what is the simpler alternative?",
+      a: "<p>As an ordinary HTTP request with <b><code>Upgrade: websocket</code></b>; the server answers <b><code>101 Switching Protocols</code></b> and the same TCP connection then carries messages <b>both ways</b>. For chat, live collaboration, games.</p><p>If only the server needs to talk, <b>server-sent events</b> — one way, plain HTTP; KuantorFlow streams Mykola that way. And WebSockets need <b>ASGI</b>: WSGI cannot hold a connection open.</p>" },
+  ]},
+  { title: "Binding, Docker, cloud and proxies", note: "Slides 15–18. Who is allowed to reach what.", qs: [
+    { q: "The same server bound to 127.0.0.1, then to 0.0.0.0. What did the measurement show?", tag: "numbers",
+      a: "<p>Bound to <b>127.0.0.1</b>: reachable via 127.0.0.1, <b>not</b> via the laptop's own network address. Bound to <b>0.0.0.0</b>: reachable <b>both ways</b>.</p><p>127.0.0.1 is <b>this machine only</b>; 0.0.0.0 is <b>every network the machine is on</b>.</p>" },
+    { q: "A first Docker deploy starts cleanly, the logs look fine — and nothing can reach it. Why?", tag: "trap",
+      a: "<p>Flask's <code>app.run()</code>, Gunicorn and Uvicorn all <b>default to 127.0.0.1</b>, and inside a container 127.0.0.1 means <b>the container itself</b> — so traffic arriving through the published port finds nothing listening.</p><p>Bind <b><code>0.0.0.0</code></b>: <code>gunicorn -b 0.0.0.0:8000</code>.</p>" },
+    { q: "Why not just bind 0.0.0.0 on your laptop too?", tag: "trap",
+      a: "<p>It shows the dev server to <b>the whole café wifi</b> — and the Flask debugger is <b>a Python shell in the browser</b>. Bound to 0.0.0.0, that shell is open to everyone on the network.</p>" },
+    { q: "State the three Docker networking facts.",
+      a: "<p><b>1.</b> Inside a container, <b>localhost is the container</b> — not your laptop, not the database container.<br><b>2.</b> Containers <b>find each other by name</b>: web reaches Postgres at <code>db:5432</code>, through Docker's own DNS.<br><b>3.</b> <code>8000:8000</code> is <b>host:container</b> — and publish only what must be reached: the database needs <b>no ports line</b>.</p>" },
+    { q: "From a container: &ldquo;connection refused to localhost:5432&rdquo;. What is wrong, and the fix?", tag: "apply",
+      a: "<p>It is looking for Postgres <b>in its own container</b>. Change the host in <code>DATABASE_URL</code> from <code>localhost</code> to the service name — <b><code>db</code></b>.</p>" },
+    { q: "Describe the three tiers in the cloud, and the one rule they follow.",
+      a: "<p><b>Public subnet</b>: only the load balancer, with a public address — your DNS points at it.<br><b>Private subnet</b>: the app servers, private addresses only; the load balancer reaches port 8000.<br><b>Private subnet</b>: the database, no public address, admitting only the app on 5432.</p><p><b>Each tier accepts traffic only from the tier in front of it.</b></p>" },
+    { q: "Four jobs of a reverse proxy — and the catch it creates for your app.", tag: "apply",
+      a: "<p>It <b>ends HTTPS</b>, <b>serves static files</b>, <b>routes</b> by host or path, and <b>spreads the load</b> across workers and machines.</p><p>The catch: <code>request.remote_addr</code> becomes <b>the proxy's address</b>. Werkzeug's <b>ProxyFix</b> reads <code>X-Forwarded-For</code> — trust it only when <b>a proxy you control</b> sets it, because a client can send that header too.</p>" },
+  ]},
+  { title: "Timeouts, and what to learn", note: "Slides 19–21. The last measurement and the map.", qs: [
+    { q: "Connecting to an address that never answers: how long with a timeout, and without?", tag: "numbers",
+      a: "<p><code>timeout=2</code>: gave up after <b>2.0 s</b>. No timeout — Python's default — <b>21.0 s</b>, and only because Windows decided to; <b>Linux waits about two minutes</b> by default.</p><p><code>socket.getdefaulttimeout()</code> is <b>None</b>: as long as the system will.</p>" },
+    { q: "What is the default timeout in requests, and how should you pass one?", tag: "trap",
+      a: "<p><b>There isn't one.</b> Pass it every time, as a pair: <b><code>timeout=(3, 10)</code></b> — 3 s to connect, 10 s to read.</p>" },
+    { q: "Why is a missing timeout a site-wide problem in a web app?", tag: "apply",
+      a: "<p>One slow upstream service with no timeout <b>ties up every worker that calls it</b>. Then there are no workers left, and <b>the whole site is down because of somebody else's outage</b>.</p><p>A timeout turns &ldquo;the site is frozen&rdquo; into &ldquo;one call failed&rdquo;.</p>" },
+    { q: "What must, should and is nice to know for a full stack role?",
+      a: "<p><b>Must know</b> — web protocols: HTTP/HTTPS, REST, CORS, JSON, status codes, WebSockets; and IP and ports: IPv4, localhost vs 0.0.0.0, port forwarding, DNS basics.<br><b>Should know</b> — TCP vs UDP, the TLS handshake, basic SSH.<br><b>Nice to have</b> — reverse proxies, load balancing, CDN caching.</p>" },
+  ]},
+];
+
+const quiz = document.getElementById("quiz");
+const state = new Map();
+let n = 0;
+const total = ACTS.reduce((s, a) => s + a.qs.length, 0);
+
+ACTS.forEach((act, ai) => {
+  const h = document.createElement("h2");
+  h.innerHTML = `${act.title} <em>Act ${ai + 1}</em>`;
+  quiz.appendChild(h);
+  const note = document.createElement("p");
+  note.className = "act-note";
+  note.textContent = act.note;
+  quiz.appendChild(note);
+
+  act.qs.forEach(item => {
+    n += 1;
+    const id = n;
+    const card = document.createElement("section");
+    card.className = "q";
+    card.dataset.id = id;
+    const tag = item.tag ? `<span class="tag ${item.tag}">${item.tag}</span>` : "";
+    card.innerHTML = `
+      <div class="qhead">
+        <span class="num">${String(id).padStart(2, "0")}</span>
+        <p class="prompt">${item.q}${tag}</p>
+      </div>
+      <div class="a" id="a${id}" hidden>
+        ${item.a}${item.why ? `<span class="why">${item.why}</span>` : ""}
+      </div>
+      <div class="actions">
+        <button class="reveal" type="button">Show answer</button>
+        <button class="mark yes" type="button" aria-pressed="false" hidden>Got it</button>
+        <button class="mark nope" type="button" aria-pressed="false" hidden>Missed</button>
+      </div>`;
+    quiz.appendChild(card);
+
+    const ans = card.querySelector(".a");
+    const reveal = card.querySelector(".reveal");
+    const yes = card.querySelector(".mark.yes");
+    const nope = card.querySelector(".mark.nope");
+
+    reveal.addEventListener("click", () => {
+      const open = !ans.hidden;
+      ans.hidden = open;
+      reveal.textContent = open ? "Show answer" : "Hide answer";
+      yes.hidden = nope.hidden = open;
+    });
+    const mark = (v) => {
+      state.set(id, state.get(id) === v ? null : v);
+      const cur = state.get(id);
+      card.dataset.state = cur || "";
+      yes.setAttribute("aria-pressed", String(cur === "ok"));
+      nope.setAttribute("aria-pressed", String(cur === "no"));
+      score();
+    };
+    yes.addEventListener("click", () => mark("ok"));
+    nope.addEventListener("click", () => mark("no"));
+  });
+});
+
+const elDone = document.getElementById("done");
+const elRight = document.getElementById("right");
+const elWrong = document.getElementById("wrong");
+const fill = document.getElementById("fill");
+const verdict = document.getElementById("verdict");
+const missedList = document.getElementById("missed");
+
+function score() {
+  let ok = 0, no = 0;
+  state.forEach(v => { if (v === "ok") ok++; else if (v === "no") no++; });
+  const done = ok + no;
+  elDone.textContent = done;
+  elRight.textContent = ok;
+  elWrong.textContent = no;
+  fill.style.width = `${(done / total) * 100}%`;
+
+  missedList.innerHTML = "";
+  if (!done) {
+    verdict.textContent = "Nothing answered yet.";
+    missedList.hidden = true;
+    return;
+  }
+  const pct = Math.round((ok / done) * 100);
+  verdict.innerHTML = done === total
+    ? `All ${total} answered — <b>${ok} right, ${no} missed (${pct}%)</b>.`
+    : `<b>${done} of ${total}</b> answered — ${ok} right, ${no} missed (${pct}%).`;
+
+  const misses = [];
+  state.forEach((v, id) => { if (v === "no") misses.push(id); });
+  if (misses.length) {
+    missedList.hidden = false;
+    misses.sort((a, b) => a - b).forEach(id => {
+      const li = document.createElement("li");
+      const p = document.querySelector(`.q[data-id="${id}"] .prompt`);
+      li.textContent = `${String(id).padStart(2, "0")} — ${p.textContent.replace(/\s*(numbers|trap|apply)\s*$/, "")}`;
+      li.style.cursor = "pointer";
+      li.addEventListener("click", () => {
+        document.querySelector(`.q[data-id="${id}"]`).scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+      missedList.appendChild(li);
+    });
+  } else {
+    missedList.hidden = true;
+  }
+}
+
+document.getElementById("reset").addEventListener("click", () => {
+  state.clear();
+  document.querySelectorAll(".q").forEach(c => {
+    c.dataset.state = "";
+    c.querySelector(".a").hidden = true;
+    c.querySelector(".reveal").textContent = "Show answer";
+    c.querySelector(".mark.yes").hidden = true;
+    c.querySelector(".mark.nope").hidden = true;
+    c.querySelectorAll(".mark").forEach(b => b.setAttribute("aria-pressed", "false"));
+  });
+  score();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+score();
+</script>
+
+</body>
+</html>

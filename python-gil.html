@@ -1,0 +1,436 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta property="og:title" content="GIL Drill — Ship It Live!" />
+<meta property="og:description" content="Interactive self-test: GIL." />
+<meta property="og:image" content="https://kuantor.github.io/drills/background.jpg" />
+<meta property="og:url" content="https://kuantor.github.io/drills/python-gil.html" />
+<meta property="og:type" content="website" />
+<style>
+  :root{
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  body{margin:0}
+  img{max-width:100%}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+<title>GIL Drill</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a single reading column of question cards, grouped into seven acts
+   that follow the talk. Palette lifted from the Ship It Live deck builder so
+   this reads as part of the series: roasted brown ground, brass accents. */
+:root{
+  --ground:#1A150E;
+  --surface:#262014;
+  --card:#312918;
+  --edge:#4A3D22;
+  --cream:#F1EADA;
+  --tan:#AC9F84;
+  --gold:#C8A24B;
+  --gold-lt:#E8CD86;
+  --teal:#6FB0A6;
+  --terra:#D0845A;
+  --sage:#8BA678;
+  --serif:"Source Serif 4",Cambria,Georgia,serif;
+  --sans:"Public Sans",Calibri,-apple-system,system-ui,sans-serif;
+  --mono:"IBM Plex Mono",Consolas,ui-monospace,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  background:var(--ground);
+  color:var(--cream);
+  font-family:var(--sans);
+  font-size:16px;
+  line-height:1.55;
+  margin:0;
+}
+.wrap{max-width:780px;margin:0 auto;padding-inline:16px;padding-block:40px 64px}
+
+header h1{
+  font-family:var(--serif);font-weight:700;color:var(--gold);
+  font-size:clamp(2rem,7vw,3rem);line-height:1.05;margin:0 0 .3em;
+  text-wrap:balance;
+}
+.kicker{
+  font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--tan);margin:0 0 1.6rem;
+}
+.lede{color:var(--tan);font-size:1.05rem;margin:0 0 2rem;max-width:62ch}
+.lede strong{color:var(--cream);font-weight:600}
+
+/* scoreboard */
+.board{
+  position:sticky;top:env(safe-area-inset-top,0px);z-index:10;
+  background:var(--surface);border:1px solid var(--edge);border-radius:10px;
+  padding:14px 16px;margin-bottom:2.4rem;
+  display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;
+}
+.tally{display:flex;gap:18px;flex:1 1 auto;min-width:0}
+.stat{display:flex;flex-direction:column;line-height:1.15}
+.stat b{
+  font-family:var(--mono);font-size:1.25rem;font-weight:500;
+  font-variant-numeric:tabular-nums;color:var(--gold-lt);
+}
+.stat span{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--tan)}
+.stat.ok b{color:var(--sage)}
+.stat.no b{color:var(--terra)}
+.bar{flex:1 1 100%;height:4px;background:var(--edge);border-radius:2px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--gold);transition:width .3s ease}
+button{font-family:var(--sans);font-size:.85rem;cursor:pointer;border-radius:7px;transition:background .15s,border-color .15s,color .15s}
+button:focus-visible{outline:2px solid var(--gold-lt);outline-offset:2px}
+.ghost{
+  background:transparent;border:1px solid var(--edge);color:var(--tan);
+  padding:7px 13px;
+}
+.ghost:hover{border-color:var(--gold);color:var(--gold-lt)}
+
+h2{
+  font-family:var(--serif);font-size:1.45rem;font-weight:600;color:var(--gold);
+  margin:2.8rem 0 .2rem;display:flex;align-items:baseline;gap:.6rem;text-wrap:balance;
+}
+h2 em{
+  font-family:var(--mono);font-style:normal;font-size:.7rem;color:var(--tan);
+  letter-spacing:.1em;flex:0 0 auto;
+}
+.act-note{color:var(--tan);font-size:.9rem;margin:0 0 1.4rem}
+
+.q{
+  background:var(--card);border:1px solid var(--edge);border-radius:10px;
+  padding:18px 20px;margin-bottom:14px;
+}
+.q[data-state="ok"]{border-color:color-mix(in srgb,var(--sage) 55%,var(--edge))}
+.q[data-state="no"]{border-color:color-mix(in srgb,var(--terra) 55%,var(--edge))}
+.qhead{display:flex;gap:12px;align-items:flex-start}
+.num{
+  font-family:var(--mono);font-size:.78rem;color:var(--gold);
+  flex:0 0 auto;padding-top:.2em;font-variant-numeric:tabular-nums;
+}
+.prompt{margin:0;flex:1 1 auto;min-width:0;font-size:1rem}
+.prompt code,.a code{
+  font-family:var(--mono);font-size:.86em;background:var(--ground);
+  border:1px solid var(--edge);border-radius:4px;padding:.08em .35em;color:var(--gold-lt);
+}
+.tag{
+  display:inline-block;font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;
+  text-transform:uppercase;padding:.2em .5em;border-radius:4px;margin-left:.5rem;
+  vertical-align:.12em;border:1px solid;
+}
+.tag.num-tag{color:var(--gold-lt);border-color:color-mix(in srgb,var(--gold) 45%,transparent)}
+.tag.trap{color:var(--terra);border-color:color-mix(in srgb,var(--terra) 45%,transparent)}
+.tag.apply{color:var(--teal);border-color:color-mix(in srgb,var(--teal) 45%,transparent)}
+
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;padding-left:calc(.78rem + 12px)}
+.reveal{background:transparent;border:1px solid var(--gold);color:var(--gold-lt);padding:7px 15px}
+.reveal:hover{background:color-mix(in srgb,var(--gold) 14%,transparent)}
+.mark{border:1px solid var(--edge);background:transparent;padding:7px 15px}
+.mark.yes{color:var(--sage)}
+.mark.yes:hover,.mark.yes[aria-pressed="true"]{background:color-mix(in srgb,var(--sage) 18%,transparent);border-color:var(--sage)}
+.mark.nope{color:var(--terra)}
+.mark.nope:hover,.mark.nope[aria-pressed="true"]{background:color-mix(in srgb,var(--terra) 18%,transparent);border-color:var(--terra)}
+
+.a{
+  margin:14px 0 0;padding:14px 16px;background:var(--ground);
+  border-left:3px solid var(--gold);border-radius:0 7px 7px 0;
+  font-size:.96rem;
+}
+.a p{margin:0 0 .7em}
+.a p:last-child{margin-bottom:0}
+.a b{color:var(--gold-lt);font-weight:600}
+.a .why{color:var(--tan);font-size:.9rem;display:block;margin-top:.7em;padding-top:.7em;border-top:1px solid var(--edge)}
+
+/* reference table */
+details.ref{margin-top:3rem;border:1px solid var(--edge);border-radius:10px;background:var(--surface)}
+details.ref summary{
+  cursor:pointer;padding:14px 18px;font-family:var(--mono);font-size:.78rem;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--gold);
+}
+details.ref summary:focus-visible{outline:2px solid var(--gold-lt);outline-offset:-2px}
+.tablewrap{overflow-x:auto;padding:0 18px 18px}
+table{border-collapse:collapse;width:100%;min-width:420px;font-size:.92rem}
+th,td{text-align:right;padding:8px 10px;border-bottom:1px solid var(--edge)}
+th:first-child,td:first-child{text-align:left}
+thead th{color:var(--tan);font-weight:500;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase}
+tbody td{font-family:var(--mono);font-variant-numeric:tabular-nums}
+tbody td:first-child{font-family:var(--sans)}
+.win{color:var(--sage)}
+.lose{color:var(--terra)}
+.refnote{padding:0 18px 18px;margin:0;color:var(--tan);font-size:.85rem}
+
+footer{margin-top:3rem;padding-top:1.6rem;border-top:1px solid var(--edge);color:var(--tan);font-size:.88rem}
+footer b{color:var(--gold-lt)}
+#missed{margin:.8rem 0 0;padding-left:1.1rem}
+#missed li{margin-bottom:.3rem}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+<header>
+  <p class="kicker">Ship It Live! &middot; self-test</p>
+  <h1>GIL Drill</h1>
+  <p class="lede">Thirty-five questions on <strong>The GIL — Why Your Threads Are Not Running</strong>. Answer out loud before revealing, then mark yourself honestly. The four measured numbers matter most: you quote them on stage, so they need to be exact.</p>
+</header>
+
+<div class="board">
+  <div class="tally">
+    <div class="stat"><b id="done">0</b><span>answered</span></div>
+    <div class="stat ok"><b id="right">0</b><span>got it</span></div>
+    <div class="stat no"><b id="wrong">0</b><span>missed</span></div>
+  </div>
+  <button class="ghost" id="reset">Reset</button>
+  <div class="bar"><i id="fill"></i></div>
+</div>
+
+<main id="quiz"></main>
+
+<details class="ref">
+  <summary>Reference — the four numbers</summary>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Workload</th><th>Serial</th><th>4 threads</th><th>4 processes</th></tr></thead>
+    <tbody>
+      <tr><td>CPU-bound</td><td>2.83 s</td><td class="lose">2.65 s · 1.07&times;</td><td class="win">1.20 s · 2.36&times;</td></tr>
+      <tr><td>I/O-bound</td><td>3.00 s</td><td class="win">0.75 s · 3.99&times;</td><td>1.05 s · 2.85&times;</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="refnote">Means of eight runs of <code>gil_bench.py</code> on Python 3.14, eight cores. The CPU thread figure scattered between 0.98&times; and 1.15&times;; the I/O thread figure never left 3.95&times;–4.00&times;. Re-run it on the machine you present from — live numbers beat quoted ones.</p>
+</details>
+
+<footer>
+  <p id="verdict">Nothing answered yet.</p>
+  <ul id="missed" hidden></ul>
+</footer>
+</div>
+
+<script>
+const ACTS = [
+  { title: "What it actually is", note: "Slides 3–4. Precision here is what an interviewer notices.", qs: [
+    { q: "Python or CPython — which one has the GIL, and why does the distinction matter?",
+      a: "<p><b>CPython</b>, the reference implementation written in C. Python itself is a language specification — a document — and it says nothing about a GIL.</p>",
+      why: "It sets up slide 16: Jython and IronPython are the same language with no GIL." },
+    { q: "Give the one-line definition of the GIL.",
+      a: "<p>A <b>mutex, one per interpreter process</b>. A thread must hold it to execute Python bytecode — so <b>only one thread executes Python bytecode at a time</b>, no matter how many cores the machine has.</p>" },
+    { q: "Name the three things the GIL is <em>not</em>.", tag: "trap",
+      a: "<p><b>1.</b> Not a lock on your data — it does not make your code thread-safe. Threads still interleave mid-operation, so you still need your own locks.</p><p><b>2.</b> Not held continuously — the interpreter drops it every few milliseconds and immediately on any I/O.</p><p><b>3.</b> Not per machine — it is per process. Two Python programs have two GILs and use two cores.</p>",
+      why: "All three are commonly misunderstood, which is why they earn their own beat in the talk." },
+    { q: "The kitchen analogy — what are the pieces, and what is the punchline?",
+      a: "<p>A kitchen with <b>ten chefs and one knife</b>. All ten can be in the kitchen and all ten can be working — fetching, washing, waiting for the oven — but only one can be chopping, and they hand the knife over to swap.</p><p>The punchline: <b>hiring more chefs does not get the onions chopped faster, but it does get everything else done while one of them chops.</b></p>",
+      why: "That last sentence is the whole answer to when threading still helps." },
+  ]},
+  { title: "Why it exists", note: "Slide 5. A deliberate trade from the early nineties, not an oversight.", qs: [
+    { q: "What are the three things the GIL bought, in order of importance?",
+      a: "<p><b>1. Reference counting.</b> CPython frees an object when its reference count hits zero, and that counter changes on every assignment and call. Two threads touching it at once gives crashes, leaks, or objects freed while something still points at them. One global lock removes the whole class of bug.</p><p><b>2. Simplicity and single-threaded speed.</b> The alternative is a lock on every object — far more complex, and it slows down ordinary single-threaded code, which is most code.</p><p><b>3. C extensions.</b> Authors could write C without thinking about concurrent access. NumPy, SciPy and pandas exist partly because this was easy.</p>" },
+    { q: "What is the strongest evidence the trade was reasonable?",
+      a: "<p>Every serious attempt to remove the GIL before about 2023 <b>succeeded at removing it and failed on the same point</b>: the resulting interpreter was slower at single-threaded code. Which is most code. So it survived thirty years.</p>" },
+  ]},
+  { title: "The measurements", note: "Slides 6–9 and 13. Drill these until they are automatic.", qs: [
+    { q: "Describe the benchmark: the two functions, the three strategies, the machine.",
+      a: "<p><b>CPU-bound:</b> a loop summing six million squares — pure Python arithmetic, so it holds the lock throughout.<br><b>I/O-bound:</b> a sleep of three quarters of a second, standing in for a network or database wait.</p><p>Four of each, run three ways: <b>serially, across four threads, across four processes</b>. Python 3.14, eight cores, and every figure is <b>a mean of eight runs</b>.</p>" },
+    { q: "CPU-bound: serial, four threads, four processes. Give all three.", tag: "num-tag",
+      a: "<p>Serial <b>2.83 s</b> · threads <b>2.65 s</b> · processes <b>1.20 s</b> — each a mean of eight runs.</p>" },
+    { q: "Four threads on CPU-bound work — faster, slower, or about the same? Give the factor and the range.", tag: "num-tag",
+      a: "<p><b>About the same. 1.07&times;</b> on average — and across the eight runs it moved between <b>0.98&times; and 1.15&times;</b>. It scatters around one: sometimes a shade worse, sometimes a shade better, <b>never meaningfully faster</b>.</p><p>Four threads on an eight-core machine moved the number by less than the run-to-run noise. <b>Nothing happened.</b></p>",
+      why: "This is the hinge of the talk. Most people expect at least some improvement from four threads on eight cores. The honest headline is not that threads made it slower; it is that they made no difference at all." },
+    { q: "Why do four threads not help CPU-bound work at all?",
+      a: "<p>The threads spend their lives <b>taking the lock, running a few thousand bytecodes, being interrupted, and handing it back</b>. That hand-over has a small cost, and it buys nothing — only one of them was ever going to run at a time.</p><p>Eight cores on the machine. One of them was used.</p>",
+      why: "That small hand-over cost is also why a single run can come out a shade slower than serial. It is real, and it is smaller than the noise — which is why the talk quotes a mean of eight runs rather than one." },
+    { q: "Processes on CPU-bound work gave 2.36&times;, not 4&times;. Why?",
+      a: "<p><b>Starting a process is not free, and moving data in and out of it is not free either.</b> Parallelism has a floor price, and you pay it before you see any benefit.</p>" },
+    { q: "I/O-bound: serial, four threads, four processes. Give all three.", tag: "num-tag",
+      a: "<p>Serial <b>3.00 s</b> · threads <b>0.75 s</b> · processes <b>1.05 s</b> — each a mean of eight runs.</p>" },
+    { q: "Four threads on I/O-bound work — give the factor and say why it is essentially perfect.", tag: "num-tag",
+      a: "<p><b>3.99&times;.</b> Four tasks that each wait three quarters of a second finished in three quarters of a second, because <b>they all waited simultaneously</b>.</p><p>And unlike the CPU figure, <b>it barely moves</b>: across the eight runs it never left 3.95&times; to 4.00&times;.</p>" },
+    { q: "Processes on the I/O workload measured 2.85&times;. What is the lesson?", tag: "trap",
+      a: "<p>It is <b>worse than threads</b> (3.99&times;) on the same work, because processes solve a problem you do not have here and charge you the startup cost anyway.</p><p>So <b>&ldquo;use multiprocessing&rdquo; is not general advice</b> — it is advice for exactly one case.</p>" },
+  ]},
+  { title: "Why the difference", note: "Slides 10–11. The one sentence to take away.", qs: [
+    { q: "State the rule in three words, then explain the mechanism.",
+      a: "<p><b>Waiting is not executing.</b></p><p>In the CPU loop, every line is bytecode, so the thread holds the lock from beginning to end. The moment you call something that blocks — a socket read, a disk access, a sleep — <b>CPython releases the GIL before the system call and re-acquires it when the data comes back</b>. In between, other threads run. You never write any of that.</p>" },
+    { q: "If you remember one sentence from the whole talk, what is it?",
+      a: "<p><b>Threads in Python give you concurrency while waiting, not parallelism while computing.</b></p>" },
+    { q: "How does that reframe the question people usually ask?",
+      a: "<p>It is never <b>&ldquo;threads or processes?&rdquo;</b> It is <b>&ldquo;is this work waiting, or computing?&rdquo;</b> — and the tool follows from the answer.</p>" },
+    { q: "Why is Python a perfectly good language for web work, GIL and all?", tag: "apply",
+      a: "<p>Because <b>most web backends are almost entirely I/O-bound</b> — API calls, queries, file reads. The application spends its life waiting for Postgres, so <b>the limitation lands somewhere you mostly are not</b>.</p>" },
+  ]},
+  { title: "The tools, and their traps", note: "Slides 12, 14, 15.", qs: [
+    { q: "Three costs of multiprocessing.",
+      a: "<p><b>1. Startup is not free</b> — 2.36&times;, not 4&times;.<br><b>2. Memory is not shared</b> — arguments and results are pickled and copied, and for large data moving it can cost more than processing it.<br><b>3. Not everything pickles</b> — lambdas, open sockets, database connections. Pass identifiers and let each worker open its own.</p>" },
+    { q: "Why is <code>if __name__ == &quot;__main__&quot;</code> not a style convention?", tag: "trap",
+      a: "<p>On <b>Windows and macOS</b>, child processes re-import your module to find the function they are meant to run. Without the guard they re-execute your top-level code, which spawns more children, which re-import, which spawn more children.</p><p>It is a <b>fork bomb</b> — and a memorable first encounter with multiprocessing.</p>" },
+    { q: "Threading versus asyncio: what is the mechanical difference?",
+      a: "<p>Threading uses OS threads and is <b>pre-emptive</b> — the OS can switch at any moment, including mid-function, which is why you need locks around shared state.</p><p>Asyncio is one thread and <b>cooperative</b> — it switches only at an <code>await</code>. Every switch point is visible in your source, which eliminates a whole category of race condition.</p>" },
+    { q: "Does asyncio escape the GIL?", tag: "trap",
+      a: "<p><b>No.</b> Neither escapes it; both are single-core. Asyncio is <b>not a way around the lock — it is a way to hold it more efficiently while waiting</b>.</p>" },
+    { q: "What does asyncio actually buy you? Give the memory figures.", tag: "num-tag",
+      a: "<p><b>Scale.</b> A coroutine costs <b>a few hundred bytes</b>; an OS thread costs about <b>a megabyte of stack</b>. So asyncio holds thousands of concurrent connections where threads would exhaust memory at a few thousand.</p>",
+      why: "It is also why one blocking call inside an async handler stalls everything — with threads the OS would pre-empt you; with asyncio there is nobody to do that." },
+    { q: "The rule of thumb for choosing between the three.", tag: "apply",
+      a: "<p><b>A few dozen concurrent waits</b> — threads are fine.<br><b>Thousands</b> — asyncio.<br><b>Computing</b> — processes.</p>" },
+    { q: "What is the escape hatch you are already using, and which libraries use it?",
+      a: "<p><b>C extensions are allowed to release the GIL</b>, and the ones you use every day do. Multiply two NumPy matrices and execution drops into C, releases the lock, does the arithmetic, and takes the lock back.</p><p>NumPy, pandas, Pillow, cryptography, lxml, the database drivers.</p>",
+      why: "So a NumPy-heavy workload across threads genuinely parallelises, while the identical arithmetic as a Python loop does not." },
+    { q: "What do most candidates miss when asked about slow CPU-bound Python?", tag: "trap",
+      a: "<p>The first fix is usually <b>not multiprocessing</b>. It is expressing the loop as an <b>array operation</b> and letting C do it — often a hundred times faster before any parallelism is involved.</p><p><b>Vectorise before you parallelise.</b> Reach for multiprocessing when the work genuinely is your own Python and no library already does it in C.</p>" },
+  ]},
+  { title: "Other engines, and what is changing", note: "Slides 16–17.", qs: [
+    { q: "Four implementations — which have a GIL and which do not?",
+      a: "<p><b>CPython</b> — yes. <b>PyPy</b> — yes, despite the JIT.<br><b>Jython</b> (JVM) — no, it uses Java's threads. <b>IronPython</b> (.NET) — no.</p>" },
+    { q: "So why is nobody using Jython for parallel threads?",
+      a: "<p>Both GIL-free options are <b>stuck years behind on language version</b> — Jython is on <b>Python 2.7</b>. You would trade every modern language feature, and most of the ecosystem, for parallel threads. That trade is why essentially nobody made it.</p>" },
+    { q: "Free-threading: give the three dates and the two PEPs.", tag: "num-tag",
+      a: "<p><b>PEP 703</b> accepted in <b>2023</b> — make the GIL optional behind a build flag.<br><b>Python 3.13</b> shipped the first experimental free-threaded build in <b>2024</b>.<br><b>Python 3.14</b> made it officially supported — still not the default. <b>PEP 779</b> is the one that declared that.</p>" },
+    { q: "How do you check at runtime, and from which version?",
+      a: "<p><code>sys._is_gil_enabled()</code>, available from <b>3.13</b>.</p>" },
+    { q: "Four caveats on free-threading.", tag: "trap",
+      a: "<p><b>1.</b> Not the default — you install a separate build deliberately.<br><b>2.</b> Not free — removing one big lock means adding many small ones, and single-threaded code pays.<br><b>3.</b> Not yet compatible — every C extension needs updating and the ecosystem is part-way through.<br><b>4.</b> Not a reason to write threaded CPU-bound code today.</p>",
+      why: "For an interview the order matters: answer with the GIL as it is, then mention free-threading. Knowing it exists marks you as current; assuming it applies to production marks you as not." },
+  ]},
+  { title: "The payoff", note: "Slides 18–19. Where the whole thing lands.", qs: [
+    { q: "Why does <code>gunicorn --workers 4</code> say workers and not threads?", tag: "apply",
+      a: "<p>Gunicorn's default model is <b>pre-fork</b>: a master process spawns N worker processes, each a complete Python interpreter <b>with its own GIL</b>. That is the only way a Python web application uses more than one core.</p><p>And the old rule of thumb — <b>workers = 2 &times; cores + 1</b> — is a GIL workaround wearing a formula.</p>" },
+    { q: "A pool sized at ten, running on eight workers. How many connections does the database see?", tag: "num-tag",
+      a: "<p><b>Eighty, not ten.</b> Four workers means four of everything held in memory — four connection pools, not one, because they share nothing at all.</p>" },
+    { q: "Why does &ldquo;just add more threads&rdquo; work in Java or Go and quietly do nothing here?", tag: "apply",
+      a: "<p>Because those runtimes have no GIL, so their threads genuinely compute in parallel. In CPython the threads take turns on one lock, so adding more of them adds hand-over cost and no throughput.</p>",
+      why: "Being able to explain that difference is worth more in an interview than any individual fact in the talk." },
+    { q: "The ninety-second interview answer — four beats, in order, with the two numbers.",
+      a: "<p><b>1. What it is.</b> A mutex in CPython. One thread executes Python bytecode at a time, regardless of core count.</p><p><b>2. Why.</b> Reference counting would race without it, and one coarse lock was simpler and faster than locking every object.</p><p><b>3. When threading still helps.</b> I/O-bound work — the lock is released while waiting. Four threads on four waiting tasks: <b>3.99&times;</b>.</p><p><b>4. When you need processes.</b> CPU-bound pure Python. Threads measured <b>1.07&times;</b> — no better than running them one after another. Each process gets its own interpreter and its own GIL.</p>",
+      why: "Then one sentence more than they asked for: vectorise before you parallelise, and free-threaded builds exist but are not the default yet. That is what separates someone who memorised the answer from someone who understands it." },
+  ]},
+];
+
+const quiz = document.getElementById("quiz");
+const state = new Map();
+let n = 0;
+const total = ACTS.reduce((s, a) => s + a.qs.length, 0);
+
+ACTS.forEach((act, ai) => {
+  const h = document.createElement("h2");
+  h.innerHTML = `${act.title} <em>Act ${ai + 1}</em>`;
+  quiz.appendChild(h);
+  const note = document.createElement("p");
+  note.className = "act-note";
+  note.textContent = act.note;
+  quiz.appendChild(note);
+
+  act.qs.forEach(item => {
+    n += 1;
+    const id = n;
+    const card = document.createElement("section");
+    card.className = "q";
+    card.dataset.id = id;
+    const tag = item.tag
+      ? `<span class="tag ${item.tag}">${item.tag === "num-tag" ? "numbers" : item.tag === "trap" ? "trap" : "apply"}</span>`
+      : "";
+    card.innerHTML = `
+      <div class="qhead">
+        <span class="num">${String(id).padStart(2, "0")}</span>
+        <p class="prompt">${item.q}${tag}</p>
+      </div>
+      <div class="a" id="a${id}" hidden>
+        ${item.a}${item.why ? `<span class="why">${item.why}</span>` : ""}
+      </div>
+      <div class="actions">
+        <button class="reveal" type="button">Show answer</button>
+        <button class="mark yes" type="button" aria-pressed="false" hidden>Got it</button>
+        <button class="mark nope" type="button" aria-pressed="false" hidden>Missed</button>
+      </div>`;
+    quiz.appendChild(card);
+
+    const ans = card.querySelector(".a");
+    const reveal = card.querySelector(".reveal");
+    const yes = card.querySelector(".mark.yes");
+    const nope = card.querySelector(".mark.nope");
+
+    reveal.addEventListener("click", () => {
+      const open = !ans.hidden;
+      ans.hidden = open;
+      reveal.textContent = open ? "Show answer" : "Hide answer";
+      yes.hidden = nope.hidden = open;
+    });
+    const mark = (v) => {
+      state.set(id, state.get(id) === v ? null : v);
+      const cur = state.get(id);
+      card.dataset.state = cur || "";
+      yes.setAttribute("aria-pressed", String(cur === "ok"));
+      nope.setAttribute("aria-pressed", String(cur === "no"));
+      score();
+    };
+    yes.addEventListener("click", () => mark("ok"));
+    nope.addEventListener("click", () => mark("no"));
+  });
+});
+
+const elDone = document.getElementById("done");
+const elRight = document.getElementById("right");
+const elWrong = document.getElementById("wrong");
+const fill = document.getElementById("fill");
+const verdict = document.getElementById("verdict");
+const missedList = document.getElementById("missed");
+
+function score() {
+  let ok = 0, no = 0;
+  state.forEach(v => { if (v === "ok") ok++; else if (v === "no") no++; });
+  const done = ok + no;
+  elDone.textContent = done;
+  elRight.textContent = ok;
+  elWrong.textContent = no;
+  fill.style.width = `${(done / total) * 100}%`;
+
+  missedList.innerHTML = "";
+  if (!done) {
+    verdict.textContent = "Nothing answered yet.";
+    missedList.hidden = true;
+    return;
+  }
+  const pct = Math.round((ok / done) * 100);
+  verdict.innerHTML = done === total
+    ? `All ${total} answered — <b>${ok} right, ${no} missed (${pct}%)</b>.`
+    : `<b>${done} of ${total}</b> answered — ${ok} right, ${no} missed (${pct}%).`;
+
+  const misses = [];
+  state.forEach((v, id) => { if (v === "no") misses.push(id); });
+  if (misses.length) {
+    missedList.hidden = false;
+    misses.sort((a, b) => a - b).forEach(id => {
+      const li = document.createElement("li");
+      const p = document.querySelector(`.q[data-id="${id}"] .prompt`);
+      li.textContent = `${String(id).padStart(2, "0")} — ${p.textContent.replace(/\s*(numbers|trap|apply)\s*$/, "")}`;
+      li.style.cursor = "pointer";
+      li.addEventListener("click", () => {
+        document.querySelector(`.q[data-id="${id}"]`).scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+      missedList.appendChild(li);
+    });
+  } else {
+    missedList.hidden = true;
+  }
+}
+
+document.getElementById("reset").addEventListener("click", () => {
+  state.clear();
+  document.querySelectorAll(".q").forEach(c => {
+    c.dataset.state = "";
+    c.querySelector(".a").hidden = true;
+    c.querySelector(".reveal").textContent = "Show answer";
+    c.querySelector(".mark.yes").hidden = true;
+    c.querySelector(".mark.nope").hidden = true;
+    c.querySelectorAll(".mark").forEach(b => b.setAttribute("aria-pressed", "false"));
+  });
+  score();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+score();
+</script>
+
+</body>
+</html>

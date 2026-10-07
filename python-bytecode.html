@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta property="og:title" content="Bytecode Drill — Ship It Live!" />
+<meta property="og:description" content="Interactive self-test: Bytecode." />
+<meta property="og:image" content="https://kuantor.github.io/drills/background.jpg" />
+<meta property="og:url" content="https://kuantor.github.io/drills/python-bytecode.html" />
+<meta property="og:type" content="website" />
+<style>
+  :root{
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  body{margin:0}
+  img{max-width:100%}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+<title>Bytecode Drill</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a single reading column of question cards, grouped into seven acts
+   that follow the talk. Palette lifted from the Ship It Live deck builder so
+   this reads as part of the series: roasted brown ground, brass accents. */
+:root{
+  --ground:#1A150E;
+  --surface:#262014;
+  --card:#312918;
+  --edge:#4A3D22;
+  --cream:#F1EADA;
+  --tan:#AC9F84;
+  --gold:#C8A24B;
+  --gold-lt:#E8CD86;
+  --teal:#6FB0A6;
+  --terra:#D0845A;
+  --sage:#8BA678;
+  --serif:"Source Serif 4",Cambria,Georgia,serif;
+  --sans:"Public Sans",Calibri,-apple-system,system-ui,sans-serif;
+  --mono:"IBM Plex Mono",Consolas,ui-monospace,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  background:var(--ground);color:var(--cream);font-family:var(--sans);
+  font-size:16px;line-height:1.55;margin:0;
+}
+.wrap{max-width:780px;margin:0 auto;padding-inline:16px;padding-block:40px 64px}
+
+header h1{
+  font-family:var(--serif);font-weight:700;color:var(--gold);
+  font-size:clamp(2rem,7vw,3rem);line-height:1.05;margin:0 0 .3em;text-wrap:balance;
+}
+.kicker{
+  font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--tan);margin:0 0 1.6rem;
+}
+.lede{color:var(--tan);font-size:1.05rem;margin:0 0 2rem;max-width:62ch}
+.lede strong{color:var(--cream);font-weight:600}
+
+.board{
+  position:sticky;top:env(safe-area-inset-top,0px);z-index:10;
+  background:var(--surface);border:1px solid var(--edge);border-radius:10px;
+  padding:14px 16px;margin-bottom:2.4rem;
+  display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;
+}
+.tally{display:flex;gap:18px;flex:1 1 auto;min-width:0}
+.stat{display:flex;flex-direction:column;line-height:1.15}
+.stat b{
+  font-family:var(--mono);font-size:1.25rem;font-weight:500;
+  font-variant-numeric:tabular-nums;color:var(--gold-lt);
+}
+.stat span{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--tan)}
+.stat.ok b{color:var(--sage)}
+.stat.no b{color:var(--terra)}
+.bar{flex:1 1 100%;height:4px;background:var(--edge);border-radius:2px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--gold);transition:width .3s ease}
+button{font-family:var(--sans);font-size:.85rem;cursor:pointer;border-radius:7px;transition:background .15s,border-color .15s,color .15s}
+button:focus-visible{outline:2px solid var(--gold-lt);outline-offset:2px}
+.ghost{background:transparent;border:1px solid var(--edge);color:var(--tan);padding:7px 13px}
+.ghost:hover{border-color:var(--gold);color:var(--gold-lt)}
+
+h2{
+  font-family:var(--serif);font-size:1.45rem;font-weight:600;color:var(--gold);
+  margin:2.8rem 0 .2rem;display:flex;align-items:baseline;gap:.6rem;text-wrap:balance;
+}
+h2 em{
+  font-family:var(--mono);font-style:normal;font-size:.7rem;color:var(--tan);
+  letter-spacing:.1em;flex:0 0 auto;
+}
+.act-note{color:var(--tan);font-size:.9rem;margin:0 0 1.4rem}
+
+.q{background:var(--card);border:1px solid var(--edge);border-radius:10px;padding:18px 20px;margin-bottom:14px}
+.q[data-state="ok"]{border-color:color-mix(in srgb,var(--sage) 55%,var(--edge))}
+.q[data-state="no"]{border-color:color-mix(in srgb,var(--terra) 55%,var(--edge))}
+.qhead{display:flex;gap:12px;align-items:flex-start}
+.num{
+  font-family:var(--mono);font-size:.78rem;color:var(--gold);
+  flex:0 0 auto;padding-top:.2em;font-variant-numeric:tabular-nums;
+}
+.prompt{margin:0;flex:1 1 auto;min-width:0;font-size:1rem}
+.prompt code,.a code{
+  font-family:var(--mono);font-size:.86em;background:var(--ground);
+  border:1px solid var(--edge);border-radius:4px;padding:.08em .35em;color:var(--gold-lt);
+}
+.tag{
+  display:inline-block;font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;
+  text-transform:uppercase;padding:.2em .5em;border-radius:4px;margin-left:.5rem;
+  vertical-align:.12em;border:1px solid;
+}
+.tag.numbers{color:var(--gold-lt);border-color:color-mix(in srgb,var(--gold) 45%,transparent)}
+.tag.trap{color:var(--terra);border-color:color-mix(in srgb,var(--terra) 45%,transparent)}
+.tag.apply{color:var(--teal);border-color:color-mix(in srgb,var(--teal) 45%,transparent)}
+
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;padding-left:calc(.78rem + 12px)}
+.reveal{background:transparent;border:1px solid var(--gold);color:var(--gold-lt);padding:7px 15px}
+.reveal:hover{background:color-mix(in srgb,var(--gold) 14%,transparent)}
+.mark{border:1px solid var(--edge);background:transparent;padding:7px 15px}
+.mark.yes{color:var(--sage)}
+.mark.yes:hover,.mark.yes[aria-pressed="true"]{background:color-mix(in srgb,var(--sage) 18%,transparent);border-color:var(--sage)}
+.mark.nope{color:var(--terra)}
+.mark.nope:hover,.mark.nope[aria-pressed="true"]{background:color-mix(in srgb,var(--terra) 18%,transparent);border-color:var(--terra)}
+
+.a{
+  margin:14px 0 0;padding:14px 16px;background:var(--ground);
+  border-left:3px solid var(--gold);border-radius:0 7px 7px 0;font-size:.96rem;
+}
+.a p{margin:0 0 .7em}
+.a p:last-child{margin-bottom:0}
+.a b{color:var(--gold-lt);font-weight:600}
+.a .why{color:var(--tan);font-size:.9rem;display:block;margin-top:.7em;padding-top:.7em;border-top:1px solid var(--edge)}
+
+details.ref{margin-top:3rem;border:1px solid var(--edge);border-radius:10px;background:var(--surface)}
+details.ref summary{
+  cursor:pointer;padding:14px 18px;font-family:var(--mono);font-size:.78rem;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--gold);
+}
+details.ref summary:focus-visible{outline:2px solid var(--gold-lt);outline-offset:-2px}
+.tablewrap{overflow-x:auto;padding:0 18px 18px}
+table{border-collapse:collapse;width:100%;min-width:460px;font-size:.92rem}
+th,td{text-align:right;padding:8px 10px;border-bottom:1px solid var(--edge)}
+th:first-child,td:first-child{text-align:left}
+thead th{color:var(--tan);font-weight:500;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase}
+tbody td{font-family:var(--mono);font-variant-numeric:tabular-nums}
+tbody td:first-child{font-family:var(--sans)}
+.win{color:var(--sage)}
+.lose{color:var(--terra)}
+.refnote{padding:0 18px 18px;margin:0;color:var(--tan);font-size:.85rem}
+
+footer{margin-top:3rem;padding-top:1.6rem;border-top:1px solid var(--edge);color:var(--tan);font-size:.88rem}
+footer b{color:var(--gold-lt)}
+#missed{margin:.8rem 0 0;padding-left:1.1rem}
+#missed li{margin-bottom:.3rem}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+<header>
+  <p class="kicker">Ship It Live! &middot; self-test</p>
+  <h1>Bytecode Drill</h1>
+  <p class="lede">Twenty-eight questions on <strong>Bytecode &mdash; What Python Does Before It Runs Your Code</strong>. Answer out loud before revealing, then mark yourself honestly. The hinge is <strong>line 1 never ran</strong>: the whole file is compiled first &mdash; and the result keeps rewriting itself while it runs.</p>
+</header>
+
+<div class="board">
+  <div class="tally">
+    <div class="stat"><b id="done">0</b><span>answered</span></div>
+    <div class="stat ok"><b id="right">0</b><span>got it</span></div>
+    <div class="stat no"><b id="wrong">0</b><span>missed</span></div>
+  </div>
+  <button class="ghost" id="reset">Reset</button>
+  <div class="bar"><i id="fill"></i></div>
+</div>
+
+<main id="quiz"></main>
+
+<details class="ref">
+  <summary>Reference &mdash; every measured number in the talk</summary>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>KuantorFlow's source</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr><td>rounds.py: lines / tokens / AST nodes</td><td>2,261 / 11,243 / 8,815</td></tr>
+      <tr><td>rounds.py: code objects / instructions</td><td>104 / 6,998</td></tr>
+      <tr><td>parse / tree to bytecode / compile()</td><td>21.3 / 12.5 / 23.2 ms</td></tr>
+      <tr><td>load the cached bytecode</td><td class="win">0.52 ms (about 45&times;)</td></tr>
+      <tr><td>all 16 modules: compile / load</td><td>148.5 / 3.2 ms</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Behaviour</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr><td>SyntaxError on line 100: line 1 printed?</td><td class="lose">no</td></tr>
+      <tr><td>python main.py: __pycache__ holds</td><td>helper only</td></tr>
+      <tr><td>p.x: one class / two taking turns</td><td>87.1 / 104.5 ns</td></tr>
+      <tr><td>JIT on / off, median (range)</td><td>0.80&times; (0.49&ndash;1.03&times;)</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>Python 3.14.3 on Windows; from <code>compile_bench.py</code>, 5 October 2026. Absolute times moved by up to half between runs on this laptop; the ratios held.</p>
+</details>
+
+<footer>
+  <p id="verdict">Nothing answered yet.</p>
+  <ul id="missed" hidden></ul>
+</footer>
+</div>
+
+<script>
+const ACTS = [
+  { title: "Compiled, then interpreted", note: "Slides 2–3.", qs: [
+    { q: "Is Python compiled or interpreted?",
+      a: "<p><b>Both.</b> CPython compiles the whole file to bytecode, then a loop in C interprets the bytecode.</p>" },
+    { q: "A file prints on line 1 and has a SyntaxError on line 100. What do you see?", tag: "trap",
+      a: "<p><b>Nothing printed</b> — just the SyntaxError, reported on line 100. The whole file is compiled before line 1 runs.</p>" },
+    { q: "Where does Python feel line by line, and why?",
+      a: "<p>The <b>interactive prompt</b>: each line you type is compiled and run on its own.</p>" },
+    { q: "Name the seven stages, from bytes to a running instruction.",
+      a: "<p><b>Decode · tokenize · parse (AST) · symbol table · compile and optimize · cache (.pyc, imports only) · evaluate</b> — which since 3.11 also specializes.</p>" },
+  ]},
+  { title: "Tokens, trees and scopes", note: "Slides 4–6.", qs: [
+    { q: "What do the tokenizer and the parser each produce for total = price * 2?",
+      a: "<p>Tokens: <b>NAME OP NAME OP NUMBER</b>. Parser: a tree — <code>Assign(Name total, BinOp(Name price, Mult, Constant 2))</code>.</p>" },
+    { q: "How big is that for KuantorFlow's rounds.py?", tag: "numbers",
+      a: "<p>2,261 lines → <b>11,243 tokens</b>, <b>8,815 AST nodes</b>, 104 code objects, 6,998 instructions.</p>" },
+    { q: "Name two parser milestones.",
+      a: "<p><b>3.9</b>: a PEG parser (PEP 617). <b>3.12</b>: f-strings are real grammar with their own tokens.</p>" },
+    { q: "How does a plain assert in pytest show both values when it fails?", tag: "apply",
+      a: "<p>An <b>import hook</b> parses each test module, <b>rewrites every assert in the AST</b> to record its values, and caches the result as its own .pyc (<code>…cpython-314-pytest-9.1.1.pyc</code>).</p>" },
+    { q: "Why might an assert in a helper module give a poor message under pytest?", tag: "trap",
+      a: "<p>pytest rewrites only modules it <b>collects as tests</b>, unless the helper is registered with <code>register_assert_rewrite</code>.</p>" },
+    { q: "x = 1; a function prints x, then sets x = 2. What happens, and why?", tag: "trap",
+      a: "<p><b>UnboundLocalError.</b> The compiler saw an assignment to x in the function and made x <b>local everywhere in it</b>; symtable says so before anything runs, and the read is LOAD_FAST_CHECK.</p>" },
+    { q: "How do you make that function read the global?",
+      a: "<p><code>global x</code> at its top — an instruction to the <b>compiler</b>. (<code>nonlocal</code> for an enclosing function.)</p>" },
+  ]},
+  { title: "Bytecode, its cost, its cache", note: "Slides 7–10.", qs: [
+    { q: "What does the bytecode hold for SECONDS = 24 * 60 * 60, and for x in [1, 2, 3]?",
+      a: "<p>The constant <b>86400</b>; and a constant <b>tuple (1, 2, 3)</b> — a set literal becomes a <b>frozenset</b>.</p>" },
+    { q: "What do -O and -OO remove — and what rule follows?", tag: "trap",
+      a: "<p><b>-O</b>: every assert, and <code>__debug__</code> is False. <b>-OO</b>: docstrings too. So <b>never guard permissions or input with assert</b>.</p>" },
+    { q: "x = a + b in 3.14: which instructions?", tag: "numbers",
+      a: "<p><b>LOAD_FAST_BORROW_LOAD_FAST_BORROW a, b</b> (two loads fused) · <b>BINARY_OP +</b> · <b>STORE_FAST x</b>.</p>" },
+    { q: "What is in a code object?",
+      a: "<p>The bytes of its instructions, its constants, its local names (<code>co_varnames</code>), argument count — <code>func.__code__</code>.</p>" },
+    { q: "rounds.py: parse, tree to bytecode, compile(), load from cache?", tag: "numbers",
+      a: "<p><b>21.3 · 12.5 · 23.2 ms</b> against <b>0.52 ms</b> loaded — about <b>45×</b>. The whole app: 148.5 against 3.2 ms.</p>" },
+    { q: "Why is compile() in one call quicker than parse + compile apart?",
+      a: "<p>It never builds the tree as <b>Python objects</b>; ast.parse has to.</p>" },
+    { q: "What are the four fields of a .pyc header?",
+      a: "<p><b>Magic number</b> (bytecode version) · <b>flags</b> (PEP 552; 0 = timestamp) · source <b>mtime</b> · source <b>size</b>. Then the marshalled code object.</p>" },
+    { q: "You run main.py, which imports helper.py. What does __pycache__ hold?", tag: "trap",
+      a: "<p>Only <b>helper.cpython-314.pyc</b>. The script you run is compiled every time — keep it small.</p>" },
+    { q: "__pycache__ stays empty. First thing to check?", tag: "apply",
+      a: "<p><b>PYTHONDONTWRITEBYTECODE</b> — set, it silently turns the cache off.</p>" },
+  ]},
+  { title: "While it runs", note: "Slides 11–16.", qs: [
+    { q: "Does the interpreter translate bytecode into machine code?", tag: "trap",
+      a: "<p><b>No.</b> A loop in C reads each instruction and runs C that was compiled when Python was built. Only the <b>JIT</b> makes new machine code.</p>" },
+    { q: "Why are pure-Python loops slow?",
+      a: "<p>Every instruction is a <b>trip round the eval loop</b>: fetch, dispatch, run.</p>" },
+    { q: "What happens to the + in add(a, b) after 1,000 int calls, then floats, then strings?", tag: "numbers",
+      a: "<p>BINARY_OP → <b>BINARY_OP_ADD_INT</b> → <b>BINARY_OP_ADD_FLOAT</b> → <b>BINARY_OP_ADD_UNICODE</b> (PEP 659, since 3.11).</p>" },
+    { q: "One class against two identical classes taking turns, p.x in a loop?", tag: "numbers",
+      a: "<p><b>87.1 against 104.5 ns</b> a step — 20% slower for the same work: the specialized guess keeps failing. Measured in separate processes.</p>" },
+    { q: "How do you see what the specializer did?", tag: "apply",
+      a: "<p><code>dis.dis(fn, adaptive=True)</code> after the function has run.</p>" },
+    { q: "The JIT: how do you turn it on, and what did it measure?", tag: "numbers",
+      a: "<p><code>PYTHON_JIT=1</code> (available in 3.14's Windows and macOS installers, off by default). Median <b>0.80×</b> the time — ranging <b>0.49× to 1.03×</b> over 15 pairs.</p>" },
+    { q: "PyPy, Cython/mypyc, Numba: one line each.",
+      a: "<p><b>PyPy</b>: a tracing JIT for hot loops. <b>Cython/mypyc</b>: compile a module to a C extension ahead of time. <b>Numba</b>: JIT-compile chosen numerical functions.</p>" },
+    { q: "Why add python -m compileall to CI?", tag: "apply",
+      a: "<p>It <b>fails on a SyntaxError in any file</b> — including ones no test imports.</p>" },
+  ]},
+];
+
+const quiz = document.getElementById("quiz");
+const state = new Map();
+let n = 0;
+const total = ACTS.reduce((s, a) => s + a.qs.length, 0);
+
+ACTS.forEach((act, ai) => {
+  const h = document.createElement("h2");
+  h.innerHTML = `${act.title} <em>Act ${ai + 1}</em>`;
+  quiz.appendChild(h);
+  const note = document.createElement("p");
+  note.className = "act-note";
+  note.textContent = act.note;
+  quiz.appendChild(note);
+
+  act.qs.forEach(item => {
+    n += 1;
+    const id = n;
+    const card = document.createElement("section");
+    card.className = "q";
+    card.dataset.id = id;
+    const tag = item.tag ? `<span class="tag ${item.tag}">${item.tag}</span>` : "";
+    card.innerHTML = `
+      <div class="qhead">
+        <span class="num">${String(id).padStart(2, "0")}</span>
+        <p class="prompt">${item.q}${tag}</p>
+      </div>
+      <div class="a" id="a${id}" hidden>
+        ${item.a}${item.why ? `<span class="why">${item.why}</span>` : ""}
+      </div>
+      <div class="actions">
+        <button class="reveal" type="button">Show answer</button>
+        <button class="mark yes" type="button" aria-pressed="false" hidden>Got it</button>
+        <button class="mark nope" type="button" aria-pressed="false" hidden>Missed</button>
+      </div>`;
+    quiz.appendChild(card);
+
+    const ans = card.querySelector(".a");
+    const reveal = card.querySelector(".reveal");
+    const yes = card.querySelector(".mark.yes");
+    const nope = card.querySelector(".mark.nope");
+
+    reveal.addEventListener("click", () => {
+      const open = !ans.hidden;
+      ans.hidden = open;
+      reveal.textContent = open ? "Show answer" : "Hide answer";
+      yes.hidden = nope.hidden = open;
+    });
+    const mark = (v) => {
+      state.set(id, state.get(id) === v ? null : v);
+      const cur = state.get(id);
+      card.dataset.state = cur || "";
+      yes.setAttribute("aria-pressed", String(cur === "ok"));
+      nope.setAttribute("aria-pressed", String(cur === "no"));
+      score();
+    };
+    yes.addEventListener("click", () => mark("ok"));
+    nope.addEventListener("click", () => mark("no"));
+  });
+});
+
+const elDone = document.getElementById("done");
+const elRight = document.getElementById("right");
+const elWrong = document.getElementById("wrong");
+const fill = document.getElementById("fill");
+const verdict = document.getElementById("verdict");
+const missedList = document.getElementById("missed");
+
+function score() {
+  let ok = 0, no = 0;
+  state.forEach(v => { if (v === "ok") ok++; else if (v === "no") no++; });
+  const done = ok + no;
+  elDone.textContent = done;
+  elRight.textContent = ok;
+  elWrong.textContent = no;
+  fill.style.width = `${(done / total) * 100}%`;
+
+  missedList.innerHTML = "";
+  if (!done) {
+    verdict.textContent = "Nothing answered yet.";
+    missedList.hidden = true;
+    return;
+  }
+  const pct = Math.round((ok / done) * 100);
+  verdict.innerHTML = done === total
+    ? `All ${total} answered — <b>${ok} right, ${no} missed (${pct}%)</b>.`
+    : `<b>${done} of ${total}</b> answered — ${ok} right, ${no} missed (${pct}%).`;
+
+  const misses = [];
+  state.forEach((v, id) => { if (v === "no") misses.push(id); });
+  if (misses.length) {
+    missedList.hidden = false;
+    misses.sort((a, b) => a - b).forEach(id => {
+      const li = document.createElement("li");
+      const p = document.querySelector(`.q[data-id="${id}"] .prompt`);
+      li.textContent = `${String(id).padStart(2, "0")} — ${p.textContent.replace(/\s*(numbers|trap|apply)\s*$/, "")}`;
+      li.style.cursor = "pointer";
+      li.addEventListener("click", () => {
+        document.querySelector(`.q[data-id="${id}"]`).scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+      missedList.appendChild(li);
+    });
+  } else {
+    missedList.hidden = true;
+  }
+}
+
+document.getElementById("reset").addEventListener("click", () => {
+  state.clear();
+  document.querySelectorAll(".q").forEach(c => {
+    c.dataset.state = "";
+    c.querySelector(".a").hidden = true;
+    c.querySelector(".reveal").textContent = "Show answer";
+    c.querySelector(".mark.yes").hidden = true;
+    c.querySelector(".mark.nope").hidden = true;
+    c.querySelectorAll(".mark").forEach(b => b.setAttribute("aria-pressed", "false"));
+  });
+  score();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+score();
+</script>
+
+</body>
+</html>

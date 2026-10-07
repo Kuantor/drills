@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta property="og:title" content="Type Hints Drill — Ship It Live!" />
+<meta property="og:description" content="Interactive self-test: Type Hints." />
+<meta property="og:image" content="https://kuantor.github.io/drills/background.jpg" />
+<meta property="og:url" content="https://kuantor.github.io/drills/python-type-hints.html" />
+<meta property="og:type" content="website" />
+<style>
+  :root{
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  body{margin:0}
+  img{max-width:100%}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+<title>Type Hints Drill</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a single reading column of question cards, grouped into seven acts
+   that follow the talk. Palette lifted from the Ship It Live deck builder so
+   this reads as part of the series: roasted brown ground, brass accents. */
+:root{
+  --ground:#1A150E;
+  --surface:#262014;
+  --card:#312918;
+  --edge:#4A3D22;
+  --cream:#F1EADA;
+  --tan:#AC9F84;
+  --gold:#C8A24B;
+  --gold-lt:#E8CD86;
+  --teal:#6FB0A6;
+  --terra:#D0845A;
+  --sage:#8BA678;
+  --serif:"Source Serif 4",Cambria,Georgia,serif;
+  --sans:"Public Sans",Calibri,-apple-system,system-ui,sans-serif;
+  --mono:"IBM Plex Mono",Consolas,ui-monospace,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  background:var(--ground);color:var(--cream);font-family:var(--sans);
+  font-size:16px;line-height:1.55;margin:0;
+}
+.wrap{max-width:780px;margin:0 auto;padding-inline:16px;padding-block:40px 64px}
+
+header h1{
+  font-family:var(--serif);font-weight:700;color:var(--gold);
+  font-size:clamp(2rem,7vw,3rem);line-height:1.05;margin:0 0 .3em;text-wrap:balance;
+}
+.kicker{
+  font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--tan);margin:0 0 1.6rem;
+}
+.lede{color:var(--tan);font-size:1.05rem;margin:0 0 2rem;max-width:62ch}
+.lede strong{color:var(--cream);font-weight:600}
+
+.board{
+  position:sticky;top:env(safe-area-inset-top,0px);z-index:10;
+  background:var(--surface);border:1px solid var(--edge);border-radius:10px;
+  padding:14px 16px;margin-bottom:2.4rem;
+  display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;
+}
+.tally{display:flex;gap:18px;flex:1 1 auto;min-width:0}
+.stat{display:flex;flex-direction:column;line-height:1.15}
+.stat b{
+  font-family:var(--mono);font-size:1.25rem;font-weight:500;
+  font-variant-numeric:tabular-nums;color:var(--gold-lt);
+}
+.stat span{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--tan)}
+.stat.ok b{color:var(--sage)}
+.stat.no b{color:var(--terra)}
+.bar{flex:1 1 100%;height:4px;background:var(--edge);border-radius:2px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--gold);transition:width .3s ease}
+button{font-family:var(--sans);font-size:.85rem;cursor:pointer;border-radius:7px;transition:background .15s,border-color .15s,color .15s}
+button:focus-visible{outline:2px solid var(--gold-lt);outline-offset:2px}
+.ghost{background:transparent;border:1px solid var(--edge);color:var(--tan);padding:7px 13px}
+.ghost:hover{border-color:var(--gold);color:var(--gold-lt)}
+
+h2{
+  font-family:var(--serif);font-size:1.45rem;font-weight:600;color:var(--gold);
+  margin:2.8rem 0 .2rem;display:flex;align-items:baseline;gap:.6rem;text-wrap:balance;
+}
+h2 em{
+  font-family:var(--mono);font-style:normal;font-size:.7rem;color:var(--tan);
+  letter-spacing:.1em;flex:0 0 auto;
+}
+.act-note{color:var(--tan);font-size:.9rem;margin:0 0 1.4rem}
+
+.q{background:var(--card);border:1px solid var(--edge);border-radius:10px;padding:18px 20px;margin-bottom:14px}
+.q[data-state="ok"]{border-color:color-mix(in srgb,var(--sage) 55%,var(--edge))}
+.q[data-state="no"]{border-color:color-mix(in srgb,var(--terra) 55%,var(--edge))}
+.qhead{display:flex;gap:12px;align-items:flex-start}
+.num{
+  font-family:var(--mono);font-size:.78rem;color:var(--gold);
+  flex:0 0 auto;padding-top:.2em;font-variant-numeric:tabular-nums;
+}
+.prompt{margin:0;flex:1 1 auto;min-width:0;font-size:1rem}
+.prompt code,.a code{
+  font-family:var(--mono);font-size:.86em;background:var(--ground);
+  border:1px solid var(--edge);border-radius:4px;padding:.08em .35em;color:var(--gold-lt);
+}
+.tag{
+  display:inline-block;font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;
+  text-transform:uppercase;padding:.2em .5em;border-radius:4px;margin-left:.5rem;
+  vertical-align:.12em;border:1px solid;
+}
+.tag.numbers{color:var(--gold-lt);border-color:color-mix(in srgb,var(--gold) 45%,transparent)}
+.tag.trap{color:var(--terra);border-color:color-mix(in srgb,var(--terra) 45%,transparent)}
+.tag.apply{color:var(--teal);border-color:color-mix(in srgb,var(--teal) 45%,transparent)}
+
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;padding-left:calc(.78rem + 12px)}
+.reveal{background:transparent;border:1px solid var(--gold);color:var(--gold-lt);padding:7px 15px}
+.reveal:hover{background:color-mix(in srgb,var(--gold) 14%,transparent)}
+.mark{border:1px solid var(--edge);background:transparent;padding:7px 15px}
+.mark.yes{color:var(--sage)}
+.mark.yes:hover,.mark.yes[aria-pressed="true"]{background:color-mix(in srgb,var(--sage) 18%,transparent);border-color:var(--sage)}
+.mark.nope{color:var(--terra)}
+.mark.nope:hover,.mark.nope[aria-pressed="true"]{background:color-mix(in srgb,var(--terra) 18%,transparent);border-color:var(--terra)}
+
+.a{
+  margin:14px 0 0;padding:14px 16px;background:var(--ground);
+  border-left:3px solid var(--gold);border-radius:0 7px 7px 0;font-size:.96rem;
+}
+.a p{margin:0 0 .7em}
+.a p:last-child{margin-bottom:0}
+.a b{color:var(--gold-lt);font-weight:600}
+.a .why{color:var(--tan);font-size:.9rem;display:block;margin-top:.7em;padding-top:.7em;border-top:1px solid var(--edge)}
+
+details.ref{margin-top:3rem;border:1px solid var(--edge);border-radius:10px;background:var(--surface)}
+details.ref summary{
+  cursor:pointer;padding:14px 18px;font-family:var(--mono);font-size:.78rem;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--gold);
+}
+details.ref summary:focus-visible{outline:2px solid var(--gold-lt);outline-offset:-2px}
+.tablewrap{overflow-x:auto;padding:0 18px 18px}
+table{border-collapse:collapse;width:100%;min-width:460px;font-size:.92rem}
+th,td{text-align:right;padding:8px 10px;border-bottom:1px solid var(--edge)}
+th:first-child,td:first-child{text-align:left}
+thead th{color:var(--tan);font-weight:500;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase}
+tbody td{font-family:var(--mono);font-variant-numeric:tabular-nums}
+tbody td:first-child{font-family:var(--sans)}
+.win{color:var(--sage)}
+.lose{color:var(--terra)}
+.refnote{padding:0 18px 18px;margin:0;color:var(--tan);font-size:.85rem}
+
+footer{margin-top:3rem;padding-top:1.6rem;border-top:1px solid var(--edge);color:var(--tan);font-size:.88rem}
+footer b{color:var(--gold-lt)}
+#missed{margin:.8rem 0 0;padding-left:1.1rem}
+#missed li{margin-bottom:.3rem}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+<header>
+  <p class="kicker">Ship It Live! &middot; self-test</p>
+  <h1>Type Hints Drill</h1>
+  <p class="lede">Thirty-one questions on <strong>Type Hints That Do Something &mdash; Annotations at Runtime</strong>. Answer out loud before revealing, then mark yourself honestly. The hinge is <strong>recorded but not enforced</strong>; the one name worth memorising is <strong>get_type_hints()</strong>.</p>
+</header>
+
+<div class="board">
+  <div class="tally">
+    <div class="stat"><b id="done">0</b><span>answered</span></div>
+    <div class="stat ok"><b id="right">0</b><span>got it</span></div>
+    <div class="stat no"><b id="wrong">0</b><span>missed</span></div>
+  </div>
+  <button class="ghost" id="reset">Reset</button>
+  <div class="bar"><i id="fill"></i></div>
+</div>
+
+<main id="quiz"></main>
+
+<details class="ref">
+  <summary>Reference &mdash; the measured cost, and where the metadata goes</summary>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>20,000 calls &times; 7 runs</th><th>Per call</th><th>Versus bare</th></tr></thead>
+    <tbody>
+      <tr><td>undecorated</td><td class="win">0.21 &micro;s</td><td>&mdash;</td></tr>
+      <tr><td>hints read once, at decoration</td><td class="win">0.44 &micro;s</td><td>2&times; &mdash; the wrapper, not the hints</td></tr>
+      <tr><td>hints read on every call</td><td class="lose">7.60 &micro;s</td><td class="lose">36&times;, and it grows with the signature</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Reading annotations</th><th>Returns</th></tr></thead>
+    <tbody>
+      <tr><td><code>func.__annotations__</code></td><td class="lose">raw &mdash; strings under <code>from __future__</code></td></tr>
+      <tr><td><code>get_type_hints(func)</code></td><td class="win">resolved objects, metadata stripped</td></tr>
+      <tr><td><code>get_type_hints(func, include_extras=True)</code></td><td class="win">resolved, <code>Annotated[...]</code> intact</td></tr>
+      <tr><td><code>get_args(hint)</code></td><td>the pieces &mdash; <code>(int, Ge(1))</code></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="refnote">Timings from <code>bench_hints.py</code>, outputs from <code>verify_hints.py</code> &mdash; Python 3.14.3, this machine. Means over seven runs, and the ratio held in every one.</p>
+</details>
+
+<footer>
+  <p id="verdict">Nothing answered yet.</p>
+  <ul id="missed" hidden></ul>
+</footer>
+</div>
+
+<script>
+const ACTS = [
+  { title: "Recorded, never checked", note: "Slides 2–4. Half the common belief is right.", qs: [
+    { q: "Which half of &ldquo;Python ignores annotations at runtime&rdquo; is true?",
+      a: "<p><b>True:</b> nothing in the interpreter ever compares a value against its annotation. That is what gradual typing means — a deliberate promise, not an omission.</p><p><b>False:</b> that it throws them away. <b>It keeps every one</b>, in a plain dict, on the function.</p>" },
+    { q: "Where do they go, and what type is the container?", tag: "numbers",
+      a: "<p><code>func.__annotations__</code> — an <b>ordinary <code>dict</code></b>.</p><p>For <code>def greet(name: str, times: int = 1) -> str</code> it holds <code>{'name': str, 'times': int, 'return': str}</code>, with the <b>actual classes</b>, not strings.</p>" },
+    { q: "Where does the return type live, and why is the key safe?",
+      a: "<p>Under the key <code>'return'</code> — which is safe because <b><code>return</code> is a keyword</b>, so no parameter can ever be called that.</p>" },
+    { q: "What does <code>from __future__ import annotations</code> change?", tag: "trap",
+      a: "<p>Every annotation is stored as a <b>string</b>. Not the class <code>str</code> — the three-character string <code>'str'</code>. Check with <code>is</code> and you get <b>False</b>.</p>" },
+    { q: "Name a reason to turn it on, and the reason it is dangerous for a library author.", tag: "trap",
+      a: "<p><b>On:</b> forward references need no quotes, a class can name itself, import cycles stop mattering to the checker, nothing is evaluated at import time.</p><p><b>Dangerous:</b> <b>you cannot know which mode your caller's module is in.</b> Both are legal, both common, and your code must work either way — which is why you never read the raw dict.</p>" },
+  ]},
+  { title: "The one function", note: "Slide 5. If you remember one name, this is it.", qs: [
+    { q: "What is it, and what are the three things it does for you?",
+      a: "<p><code>typing.get_type_hints()</code>.</p><p><b>1.</b> Evaluates each string in <b>the namespace the function was defined in</b>, so a name only visible there still resolves.<br><b>2.</b> Walks a class's whole <b>MRO</b> and merges inherited annotations.<br><b>3.</b> Behaves <b>identically whether or not the future import is on</b> — your code stops caring.</p>" },
+    { q: "State the rule in one sentence.", tag: "apply",
+      a: "<p><b>Never read <code>__annotations__</code> directly. Call <code>get_type_hints()</code> instead</b> — and a whole category of bug never happens to you.</p>" },
+    { q: "When does it raise, and is that wrong?",
+      a: "<p><code>NameError</code>, when a name genuinely cannot be resolved — typically one imported only under <code>TYPE_CHECKING</code>.</p><p><b>That is correct behaviour</b>, and it is the trade you accept for breaking an import cycle that way.</p>" },
+  ]},
+  { title: "Building on it", note: "Slides 6–8. A validator, a framework, and the hook.", qs: [
+    { q: "Two stdlib functions are enough to build a checking decorator. Name both and what each does.",
+      a: "<p><code>get_type_hints(func)</code> for the types, and <code>inspect.signature(func)</code> for the hard part — <b>binding incoming arguments to parameter names</b>, including <code>apply_defaults()</code> for the ones nobody passed.</p>" },
+    { q: "Where in that decorator must the hints be resolved, and why?", tag: "trap",
+      a: "<p><b>Once, at decoration time</b>, closed over by the wrapper.</p><p>Resolving per call is <b>36× the cost of the bare call</b> — the single mistake that gives runtime typing its reputation for being slow.</p>" },
+    { q: "How does FastAPI decide where <code>card_id: int</code> comes from?", tag: "apply",
+      a: "<p>A rule per annotation. <b>Named in the path template</b> → parse from the URL, coerce, 422 if it will not. <b>Scalar with a default, not in the path</b> → a query parameter. <b>A Pydantic model</b> → parse the request body as JSON.</p><p><b>The signature you were going to write anyway is read as a specification.</b></p>" },
+    { q: "One source, how many outputs?", tag: "numbers",
+      a: "<p><b>Four</b> — routing and parsing, the OpenAPI document, the interactive docs page, and editor completion in a generated client. All from the same annotations.</p>" },
+    { q: "What does <code>Annotated[int, Ge(1)]</code> give you that <code>int</code> does not?",
+      a: "<p>A type <b>plus arbitrary runtime metadata</b>. The checker sees <code>int</code> and ignores the rest; your code asks for the rest with <code>get_type_hints(f, include_extras=True)</code> and reads it with <code>get_args</code>.</p>" },
+    { q: "Name two libraries that depend on that, and what it saved them.", tag: "apply",
+      a: "<p>FastAPI's <code>Annotated[str, Query(max_length=50)]</code> and SQLAlchemy 2.0's <code>Mapped[str]</code>. typer attaches CLI help the same way.</p><p>It saved them <b>inventing new syntax</b> — they put their configuration where the type already was.</p>" },
+  ]},
+  { title: "Protocol", note: "Slides 9–11. Duck typing you can finally write down.", qs: [
+    { q: "What does a class have to do to satisfy a Protocol?",
+      a: "<p><b>Nothing.</b> No inheritance, no registration — its only base can be <code>object</code>. It just has to <b>have the right shape</b>.</p>" },
+    { q: "What is it genuinely for?", tag: "apply",
+      a: "<p>Describing what you need from <b>an object you did not write</b> — a file-like thing, something with <code>.commit()</code>, anything from a third-party library you cannot make inherit from your base class.</p><p>It keeps the dependency pointing the right way: <b>the consumer declares what it needs</b>.</p>" },
+    { q: "Which familiar stdlib types have been doing this all along?",
+      a: "<p><code>Iterable</code>, <code>Sized</code>, <code>Hashable</code> — <b>a shape, not a family tree</b>.</p>" },
+    { q: "What does <code>isinstance</code> against a <code>@runtime_checkable</code> Protocol actually check?", tag: "trap",
+      a: "<p><b>Method names. Only names.</b></p><p>A class whose <code>read</code> takes four required arguments and returns an int <b>passes</b> — and then raises <code>TypeError</code> when you call it.</p>" },
+    { q: "Why is the check deliberately shallow?",
+      a: "<p>Verifying signatures at runtime would be <b>slow</b>, and with decorators and <code>*args</code> it would frequently be <b>wrong in the other direction</b> — rejecting things that work.</p><p>Use Protocols for static checking, where the signature genuinely is compared. Treat runtime <code>isinstance</code> as a rough screen.</p>" },
+    { q: "Protocol or ABC — what is the deciding question?", tag: "apply",
+      a: "<p><b>Not which is more modern. Whether you can change the classes on the other side.</b></p><p><b>ABC</b>: the provider opts in by inheriting; enforced at instantiation; gives you shared code and <code>super()</code> cooperation.<br><b>Protocol</b>: the consumer declares the need; enforced by the checker; gives you nothing to inherit.</p>" },
+  ]},
+  { title: "The ones you already use", note: "Slides 12–14. TypedDict, dataclass, Literal, Self.", qs: [
+    { q: "<code>type(c)</code> for a <code>TypedDict</code> instance — what comes back?", tag: "numbers",
+      a: "<p><b><code>dict</code>.</b> Not a subclass. No class is created, no validation runs, nothing is copied.</p><p>A completely wrong dictionary constructs perfectly happily; only the checker complains.</p>" },
+    { q: "So when is it the right tool, and when is it not?", tag: "apply",
+      a: "<p><b>Right</b> for data that is already a dict and already correct — a parsed response you trust, a config block, a row from your own database.</p><p><b>Wrong</b> for data from outside that might be wrong. <b>It documents a dict; it does not defend one.</b></p>" },
+    { q: "Where does <code>@dataclass</code> find its fields?",
+      a: "<p><code>__annotations__</code>. That is the whole mechanism — it reads that dict and writes the methods you did not.</p>" },
+    { q: "Set <code>__annotations__</code> by hand on an empty class, then pass it to <code>dataclass</code>. What happens?", tag: "trap",
+      a: "<p><b>It gets a field.</b> There was never one in the source.</p><p>Proof rather than demonstration: the decorator is <b>not reading your source code</b>, it is reading an attribute. Which also explains why a dataclass field is <b>an annotation with no assignment</b> — and an annotation with no assignment defines nothing at all in Python.</p>" },
+    { q: "What can you do with a <code>Literal</code> at runtime that you cannot with an ordinary <code>str</code>?",
+      a: "<p><code>get_args</code> hands you <b>the tuple of allowed values</b> — so a dropdown, a CLI choice list or a validator can be built <b>from the annotation itself</b>, with no second list to keep in sync.</p>" },
+    { q: "Why <code>Self</code> rather than naming the class?", tag: "trap",
+      a: "<p>Because <b>a subclass keeps its own type through the chain</b>. Naming the class outright makes <code>SubQuery().where(...)</code> come back typed as the base.</p><p>Same argument for <code>from_row</code> and <code>copy</code> classmethods.</p>" },
+  ]},
+  { title: "Cost and honest limits", note: "Slides 15–17. Measured, then criticised.", qs: [
+    { q: "Give the three measured figures.", tag: "numbers",
+      a: "<p>Seven runs × 20,000 calls, Python 3.14.3: <b>undecorated 0.21 µs</b>, <b>hints read once at decoration 0.44 µs</b>, <b>hints read on every call 7.60 µs</b>.</p><p>Roughly <b>2×</b> hoisted — and that doubling is the wrapper call, not the hints — against <b>36×</b> per call.</p>" },
+    { q: "Is runtime typing slow?", tag: "trap",
+      a: "<p><b>The feature is not slow. One pattern is.</b> Resolving hints per call, rather than once at decoration.</p><p>And it gets worse as the signature gets longer, because there is more to resolve.</p>" },
+    { q: "Where does validation belong?", tag: "apply",
+      a: "<p><b>At the boundary</b> — once, where the data arrives. Where JSON arrives, where a form is submitted, where a config file is read. Then let the inside of the system trust itself.</p><p>Every framework in the talk agrees: they validate at the edge and stop.</p>" },
+    { q: "State the real criticism of typed Python.",
+      a: "<p><b>An annotation that nothing checks is a comment with better syntax, and it drifts exactly like one.</b></p><p>Either run a checker in CI, or be honest that it documents an intention.</p>" },
+    { q: "What do dataclasses, Pydantic, FastAPI, SQLAlchemy 2.0, typer, attrs and msgspec have in common?",
+      a: "<p><b>Not one of them extended the language.</b> They read a dictionary that was already there and built a library on it.</p><p>Which is the useful thing to know about all seven at once.</p>" },
+  ]},
+];
+
+const quiz = document.getElementById("quiz");
+const state = new Map();
+let n = 0;
+const total = ACTS.reduce((s, a) => s + a.qs.length, 0);
+
+ACTS.forEach((act, ai) => {
+  const h = document.createElement("h2");
+  h.innerHTML = `${act.title} <em>Act ${ai + 1}</em>`;
+  quiz.appendChild(h);
+  const note = document.createElement("p");
+  note.className = "act-note";
+  note.textContent = act.note;
+  quiz.appendChild(note);
+
+  act.qs.forEach(item => {
+    n += 1;
+    const id = n;
+    const card = document.createElement("section");
+    card.className = "q";
+    card.dataset.id = id;
+    const tag = item.tag ? `<span class="tag ${item.tag}">${item.tag}</span>` : "";
+    card.innerHTML = `
+      <div class="qhead">
+        <span class="num">${String(id).padStart(2, "0")}</span>
+        <p class="prompt">${item.q}${tag}</p>
+      </div>
+      <div class="a" id="a${id}" hidden>
+        ${item.a}${item.why ? `<span class="why">${item.why}</span>` : ""}
+      </div>
+      <div class="actions">
+        <button class="reveal" type="button">Show answer</button>
+        <button class="mark yes" type="button" aria-pressed="false" hidden>Got it</button>
+        <button class="mark nope" type="button" aria-pressed="false" hidden>Missed</button>
+      </div>`;
+    quiz.appendChild(card);
+
+    const ans = card.querySelector(".a");
+    const reveal = card.querySelector(".reveal");
+    const yes = card.querySelector(".mark.yes");
+    const nope = card.querySelector(".mark.nope");
+
+    reveal.addEventListener("click", () => {
+      const open = !ans.hidden;
+      ans.hidden = open;
+      reveal.textContent = open ? "Show answer" : "Hide answer";
+      yes.hidden = nope.hidden = open;
+    });
+    const mark = (v) => {
+      state.set(id, state.get(id) === v ? null : v);
+      const cur = state.get(id);
+      card.dataset.state = cur || "";
+      yes.setAttribute("aria-pressed", String(cur === "ok"));
+      nope.setAttribute("aria-pressed", String(cur === "no"));
+      score();
+    };
+    yes.addEventListener("click", () => mark("ok"));
+    nope.addEventListener("click", () => mark("no"));
+  });
+});
+
+const elDone = document.getElementById("done");
+const elRight = document.getElementById("right");
+const elWrong = document.getElementById("wrong");
+const fill = document.getElementById("fill");
+const verdict = document.getElementById("verdict");
+const missedList = document.getElementById("missed");
+
+function score() {
+  let ok = 0, no = 0;
+  state.forEach(v => { if (v === "ok") ok++; else if (v === "no") no++; });
+  const done = ok + no;
+  elDone.textContent = done;
+  elRight.textContent = ok;
+  elWrong.textContent = no;
+  fill.style.width = `${(done / total) * 100}%`;
+
+  missedList.innerHTML = "";
+  if (!done) {
+    verdict.textContent = "Nothing answered yet.";
+    missedList.hidden = true;
+    return;
+  }
+  const pct = Math.round((ok / done) * 100);
+  verdict.innerHTML = done === total
+    ? `All ${total} answered — <b>${ok} right, ${no} missed (${pct}%)</b>.`
+    : `<b>${done} of ${total}</b> answered — ${ok} right, ${no} missed (${pct}%).`;
+
+  const misses = [];
+  state.forEach((v, id) => { if (v === "no") misses.push(id); });
+  if (misses.length) {
+    missedList.hidden = false;
+    misses.sort((a, b) => a - b).forEach(id => {
+      const li = document.createElement("li");
+      const p = document.querySelector(`.q[data-id="${id}"] .prompt`);
+      li.textContent = `${String(id).padStart(2, "0")} — ${p.textContent.replace(/\s*(numbers|trap|apply)\s*$/, "")}`;
+      li.style.cursor = "pointer";
+      li.addEventListener("click", () => {
+        document.querySelector(`.q[data-id="${id}"]`).scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+      missedList.appendChild(li);
+    });
+  } else {
+    missedList.hidden = true;
+  }
+}
+
+document.getElementById("reset").addEventListener("click", () => {
+  state.clear();
+  document.querySelectorAll(".q").forEach(c => {
+    c.dataset.state = "";
+    c.querySelector(".a").hidden = true;
+    c.querySelector(".reveal").textContent = "Show answer";
+    c.querySelector(".mark.yes").hidden = true;
+    c.querySelector(".mark.nope").hidden = true;
+    c.querySelectorAll(".mark").forEach(b => b.setAttribute("aria-pressed", "false"));
+  });
+  score();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+score();
+</script>
+
+</body>
+</html>

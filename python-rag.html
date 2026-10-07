@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta property="og:title" content="RAG Drill — Ship It Live!" />
+<meta property="og:description" content="Interactive self-test: RAG." />
+<meta property="og:image" content="https://kuantor.github.io/drills/background.jpg" />
+<meta property="og:url" content="https://kuantor.github.io/drills/python-rag.html" />
+<meta property="og:type" content="website" />
+<style>
+  :root{
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  body{margin:0}
+  img{max-width:100%}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+<title>RAG Drill</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a single reading column of question cards, grouped into seven acts
+   that follow the talk. Palette lifted from the Ship It Live deck builder so
+   this reads as part of the series: roasted brown ground, brass accents. */
+:root{
+  --ground:#1A150E;
+  --surface:#262014;
+  --card:#312918;
+  --edge:#4A3D22;
+  --cream:#F1EADA;
+  --tan:#AC9F84;
+  --gold:#C8A24B;
+  --gold-lt:#E8CD86;
+  --teal:#6FB0A6;
+  --terra:#D0845A;
+  --sage:#8BA678;
+  --serif:"Source Serif 4",Cambria,Georgia,serif;
+  --sans:"Public Sans",Calibri,-apple-system,system-ui,sans-serif;
+  --mono:"IBM Plex Mono",Consolas,ui-monospace,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  background:var(--ground);color:var(--cream);font-family:var(--sans);
+  font-size:16px;line-height:1.55;margin:0;
+}
+.wrap{max-width:780px;margin:0 auto;padding-inline:16px;padding-block:40px 64px}
+
+header h1{
+  font-family:var(--serif);font-weight:700;color:var(--gold);
+  font-size:clamp(2rem,7vw,3rem);line-height:1.05;margin:0 0 .3em;text-wrap:balance;
+}
+.kicker{
+  font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--tan);margin:0 0 1.6rem;
+}
+.lede{color:var(--tan);font-size:1.05rem;margin:0 0 2rem;max-width:62ch}
+.lede strong{color:var(--cream);font-weight:600}
+
+.board{
+  position:sticky;top:env(safe-area-inset-top,0px);z-index:10;
+  background:var(--surface);border:1px solid var(--edge);border-radius:10px;
+  padding:14px 16px;margin-bottom:2.4rem;
+  display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;
+}
+.tally{display:flex;gap:18px;flex:1 1 auto;min-width:0}
+.stat{display:flex;flex-direction:column;line-height:1.15}
+.stat b{
+  font-family:var(--mono);font-size:1.25rem;font-weight:500;
+  font-variant-numeric:tabular-nums;color:var(--gold-lt);
+}
+.stat span{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--tan)}
+.stat.ok b{color:var(--sage)}
+.stat.no b{color:var(--terra)}
+.bar{flex:1 1 100%;height:4px;background:var(--edge);border-radius:2px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--gold);transition:width .3s ease}
+button{font-family:var(--sans);font-size:.85rem;cursor:pointer;border-radius:7px;transition:background .15s,border-color .15s,color .15s}
+button:focus-visible{outline:2px solid var(--gold-lt);outline-offset:2px}
+.ghost{background:transparent;border:1px solid var(--edge);color:var(--tan);padding:7px 13px}
+.ghost:hover{border-color:var(--gold);color:var(--gold-lt)}
+
+h2{
+  font-family:var(--serif);font-size:1.45rem;font-weight:600;color:var(--gold);
+  margin:2.8rem 0 .2rem;display:flex;align-items:baseline;gap:.6rem;text-wrap:balance;
+}
+h2 em{
+  font-family:var(--mono);font-style:normal;font-size:.7rem;color:var(--tan);
+  letter-spacing:.1em;flex:0 0 auto;
+}
+.act-note{color:var(--tan);font-size:.9rem;margin:0 0 1.4rem}
+
+.q{background:var(--card);border:1px solid var(--edge);border-radius:10px;padding:18px 20px;margin-bottom:14px}
+.q[data-state="ok"]{border-color:color-mix(in srgb,var(--sage) 55%,var(--edge))}
+.q[data-state="no"]{border-color:color-mix(in srgb,var(--terra) 55%,var(--edge))}
+.qhead{display:flex;gap:12px;align-items:flex-start}
+.num{
+  font-family:var(--mono);font-size:.78rem;color:var(--gold);
+  flex:0 0 auto;padding-top:.2em;font-variant-numeric:tabular-nums;
+}
+.prompt{margin:0;flex:1 1 auto;min-width:0;font-size:1rem}
+.prompt code,.a code{
+  font-family:var(--mono);font-size:.86em;background:var(--ground);
+  border:1px solid var(--edge);border-radius:4px;padding:.08em .35em;color:var(--gold-lt);
+}
+.tag{
+  display:inline-block;font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;
+  text-transform:uppercase;padding:.2em .5em;border-radius:4px;margin-left:.5rem;
+  vertical-align:.12em;border:1px solid;
+}
+.tag.numbers{color:var(--gold-lt);border-color:color-mix(in srgb,var(--gold) 45%,transparent)}
+.tag.trap{color:var(--terra);border-color:color-mix(in srgb,var(--terra) 45%,transparent)}
+.tag.apply{color:var(--teal);border-color:color-mix(in srgb,var(--teal) 45%,transparent)}
+
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;padding-left:calc(.78rem + 12px)}
+.reveal{background:transparent;border:1px solid var(--gold);color:var(--gold-lt);padding:7px 15px}
+.reveal:hover{background:color-mix(in srgb,var(--gold) 14%,transparent)}
+.mark{border:1px solid var(--edge);background:transparent;padding:7px 15px}
+.mark.yes{color:var(--sage)}
+.mark.yes:hover,.mark.yes[aria-pressed="true"]{background:color-mix(in srgb,var(--sage) 18%,transparent);border-color:var(--sage)}
+.mark.nope{color:var(--terra)}
+.mark.nope:hover,.mark.nope[aria-pressed="true"]{background:color-mix(in srgb,var(--terra) 18%,transparent);border-color:var(--terra)}
+
+.a{
+  margin:14px 0 0;padding:14px 16px;background:var(--ground);
+  border-left:3px solid var(--gold);border-radius:0 7px 7px 0;font-size:.96rem;
+}
+.a p{margin:0 0 .7em}
+.a p:last-child{margin-bottom:0}
+.a b{color:var(--gold-lt);font-weight:600}
+.a .why{color:var(--tan);font-size:.9rem;display:block;margin-top:.7em;padding-top:.7em;border-top:1px solid var(--edge)}
+
+details.ref{margin-top:3rem;border:1px solid var(--edge);border-radius:10px;background:var(--surface)}
+details.ref summary{
+  cursor:pointer;padding:14px 18px;font-family:var(--mono);font-size:.78rem;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--gold);
+}
+details.ref summary:focus-visible{outline:2px solid var(--gold-lt);outline-offset:-2px}
+.tablewrap{overflow-x:auto;padding:0 18px 18px}
+table{border-collapse:collapse;width:100%;min-width:460px;font-size:.92rem}
+th,td{text-align:right;padding:8px 10px;border-bottom:1px solid var(--edge)}
+th:first-child,td:first-child{text-align:left}
+thead th{color:var(--tan);font-weight:500;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase}
+tbody td{font-family:var(--mono);font-variant-numeric:tabular-nums}
+tbody td:first-child{font-family:var(--sans)}
+.win{color:var(--sage)}
+.lose{color:var(--terra)}
+.refnote{padding:0 18px 18px;margin:0;color:var(--tan);font-size:.85rem}
+
+footer{margin-top:3rem;padding-top:1.6rem;border-top:1px solid var(--edge);color:var(--tan);font-size:.88rem}
+footer b{color:var(--gold-lt)}
+#missed{margin:.8rem 0 0;padding-left:1.1rem}
+#missed li{margin-bottom:.3rem}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+<header>
+  <p class="kicker">Ship It Live! &middot; self-test</p>
+  <h1>RAG Drill</h1>
+  <p class="lede">Thirty-eight questions on <strong>RAG &mdash; How an AI Looks Things Up</strong>. Answer out loud before revealing, then mark yourself honestly. The hinge is <strong>0.322 versus 0.235</strong> &mdash; the same question in different words &mdash; and knowing why no amount of tuning fixes it.</p>
+</header>
+
+<div class="board">
+  <div class="tally">
+    <div class="stat"><b id="done">0</b><span>answered</span></div>
+    <div class="stat ok"><b id="right">0</b><span>got it</span></div>
+    <div class="stat no"><b id="wrong">0</b><span>missed</span></div>
+  </div>
+  <button class="ghost" id="reset">Reset</button>
+  <div class="bar"><i id="fill"></i></div>
+</div>
+
+<main id="quiz"></main>
+
+<details class="ref">
+  <summary>Reference &mdash; the index, and every measured score</summary>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>The index</th><th>Before the user guide</th><th>After</th></tr></thead>
+    <tbody>
+      <tr><td>chunks (rows)</td><td>25</td><td>58</td></tr>
+      <tr><td>distinct terms (columns)</td><td>772</td><td>1,269</td></tr>
+      <tr><td>cells in the matrix</td><td>19,300</td><td>&mdash;</td></tr>
+      <tr><td>non-zero</td><td class="win">1,033 &mdash; about 5%</td><td>&mdash;</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Query</th><th>Retrieved</th><th>Score</th></tr></thead>
+    <tbody>
+      <tr><td>why does English have so many French words</td><td>Faux Amis: False Friends</td><td class="win">0.463</td></tr>
+      <tr><td>songs</td><td>Why Songs Help You Learn</td><td class="win">0.428</td></tr>
+      <tr><td>can I delete a card</td><td>Editing, moving and deleting</td><td class="win">0.376</td></tr>
+      <tr><td>how do I remember new words</td><td>How Many Words per Day</td><td class="win">0.322</td></tr>
+      <tr><td>tips for memorising vocabulary</td><td class="lose">Why English Is Full of French Words</td><td class="lose">0.235</td></tr>
+      <tr><td>Carol of the Bells</td><td class="lose">Leontovych and &ldquo;Shchedryk&rdquo;</td><td class="lose">0.169</td></tr>
+      <tr><td>lorry boot bonnet</td><td class="lose">nothing returned at all</td><td class="lose">&mdash;</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>IDF, measured</th><th>Score</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td><code>english</code></td><td class="lose">1.42</td><td>everywhere in an English-teaching corpus</td></tr>
+      <tr><td><code>words</code></td><td>1.86</td><td>&nbsp;</td></tr>
+      <tr><td><code>songs</code></td><td>2.87</td><td>&nbsp;</td></tr>
+      <tr><td><code>shchedryk</code></td><td class="win">3.56</td><td>the maximum here &mdash; one chunk only</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="refnote">Every figure from <code>11. RAG/measure.py</code>, run against ai_agent's live index. Re-run it before a recording &mdash; if a knowledge file changed, the numbers moved.</p>
+</details>
+
+<footer>
+  <p id="verdict">Nothing answered yet.</p>
+  <ul id="missed" hidden></ul>
+</footer>
+</div>
+
+<script>
+const ACTS = [
+  { title: "Why not just retrain it", note: "Slides 3–5. The need before the solution.", qs: [
+    { q: "Three things a model cannot do on its own, however large it is.",
+      a: "<p><b>1.</b> It has a <b>training cutoff</b> — anything after that date, and anything private, is simply not in there.<br><b>2.</b> It has <b>never seen your documents</b>. No amount of capability conjures them.<br><b>3.</b> It <b>cannot show its working</b> — ask where an answer came from and you get a plausible sentence, not a reference you can check.</p>" },
+    { q: "Which is the quiet one, and why does it bite hardest in production?", tag: "trap",
+      a: "<p>The third. <b>A confident answer with no source is the most expensive kind to verify.</b></p>" },
+    { q: "Four reasons fine-tuning is the wrong tool for facts.", tag: "numbers",
+      a: "<p><b>Cost</b> — a training run per knowledge update.<br><b>Latency</b> — today's correction ships next week rather than now.<br><b>Citations</b> — still none: the facts have <b>dissolved into weights</b> and cannot be pointed at.<br><b>Removal</b> — taking a fact back out again is genuinely difficult.</p>" },
+    { q: "State the rule of thumb, and give retrieval's answer to all four.",
+      a: "<p><b>Fine-tuning teaches a model a skill or a style. It is a poor way to teach it a fact.</b></p><p>Retrieval: cost is <b>reading a folder</b>; latency is <b>nil</b> — edit the file and the next answer uses it; citations are <b>free</b>, because you know which document you passed in; and removing a fact means <b>deleting a file</b>.</p><p>An open-book exam rather than a memory test.</p>" },
+    { q: "The name has two halves. Which half holds most problems, and which holds most of the trust?", tag: "trap",
+      a: "<p><b>Retrieval</b> — search your own documents for the passages most likely to answer this question. <b>There is no model in this half at all</b>; it is ordinary information retrieval, older than anyone in the room.</p><p><b>Most of what people call a RAG problem is really a retrieval problem</b> — the system fetched the wrong page. <b>But most of what makes a RAG system trustworthy is in the second half, in how you ask.</b></p>" },
+  ]},
+  { title: "Cutting the documents up", note: "Slide 6. The decision people regret the most.", qs: [
+    { q: "Why retrieve passages rather than documents?",
+      a: "<p>Handing a model an entire file to answer one small question <b>wastes its attention and buries the relevant sentence</b>.</p>" },
+    { q: "Where does this implementation split, and why is that structure free?",
+      a: "<p><b>At every markdown heading.</b> A heading is <b>the author's own statement about where one idea stops and the next begins</b> — free structure, already in the file.</p>" },
+    { q: "The heading text is indexed together with the body. Why does that matter more than it sounds?", tag: "trap",
+      a: "<p>The word &ldquo;songs&rdquo; might appear <b>once</b> in the prose but sit <b>right there in the title</b>.</p><p>Throw the heading away and you have discarded <b>the single most descriptive word in the chunk</b>.</p>" },
+    { q: "Give the figures, and state the trade-off in both directions.", tag: "numbers",
+      a: "<p><b>Six markdown files, 317 lines, become 25 chunks.</b></p><p><b>Too big</b> and the match is diluted by everything else in the passage. <b>Too small</b> and the passage no longer makes sense on its own.</p><p>Chunking is the decision people spend the least time on and regret the most.</p>" },
+  ]},
+  { title: "TF-IDF", note: "Slides 7–8. Two ideas multiplied together.", qs: [
+    { q: "What are the two ideas, in plain words?",
+      a: "<p><b>Term frequency</b> — how often does this word appear in this passage?<br><b>Inverse document frequency</b> — how rare is this word across the whole collection?</p><p>Multiply frequency by rarity and <b>the distinctive words rise to the top on their own</b>.</p>" },
+    { q: "Why is counting alone not enough?",
+      a: "<p>It is <b>dominated by words that are everywhere</b>.</p><p>A word appearing in <b>every</b> chunk tells you nothing about which chunk you want. A word appearing in <b>exactly one</b> is a fingerprint.</p>" },
+    { q: "Give two real IDF values from Mykola's index and say what each teaches.", tag: "numbers",
+      a: "<p><b>&ldquo;english&rdquo; scores 1.42</b> — very low, because this is an English-teaching knowledge base and the word is everywhere, so it is <b>nearly worthless for telling passages apart</b>.</p><p><b>&ldquo;shchedryk&rdquo; scores 3.56</b>, the maximum here, because it appears in <b>exactly one chunk</b>.</p><p><b>Rare words carry the signal. Common words are noise wearing a dictionary entry.</b></p>" },
+    { q: "What does scikit-learn strip before any of this happens?",
+      a: "<p><b>English stop words</b> — &ldquo;the&rdquo;, &ldquo;and&rdquo;, &ldquo;of&rdquo;.</p>" },
+    { q: "Give the matrix dimensions and how full it is.", tag: "numbers",
+      a: "<p><b>25 chunks &times; 772 terms = 19,300 cells</b>, of which <b>1,033 are non-zero</b>. The matrix is about <b>5% full</b>.</p>" },
+    { q: "Why is that the best fact in the talk?",
+      a: "<p>The <b>entire knowledge index of this AI companion is about a thousand useful numbers</b>.</p><p>It is <b>smaller than the photograph on the title slide</b>, it fits in memory a thousand times over, and it is <b>rebuilt from scratch every time the process starts</b>.</p>" },
+  ]},
+  { title: "Searching, and the retriever", note: "Slides 9–10. A hundred and one lines, in total.", qs: [
+    { q: "How is a question compared to the chunks?",
+      a: "<p>It goes through <b>the same machinery</b> — vectorised against <b>the same vocabulary</b> — and then compared to every chunk by <b>cosine similarity</b>: the angle between the two vectors. Same direction scores near one; sharing nothing scores zero.</p>" },
+    { q: "Why the angle rather than the distance?", tag: "trap",
+      a: "<p>Comparing <b>direction</b> means <b>a long passage and a three-word question are still comparable</b>.</p><p>A distance measure would be <b>dominated by length</b>.</p>" },
+    { q: "How old is this idea?",
+      a: "<p><b>TF-IDF dates from the 1970s</b> and has been quietly running search engines ever since. An old idea in a new job.</p>" },
+    { q: "Below the minimum score the loop <em>breaks</em> rather than skipping. Why is that correct?", tag: "trap",
+      a: "<p>Because <b>the results are sorted</b>. Once you have hit a weak match, <b>everything after it is weaker still</b>, so there is nothing left worth looking at.</p>" },
+    { q: "What is that minimum score, really?",
+      a: "<p><b>A refusal.</b> The system saying it would <b>rather hand the model nothing at all than hand it something irrelevant</b>.</p>" },
+    { q: "How big is the whole thing?", tag: "numbers",
+      a: "<p><b>101 lines</b> — loading, chunking, indexing and retrieval. <b>No database, no service, nothing to deploy and nothing to keep running.</b></p>" },
+  ]},
+  { title: "The prompt, and honesty", note: "Slides 11–13. The anticlimactic half, and the cheapest reliability there is.", qs: [
+    { q: "What is the augmentation step, actually?", tag: "trap",
+      a: "<p><b>String concatenation.</b></p><p>Each retrieved passage is wrapped in a document tag carrying its <b>source file and section heading</b>, collected inside a context block, and the user's question is appended underneath. That is it.</p>" },
+    { q: "Two deliberate choices in that envelope.",
+      a: "<p><b>Each passage is labelled</b> rather than just pasted — which is what makes the model able to <b>name a source instead of inventing a plausible one</b>.</p><p><b>The question comes last</b>, so the model reads the evidence before it reads what is being asked of it.</p>" },
+    { q: "Quote the three rules from the system prompt.",
+      a: "<p><b>1.</b> Prefer the context — if a knowledge block is provided and relevant, use it rather than general knowledge.<br><b>2.</b> Mention which document you used.<br><b>3.</b> If the context does not cover the question, <b>say so in one short sentence</b>, then answer from general knowledge.</p>" },
+    { q: "What does the third rule prevent, exactly?", tag: "trap",
+      a: "<p>Without it, <b>an empty retrieval is completely indistinguishable, from the user's side, from a well-sourced answer</b>. The model gets no context, answers anyway, <b>sounds exactly as confident</b>, and nobody can tell.</p><p><b>One sentence of prompt. The cheapest reliability engineering in the entire system.</b></p>" },
+    { q: "What goes back to the interface, and why include the score?",
+      a: "<p>The <b>file, the section heading and the score</b>, rounded to two places.</p><p>A citation tells you <b>where</b> an answer came from. A citation with a score also tells you <b>how sure the retriever was</b> — <b>0.46 and 0.07 are both citations, and only one of them should make you relax.</b></p>" },
+    { q: "What does that buy you the first time something goes wrong?", tag: "apply",
+      a: "<p>You can see immediately whether <b>the retriever fetched the wrong passage</b> or <b>the model misread the right one</b>.</p><p>Two completely different bugs with two completely different fixes. Without the scores you are guessing at which half failed.</p>" },
+  ]},
+  { title: "Where it works, and where it does not", note: "Slides 14–16. A talk that only shows successes is an advertisement.", qs: [
+    { q: "Two measured successes, with scores.", tag: "numbers",
+      a: "<p>&ldquo;why does English have so many French words&rdquo; &rarr; <b>Faux Amis: False Friends, 0.463</b>.<br>&ldquo;songs&rdquo; &rarr; <b>Why Songs Help You Learn, 0.428</b>.</p>" },
+    { q: "Which measured result is quietly the most interesting, and why?", tag: "apply",
+      a: "<p>&ldquo;can I delete a card&rdquo; &rarr; <b>Editing, moving and deleting, 0.376</b> — answered out of <b>KuantorFlow's own user guide, a document living in a completely different repository</b> from the agent.</p>" },
+    { q: "The paraphrase failure. Give both queries and both results.", tag: "numbers",
+      a: "<p>&ldquo;how do I remember new words&rdquo; &rarr; the right passage, <b>0.322</b>.<br>&ldquo;tips for memorising vocabulary&rdquo; — <b>the same question in different words</b> — &rarr; <b>Why English Is Full of French Words, 0.235</b>.</p><p>It is <b>not a weaker match to the right answer. It is a confident match to something completely unrelated.</b></p>" },
+    { q: "The embarrassing one, and the one that returns nothing.", tag: "numbers",
+      a: "<p>&ldquo;Carol of the Bells&rdquo; barely finds the Leontovych document — <b>0.169, only just above the floor</b> — because that document calls the piece by its Ukrainian name, <b>Shchedryk</b>. <b>The agent is named after Leontovych.</b></p><p>And &ldquo;lorry boot bonnet&rdquo; — three of the most British words there are — <b>returns nothing at all</b>.</p>" },
+    { q: "Is any of that a bug, or fixable by tuning?", tag: "trap",
+      a: "<p><b>Neither.</b> <b>TF-IDF matches words. It has no idea what any of them mean.</b></p>" },
+    { q: "The drifted-copy story: what went wrong, and what is the fix called?",
+      a: "<p>The agent kept <b>its own copy</b> of a FAQ about the app it lives inside. <b>Copies drift.</b> By the time it was retired it was telling learners <b>anyone could add cards</b> — which had stopped being true the day user accounts arrived. <b>It was not wrong when it was written. It was wrong because it was a copy, and the original had moved.</b></p><p>The fix: the app passes the agent <b>a path to its own user guide</b> at startup. <b>Read, not copied.</b></p>" },
+    { q: "What did adding that one document do to the index?", tag: "numbers",
+      a: "<p><b>25 &rarr; 58 chunks</b>, and <b>772 &rarr; 1,269 terms</b>.</p><p>And if the path is missing, it is <b>skipped in silence</b>. A missing document is a reason for the agent to know less. <b>It is never a reason for the chat widget not to load.</b></p>" },
+  ]},
+  { title: "Knowing when to move on", note: "Slides 17–18. Earn the upgrade with a measurement.", qs: [
+    { q: "Three signals that you have outgrown it.",
+      a: "<p><b>1. Users paraphrase</b> — asking in their own words rather than yours. Lexical matching will keep missing; the commonest reason to move on.<br><b>2. The corpus gets big</b> — at a few hundred chunks, rare-word matching starts pulling in <b>coincidences rather than answers</b>.<br><b>3. More than one language</b> — TF-IDF cannot know that &ldquo;songs&rdquo; and &ldquo;пісні&rdquo; are the same idea.</p>" },
+    { q: "What does the upgrade change, and what does it leave alone?", tag: "apply",
+      a: "<p>Embeddings and a vector index — <b>pgvector, on the Postgres you already run</b>.</p><p><b>The architecture does not change at all.</b> Still chunk, still index, still retrieve the nearest passages, still the same three honest rules. <b>Only the middle step changes</b> — which is exactly why starting simple costs you nothing later.</p>" },
+    { q: "Four closing arguments.",
+      a: "<p><b>Nothing to run</b> — a folder of markdown and one library. No database, no service, no key, no bill.<br><b>Editable by anyone</b> — fixing what the AI knows means editing a text file, and a reviewer can read the diff.<br><b>It cites its sources</b> — document, section, and the retriever's confidence.<br><b>It knows what it lacks.</b></p>" },
+    { q: "Which of those four actually matters, and why?",
+      a: "<p><b>It knows what it lacks.</b> Everything else is about being small and cheap, and small and cheap is nice — <b>but a system that tells you when it does not know is a system you can actually build on.</b></p><p>The best retrieval system is <b>the smallest one that answers your questions</b> — and the one that <b>tells you, out loud, when it cannot</b>.</p>" },
+  ]},
+];
+
+const quiz = document.getElementById("quiz");
+const state = new Map();
+let n = 0;
+const total = ACTS.reduce((s, a) => s + a.qs.length, 0);
+
+ACTS.forEach((act, ai) => {
+  const h = document.createElement("h2");
+  h.innerHTML = `${act.title} <em>Act ${ai + 1}</em>`;
+  quiz.appendChild(h);
+  const note = document.createElement("p");
+  note.className = "act-note";
+  note.textContent = act.note;
+  quiz.appendChild(note);
+
+  act.qs.forEach(item => {
+    n += 1;
+    const id = n;
+    const card = document.createElement("section");
+    card.className = "q";
+    card.dataset.id = id;
+    const tag = item.tag ? `<span class="tag ${item.tag}">${item.tag}</span>` : "";
+    card.innerHTML = `
+      <div class="qhead">
+        <span class="num">${String(id).padStart(2, "0")}</span>
+        <p class="prompt">${item.q}${tag}</p>
+      </div>
+      <div class="a" id="a${id}" hidden>
+        ${item.a}${item.why ? `<span class="why">${item.why}</span>` : ""}
+      </div>
+      <div class="actions">
+        <button class="reveal" type="button">Show answer</button>
+        <button class="mark yes" type="button" aria-pressed="false" hidden>Got it</button>
+        <button class="mark nope" type="button" aria-pressed="false" hidden>Missed</button>
+      </div>`;
+    quiz.appendChild(card);
+
+    const ans = card.querySelector(".a");
+    const reveal = card.querySelector(".reveal");
+    const yes = card.querySelector(".mark.yes");
+    const nope = card.querySelector(".mark.nope");
+
+    reveal.addEventListener("click", () => {
+      const open = !ans.hidden;
+      ans.hidden = open;
+      reveal.textContent = open ? "Show answer" : "Hide answer";
+      yes.hidden = nope.hidden = open;
+    });
+    const mark = (v) => {
+      state.set(id, state.get(id) === v ? null : v);
+      const cur = state.get(id);
+      card.dataset.state = cur || "";
+      yes.setAttribute("aria-pressed", String(cur === "ok"));
+      nope.setAttribute("aria-pressed", String(cur === "no"));
+      score();
+    };
+    yes.addEventListener("click", () => mark("ok"));
+    nope.addEventListener("click", () => mark("no"));
+  });
+});
+
+const elDone = document.getElementById("done");
+const elRight = document.getElementById("right");
+const elWrong = document.getElementById("wrong");
+const fill = document.getElementById("fill");
+const verdict = document.getElementById("verdict");
+const missedList = document.getElementById("missed");
+
+function score() {
+  let ok = 0, no = 0;
+  state.forEach(v => { if (v === "ok") ok++; else if (v === "no") no++; });
+  const done = ok + no;
+  elDone.textContent = done;
+  elRight.textContent = ok;
+  elWrong.textContent = no;
+  fill.style.width = `${(done / total) * 100}%`;
+
+  missedList.innerHTML = "";
+  if (!done) {
+    verdict.textContent = "Nothing answered yet.";
+    missedList.hidden = true;
+    return;
+  }
+  const pct = Math.round((ok / done) * 100);
+  verdict.innerHTML = done === total
+    ? `All ${total} answered — <b>${ok} right, ${no} missed (${pct}%)</b>.`
+    : `<b>${done} of ${total}</b> answered — ${ok} right, ${no} missed (${pct}%).`;
+
+  const misses = [];
+  state.forEach((v, id) => { if (v === "no") misses.push(id); });
+  if (misses.length) {
+    missedList.hidden = false;
+    misses.sort((a, b) => a - b).forEach(id => {
+      const li = document.createElement("li");
+      const p = document.querySelector(`.q[data-id="${id}"] .prompt`);
+      li.textContent = `${String(id).padStart(2, "0")} — ${p.textContent.replace(/\s*(numbers|trap|apply)\s*$/, "")}`;
+      li.style.cursor = "pointer";
+      li.addEventListener("click", () => {
+        document.querySelector(`.q[data-id="${id}"]`).scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+      missedList.appendChild(li);
+    });
+  } else {
+    missedList.hidden = true;
+  }
+}
+
+document.getElementById("reset").addEventListener("click", () => {
+  state.clear();
+  document.querySelectorAll(".q").forEach(c => {
+    c.dataset.state = "";
+    c.querySelector(".a").hidden = true;
+    c.querySelector(".reveal").textContent = "Show answer";
+    c.querySelector(".mark.yes").hidden = true;
+    c.querySelector(".mark.nope").hidden = true;
+    c.querySelectorAll(".mark").forEach(b => b.setAttribute("aria-pressed", "false"));
+  });
+  score();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+score();
+</script>
+
+</body>
+</html>

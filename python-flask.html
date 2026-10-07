@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta property="og:title" content="Flask Drill — Ship It Live!" />
+<meta property="og:description" content="Interactive self-test: Flask." />
+<meta property="og:image" content="https://kuantor.github.io/drills/background.jpg" />
+<meta property="og:url" content="https://kuantor.github.io/drills/python-flask.html" />
+<meta property="og:type" content="website" />
+<style>
+  :root{
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  body{margin:0}
+  img{max-width:100%}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+<title>Flask Drill</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a single reading column of question cards, grouped into seven acts
+   that follow the talk. Palette lifted from the Ship It Live deck builder so
+   this reads as part of the series: roasted brown ground, brass accents. */
+:root{
+  --ground:#1A150E;
+  --surface:#262014;
+  --card:#312918;
+  --edge:#4A3D22;
+  --cream:#F1EADA;
+  --tan:#AC9F84;
+  --gold:#C8A24B;
+  --gold-lt:#E8CD86;
+  --teal:#6FB0A6;
+  --terra:#D0845A;
+  --sage:#8BA678;
+  --serif:"Source Serif 4",Cambria,Georgia,serif;
+  --sans:"Public Sans",Calibri,-apple-system,system-ui,sans-serif;
+  --mono:"IBM Plex Mono",Consolas,ui-monospace,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  background:var(--ground);
+  color:var(--cream);
+  font-family:var(--sans);
+  font-size:16px;
+  line-height:1.55;
+  margin:0;
+}
+.wrap{max-width:780px;margin:0 auto;padding-inline:16px;padding-block:40px 64px}
+
+header h1{
+  font-family:var(--serif);font-weight:700;color:var(--gold);
+  font-size:clamp(2rem,7vw,3rem);line-height:1.05;margin:0 0 .3em;
+  text-wrap:balance;
+}
+.kicker{
+  font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--tan);margin:0 0 1.6rem;
+}
+.lede{color:var(--tan);font-size:1.05rem;margin:0 0 2rem;max-width:62ch}
+.lede strong{color:var(--cream);font-weight:600}
+
+.board{
+  position:sticky;top:env(safe-area-inset-top,0px);z-index:10;
+  background:var(--surface);border:1px solid var(--edge);border-radius:10px;
+  padding:14px 16px;margin-bottom:2.4rem;
+  display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;
+}
+.tally{display:flex;gap:18px;flex:1 1 auto;min-width:0}
+.stat{display:flex;flex-direction:column;line-height:1.15}
+.stat b{
+  font-family:var(--mono);font-size:1.25rem;font-weight:500;
+  font-variant-numeric:tabular-nums;color:var(--gold-lt);
+}
+.stat span{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--tan)}
+.stat.ok b{color:var(--sage)}
+.stat.no b{color:var(--terra)}
+.bar{flex:1 1 100%;height:4px;background:var(--edge);border-radius:2px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--gold);transition:width .3s ease}
+button{font-family:var(--sans);font-size:.85rem;cursor:pointer;border-radius:7px;transition:background .15s,border-color .15s,color .15s}
+button:focus-visible{outline:2px solid var(--gold-lt);outline-offset:2px}
+.ghost{background:transparent;border:1px solid var(--edge);color:var(--tan);padding:7px 13px}
+.ghost:hover{border-color:var(--gold);color:var(--gold-lt)}
+
+h2{
+  font-family:var(--serif);font-size:1.45rem;font-weight:600;color:var(--gold);
+  margin:2.8rem 0 .2rem;display:flex;align-items:baseline;gap:.6rem;text-wrap:balance;
+}
+h2 em{
+  font-family:var(--mono);font-style:normal;font-size:.7rem;color:var(--tan);
+  letter-spacing:.1em;flex:0 0 auto;
+}
+.act-note{color:var(--tan);font-size:.9rem;margin:0 0 1.4rem}
+
+.q{
+  background:var(--card);border:1px solid var(--edge);border-radius:10px;
+  padding:18px 20px;margin-bottom:14px;
+}
+.q[data-state="ok"]{border-color:color-mix(in srgb,var(--sage) 55%,var(--edge))}
+.q[data-state="no"]{border-color:color-mix(in srgb,var(--terra) 55%,var(--edge))}
+.qhead{display:flex;gap:12px;align-items:flex-start}
+.num{
+  font-family:var(--mono);font-size:.78rem;color:var(--gold);
+  flex:0 0 auto;padding-top:.2em;font-variant-numeric:tabular-nums;
+}
+.prompt{margin:0;flex:1 1 auto;min-width:0;font-size:1rem}
+.prompt code,.a code{
+  font-family:var(--mono);font-size:.86em;background:var(--ground);
+  border:1px solid var(--edge);border-radius:4px;padding:.08em .35em;color:var(--gold-lt);
+}
+.tag{
+  display:inline-block;font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;
+  text-transform:uppercase;padding:.2em .5em;border-radius:4px;margin-left:.5rem;
+  vertical-align:.12em;border:1px solid;
+}
+.tag.syntax{color:var(--gold-lt);border-color:color-mix(in srgb,var(--gold) 45%,transparent)}
+.tag.trap{color:var(--terra);border-color:color-mix(in srgb,var(--terra) 45%,transparent)}
+.tag.apply{color:var(--teal);border-color:color-mix(in srgb,var(--teal) 45%,transparent)}
+
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;padding-left:calc(.78rem + 12px)}
+.reveal{background:transparent;border:1px solid var(--gold);color:var(--gold-lt);padding:7px 15px}
+.reveal:hover{background:color-mix(in srgb,var(--gold) 14%,transparent)}
+.mark{border:1px solid var(--edge);background:transparent;padding:7px 15px}
+.mark.yes{color:var(--sage)}
+.mark.yes:hover,.mark.yes[aria-pressed="true"]{background:color-mix(in srgb,var(--sage) 18%,transparent);border-color:var(--sage)}
+.mark.nope{color:var(--terra)}
+.mark.nope:hover,.mark.nope[aria-pressed="true"]{background:color-mix(in srgb,var(--terra) 18%,transparent);border-color:var(--terra)}
+
+.a{
+  margin:14px 0 0;padding:14px 16px;background:var(--ground);
+  border-left:3px solid var(--gold);border-radius:0 7px 7px 0;font-size:.96rem;
+}
+.a p{margin:0 0 .7em}
+.a p:last-child{margin-bottom:0}
+.a b{color:var(--gold-lt);font-weight:600}
+.a .why{color:var(--tan);font-size:.9rem;display:block;margin-top:.7em;padding-top:.7em;border-top:1px solid var(--edge)}
+
+details.ref{margin-top:3rem;border:1px solid var(--edge);border-radius:10px;background:var(--surface)}
+details.ref summary{
+  cursor:pointer;padding:14px 18px;font-family:var(--mono);font-size:.78rem;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--gold);
+}
+details.ref summary:focus-visible{outline:2px solid var(--gold-lt);outline-offset:-2px}
+.tablewrap{overflow-x:auto;padding:0 18px 18px}
+table{border-collapse:collapse;width:100%;min-width:420px;font-size:.92rem}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--edge);vertical-align:top}
+thead th{color:var(--tan);font-weight:500;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase}
+tbody td:first-child{font-family:var(--mono);color:var(--gold-lt);white-space:nowrap}
+.refnote{padding:0 18px 18px;margin:0;color:var(--tan);font-size:.85rem}
+
+footer{margin-top:3rem;padding-top:1.6rem;border-top:1px solid var(--edge);color:var(--tan);font-size:.88rem}
+footer b{color:var(--gold-lt)}
+#missed{margin:.8rem 0 0;padding-left:1.1rem}
+#missed li{margin-bottom:.3rem}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+<header>
+  <p class="kicker">Ship It Live! &middot; self-test</p>
+  <h1>Flask Drill</h1>
+  <p class="lede">Thirty-six questions on <strong>Flask — From the WSGI Contract to a Working App</strong>. Answer out loud before revealing, then mark yourself honestly. The traps matter most here: this talk is mostly concepts, and the gotchas are what an interviewer probes.</p>
+</header>
+
+<div class="board">
+  <div class="tally">
+    <div class="stat"><b id="done">0</b><span>answered</span></div>
+    <div class="stat ok"><b id="right">0</b><span>got it</span></div>
+    <div class="stat no"><b id="wrong">0</b><span>missed</span></div>
+  </div>
+  <button class="ghost" id="reset">Reset</button>
+  <div class="bar"><i id="fill"></i></div>
+</div>
+
+<main id="quiz"></main>
+
+<details class="ref">
+  <summary>Reference — syntax you should not have to think about</summary>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Form</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td>{{ … }}</td><td>Expression — print this value</td></tr>
+      <tr><td>{% … %}</td><td>Statement — if, for, block</td></tr>
+      <tr><td>{# … #}</td><td>Comment — never reaches the browser</td></tr>
+      <tr><td>|</td><td>Filter — <code>name|upper</code></td></tr>
+      <tr><td>&lt;name&gt;</td><td>string — the default, anything without a slash</td></tr>
+      <tr><td>&lt;int:id&gt;</td><td>int — converted, and a non-integer 404s before your code</td></tr>
+      <tr><td>&lt;float:x&gt;</td><td>float</td></tr>
+      <tr><td>&lt;path:p&gt;</td><td>path — like string but slashes allowed</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="refnote">Four delimiters, four converters. Everything else in Jinja and routing builds on these.</p>
+</details>
+
+<footer>
+  <p id="verdict">Nothing answered yet.</p>
+  <ul id="missed" hidden></ul>
+</footer>
+</div>
+
+<script>
+const ACTS = [
+  { title: "What Flask is", note: "Slides 2–3. The word 'micro' is the one people get wrong.", qs: [
+    { q: "In one line, what is Flask — and what does &ldquo;a Flask app is a WSGI app&rdquo; mean in practice?",
+      a: "<p>A <b>web application framework written in Python</b>, created by Armin Ronacher of the Pocoo group, maintained today by <b>Pallets</b>.</p><p>When you write <code>app = Flask(__name__)</code>, that object <b>already is the callable Gunicorn will call</b>. Flask does not replace WSGI; it sits on it — which is why the same file runs unchanged in production.</p>" },
+    { q: "Tell the April Fools story.",
+      a: "<p>Ronacher published Flask on <b>1 April 2010</b> as a gag — a single-file framework, poking fun at how many Python web frameworks there already were. The joke got a serious reception, people asked where they could download it, so he made it real.</p><p>Fifteen years later it is one of the two frameworks every Python job advert mentions.</p>" },
+    { q: "What does &ldquo;microframework&rdquo; mean — and what does it <em>not</em> mean?", tag: "trap",
+      a: "<p>It does <b>not</b> mean Flask is for small projects. It means <b>the core makes very few decisions on your behalf</b>.</p><p>Flask gives you routing, templating and a request object — and then it stops. No database layer, no form validation, no user model. You add those through extensions, if and when you need them.</p>" },
+    { q: "State the upside and the downside of that trade.",
+      a: "<p><b>Upside:</b> a small app stays genuinely small.<br><b>Downside:</b> every project has to make the same structural decisions again.</p>" },
+  ]},
+  { title: "The two pillars", note: "Slides 4–6. Knowing the split is what makes tracebacks readable.", qs: [
+    { q: "Werkzeug — what is it, what does the name mean, and what does it own?",
+      a: "<p><b>German for &ldquo;tool&rdquo;.</b> A <b>WSGI toolkit</b> — the piece that deals with the protocol. It wraps the raw environ dictionary into a request object and builds the response.</p><p>It also owns three things you use constantly: the <b>URL map</b> (turns <code>/blog/42</code> into a call to your function with 42 already an integer), the <b>development server</b> that <code>app.run()</code> gives you, and the <b>debugger</b> — the traceback page where every frame has a live Python console.</p>" },
+    { q: "Jinja2 — what does it do, and name the two features worth the price of admission?",
+      a: "<p>The <b>template engine</b>: takes an HTML file with gaps plus some data, and produces a finished page.</p><p><b>1. Inheritance</b> — one base template holds the shell of the site, and every page extends it and fills in blocks. Change the navigation once, not forty times.<br><b>2. Autoescaping</b> — a user typing a script tag gets it printed as visible text rather than run. On by default for HTML templates.</p>" },
+    { q: "What is the practical payoff of knowing the Werkzeug/Jinja split?", tag: "apply",
+      a: "<p>When you hit a confusing traceback, <b>roughly half the time the frames say Werkzeug or Jinja, not Flask</b>. That is not a bug — Flask really is quite thin glue over these two.</p>" },
+    { q: "The four Jinja delimiters, and what each does.", tag: "syntax",
+      a: "<p><code>{{ }}</code> — an <b>expression</b>, print this value.<br><code>{% %}</code> — a <b>statement</b>: if, for, block.<br><code>{# #}</code> — a <b>comment</b>, and unlike an HTML comment it <b>never reaches the browser</b>.<br><code>|</code> — applies a <b>filter</b>, so <code>name|upper</code> prints in capitals.</p>" },
+    { q: "Why must debug mode never be on in production?", tag: "trap",
+      a: "<p>Because the debugger's traceback page gives <b>every frame a live Python console</b>. Anyone who can trigger an error gets <b>a Python prompt on your server</b>.</p>" },
+    { q: "What does the <code>safe</code> filter do, and what is the rule about it?", tag: "trap",
+      a: "<p>It <b>switches autoescaping off</b> for a value. Occasionally necessary — and it should <b>always be deliberate</b>, because it hands back the XSS hole escaping was closing.</p>" },
+  ]},
+  { title: "What templating actually is", note: "Slide 7. The concept people nod along to without it landing.", qs: [
+    { q: "Define a template in one sentence.",
+      a: "<p>A <b>document with named gaps in it</b>. You hand the engine two things — the template and a bag of values — and it gives you back finished HTML. That is the whole idea.</p>" },
+    { q: "Three reasons to template rather than glue strings together in Python.",
+      a: "<p><b>Readable</b> — the file resembles the page, so you can see its shape and your editor can help.<br><b>Safe</b> — values get escaped on the way in; gluing user data into strings builds an XSS hole.<br><b>Reusable</b> — one layout can be inherited by every page in the site.</p>" },
+    { q: "Complete the rule of thumb: templates format data — they should not ___", tag: "trap",
+      a: "<p>&hellip; <b>decide things</b>.</p><p>If you find a nested if-else pyramid in a template, <b>that decision belongs back in Python</b>.</p>" },
+  ]},
+  { title: "The six-line app", note: "Slide 8. Every argument in it is doing work.", qs: [
+    { q: "Why does the <code>__name__</code> argument matter more than it looks?", tag: "trap",
+      a: "<p>It tells Flask <b>where this file lives on disk</b>, which is how it later finds your <code>templates</code> and <code>static</code> folders.</p><p>Pass the wrong thing and <b>Flask cannot find your HTML</b>.</p>" },
+    { q: "What is a view, and what happens when one returns a plain string?",
+      a: "<p>A <b>view</b> is the function the route decorator binds a URL to. Return a string and Flask <b>wraps it into a proper HTTP 200 response with the right content type</b>.</p>" },
+    { q: "What two things does <code>debug=True</code> give you?",
+      a: "<p><b>1.</b> The server restarts automatically when you save a file.<br><b>2.</b> Errors come back as the interactive debugger page.</p>" },
+    { q: "<code>app.run()</code> — what is it for, and what replaces it in production?", tag: "apply",
+      a: "<p>Development only. It starts the development server on <b>localhost port 5000</b>.</p><p>In production a <b>real WSGI server imports the app object</b> instead — which is exactly the PythonAnywhere pipeline from the WSGI talk.</p>" },
+  ]},
+  { title: "Routing", note: "Slides 9–11. One asymmetry here bites everybody exactly once.", qs: [
+    { q: "The route decorator is sugar for what — and when would you call the underlying thing yourself?",
+      a: "<p>It calls <code>app.add_url_rule()</code>. You call that directly when the <b>view function lives in another module</b> and you are wiring things up centrally.</p><p>Either way the effect is the same: an entry goes into Werkzeug's URL map.</p>" },
+    { q: "Which HTTP method does a route answer by default, and how do you accept a form submission?", tag: "syntax",
+      a: "<p><b>GET only</b>, by default. To accept a form you list them explicitly: <code>methods=[\"GET\", \"POST\"]</code>.</p>" },
+    { q: "Trailing slashes — state the asymmetry exactly.", tag: "trap",
+      a: "<p>A rule <b>ending in a slash</b> is canonical: requesting it <b>without</b> the slash <b>redirects politely</b>.</p><p>A rule with <b>no</b> trailing slash, requested <b>with</b> one, is a <b>404</b>.</p><p>It is not symmetric, and it will bite you.</p>" },
+    { q: "Name the four converters and what each accepts.", tag: "syntax",
+      a: "<p><b>string</b> — the default, anything without a slash.<br><b>int</b><br><b>float</b><br><b>path</b> — like string but permits slashes, so it can capture a whole sub-path.</p>" },
+    { q: "Why is a typed rule like <code>&lt;int:id&gt;</code> doing more work than a cast?", tag: "apply",
+      a: "<p><code>/blog/42</code> calls your function with the <b>integer</b> 42, already converted. But <code>/blog/abc</code> <b>does not match the rule at all</b>, so Flask returns a <b>404 before a single line of your code runs</b>.</p><p>That is <b>free input validation at the very edge of the application</b>. You never write the check, and the bad request never gets in.</p>" },
+    { q: "<code>url_for()</code> — what do you pass it, and give three reasons to use it.",
+      a: "<p>You pass the <b>name of a view function</b>, not a path — plus any parameters as keyword arguments. Flask assembles the URL.</p><p><b>1.</b> Change a route later and every link follows automatically.<br><b>2.</b> Parameters get escaped properly.<br><b>3.</b> It respects any prefix the app is mounted under.<br><b>4.</b> It is how you link to static files.</p>",
+      why: "The trick to remember: you name the function, and Flask works out the path." },
+  ]},
+  { title: "Request, templates, static", note: "Slides 12–14.", qs: [
+    { q: "What <em>is</em> the request object, really — and name the attributes you will actually use.",
+      a: "<p>It is <b>the environ dictionary from the WSGI talk, wrapped up nicely</b>.</p><p><code>request.method</code> — the HTTP verb.<br><code>request.form</code> — submitted form fields.<br><code>request.args</code> — the query string, everything after the question mark.<br>Also <code>cookies</code>, <code>files</code> for uploads, and <code>json</code> for a JSON body.</p>" },
+    { q: "<code>request</code> is never passed into the view — so why does it always refer to the right one? And what is the classic error?", tag: "trap",
+      a: "<p>It is imported as a global, and <b>Flask's request context</b> makes it refer to the request being handled right now, even with several in flight.</p><p>The flip side: <b>&ldquo;Working outside of request context&rdquo;</b> — you touched <code>request</code> where there is no request: a background thread, a CLI command, or at import time.</p>" },
+    { q: "Describe the one-URL-two-methods pattern, and why the redirect at the end is not decoration.", tag: "apply",
+      a: "<p>One route accepting GET and POST: a <b>GET shows the form, a POST processes it</b>, and you tell them apart with <code>request.method</code>.</p><p>The POST then <b>redirects</b> using <code>url_for()</code> — <b>redirect-after-POST stops the browser resubmitting the form when someone hits refresh</b>.</p>" },
+    { q: "Where does Flask look for templates, and why does it find that folder?",
+      a: "<p>A folder called <code>templates</code>, <b>sitting next to your application module</b> — and it finds it <b>because of the <code>__name__</code> argument</b> you passed at the start.</p><p>You do not configure this. You just have to spell the folder correctly.</p>" },
+    { q: "Static files: which folder, how do you link to one, and who should serve them in production?", tag: "apply",
+      a: "<p>A folder called <code>static</code>, served at the <code>/static</code> path. Link with <code>url_for('static', filename=…)</code> — writing the path by hand works right up until the app moves under a sub-path or onto a CDN, and then every link breaks at once.</p><p>In production the job belongs to <b>nginx or your hosting platform</b>. The front server handles TLS and static files because it is fast at exactly those things. <b>Letting a Python worker serve a logo is a waste of a worker.</b></p>" },
+  ]},
+  { title: "Structure, the rest of the core, and the payoff", note: "Slides 15, 17–20.", qs: [
+    { q: "The three pieces of a Flask project on disk — and the two moves when it grows.",
+      a: "<p><code>app.py</code>, a <code>templates</code> folder, a <code>static</code> folder (plus <code>requirements.txt</code>).</p><p>When it grows: split features into <b>blueprints</b> — sub-applications with their own routes and templates — and build the app inside a function, conventionally <b>create_app</b>, so tests can create their own instance with their own configuration.</p>",
+      why: "One file is genuinely fine to start. For an app of that size, splitting it up would be ceremony, not engineering." },
+    { q: "Flask's session — signed or encrypted? And the consequence.", tag: "trap",
+      a: "<p><b>Signed, not encrypted.</b> The data actually lives in the browser, signed with your secret key so the user cannot tamper with it — but <b>the user can read it</b>.</p><p>So: <b>never put anything secret in a session</b>.</p>" },
+    { q: "Cookies: where do you set them, and where do you read them?", tag: "trap",
+      a: "<p>You <b>set</b> them on the <b>response</b> object and <b>read</b> them from the <b>request</b> object. That distinction trips people up.</p>" },
+    { q: "File uploads arrive in <code>request.files</code>. What must you always do first?", tag: "trap",
+      a: "<p>Run the filename through <b><code>secure_filename()</code></b> before saving it.</p><p>The name the browser sent you is <b>user input</b>, and user input has been known to contain <code>../</code>.</p>" },
+    { q: "Name four extensions and what each adds.",
+      a: "<p><b>Flask-SQLAlchemy</b> — an ORM.<br><b>Flask-Migrate</b> — schema migrations.<br><b>Flask-WTF</b> — forms with validation, and CSRF protection.<br><b>Flask-Login</b> — who is signed in.<br>Also Flask-Mail and Flask-Limiter.</p>",
+      why: "CSRF protection matters: any app using cookie sessions genuinely needs it." },
+    { q: "The <code>init_app</code> two-step — what is the pattern, and why does it exist?",
+      a: "<p>You create the extension object at module level <b>with no app</b> — <code>db = SQLAlchemy()</code> — and later call <code>db.init_app(app)</code> once the app exists.</p><p>That dance is what lets <b>one extension serve several application instances</b>, and it is the reason the create-app factory pattern pays off.</p>" },
+    { q: "Four reasons to reach for Flask — and the closing line.",
+      a: "<p><b>Nothing is hidden</b> — routes, templates and the request object are nearly the entire model, so there is little magic to unlearn.<br><b>It is still just WSGI</b> — everything runs unchanged on Gunicorn, Waitress, PythonAnywhere.<br><b>You choose the pieces</b> — no database or form layer is imposed.<br><b>It scales down honestly</b> — a six-line app really does stay six lines.</p><p>The close: <b>&ldquo;Learn WSGI once, and every Python web framework makes sense. Learn Flask, and you can build on it the same afternoon.&rdquo;</b></p>" },
+    { q: "What is the point you leave the audience with about KuantorFlow?", tag: "apply",
+      a: "<p>Not that the project is large. It is that <b>nothing new had to be learned to start it</b> — the six-line app and this real project <b>differ in quantity, not in kind</b>.</p>" },
+  ]},
+];
+
+const quiz = document.getElementById("quiz");
+const state = new Map();
+let n = 0;
+const total = ACTS.reduce((s, a) => s + a.qs.length, 0);
+const TAGLABEL = { syntax: "syntax", trap: "trap", apply: "apply" };
+
+ACTS.forEach((act, ai) => {
+  const h = document.createElement("h2");
+  h.innerHTML = `${act.title} <em>Act ${ai + 1}</em>`;
+  quiz.appendChild(h);
+  const note = document.createElement("p");
+  note.className = "act-note";
+  note.textContent = act.note;
+  quiz.appendChild(note);
+
+  act.qs.forEach(item => {
+    n += 1;
+    const id = n;
+    const card = document.createElement("section");
+    card.className = "q";
+    card.dataset.id = id;
+    const tag = item.tag ? `<span class="tag ${item.tag}">${TAGLABEL[item.tag]}</span>` : "";
+    card.innerHTML = `
+      <div class="qhead">
+        <span class="num">${String(id).padStart(2, "0")}</span>
+        <p class="prompt">${item.q}${tag}</p>
+      </div>
+      <div class="a" id="a${id}" hidden>
+        ${item.a}${item.why ? `<span class="why">${item.why}</span>` : ""}
+      </div>
+      <div class="actions">
+        <button class="reveal" type="button">Show answer</button>
+        <button class="mark yes" type="button" aria-pressed="false" hidden>Got it</button>
+        <button class="mark nope" type="button" aria-pressed="false" hidden>Missed</button>
+      </div>`;
+    quiz.appendChild(card);
+
+    const ans = card.querySelector(".a");
+    const reveal = card.querySelector(".reveal");
+    const yes = card.querySelector(".mark.yes");
+    const nope = card.querySelector(".mark.nope");
+
+    reveal.addEventListener("click", () => {
+      const open = !ans.hidden;
+      ans.hidden = open;
+      reveal.textContent = open ? "Show answer" : "Hide answer";
+      yes.hidden = nope.hidden = open;
+    });
+    const mark = (v) => {
+      state.set(id, state.get(id) === v ? null : v);
+      const cur = state.get(id);
+      card.dataset.state = cur || "";
+      yes.setAttribute("aria-pressed", String(cur === "ok"));
+      nope.setAttribute("aria-pressed", String(cur === "no"));
+      score();
+    };
+    yes.addEventListener("click", () => mark("ok"));
+    nope.addEventListener("click", () => mark("no"));
+  });
+});
+
+const elDone = document.getElementById("done");
+const elRight = document.getElementById("right");
+const elWrong = document.getElementById("wrong");
+const fill = document.getElementById("fill");
+const verdict = document.getElementById("verdict");
+const missedList = document.getElementById("missed");
+
+function score() {
+  let ok = 0, no = 0;
+  state.forEach(v => { if (v === "ok") ok++; else if (v === "no") no++; });
+  const done = ok + no;
+  elDone.textContent = done;
+  elRight.textContent = ok;
+  elWrong.textContent = no;
+  fill.style.width = `${(done / total) * 100}%`;
+
+  missedList.innerHTML = "";
+  if (!done) {
+    verdict.textContent = "Nothing answered yet.";
+    missedList.hidden = true;
+    return;
+  }
+  const pct = Math.round((ok / done) * 100);
+  verdict.innerHTML = done === total
+    ? `All ${total} answered — <b>${ok} right, ${no} missed (${pct}%)</b>.`
+    : `<b>${done} of ${total}</b> answered — ${ok} right, ${no} missed (${pct}%).`;
+
+  const misses = [];
+  state.forEach((v, id) => { if (v === "no") misses.push(id); });
+  if (misses.length) {
+    missedList.hidden = false;
+    misses.sort((a, b) => a - b).forEach(id => {
+      const li = document.createElement("li");
+      const p = document.querySelector(`.q[data-id="${id}"] .prompt`);
+      li.textContent = `${String(id).padStart(2, "0")} — ${p.textContent.replace(/\s*(syntax|trap|apply)\s*$/, "")}`;
+      li.style.cursor = "pointer";
+      li.addEventListener("click", () => {
+        document.querySelector(`.q[data-id="${id}"]`).scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+      missedList.appendChild(li);
+    });
+  } else {
+    missedList.hidden = true;
+  }
+}
+
+document.getElementById("reset").addEventListener("click", () => {
+  state.clear();
+  document.querySelectorAll(".q").forEach(c => {
+    c.dataset.state = "";
+    c.querySelector(".a").hidden = true;
+    c.querySelector(".reveal").textContent = "Show answer";
+    c.querySelector(".mark.yes").hidden = true;
+    c.querySelector(".mark.nope").hidden = true;
+    c.querySelectorAll(".mark").forEach(b => b.setAttribute("aria-pressed", "false"));
+  });
+  score();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+score();
+</script>
+
+</body>
+</html>

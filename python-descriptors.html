@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta property="og:title" content="Descriptors Drill — Ship It Live!" />
+<meta property="og:description" content="Interactive self-test: Descriptors." />
+<meta property="og:image" content="https://kuantor.github.io/drills/background.jpg" />
+<meta property="og:url" content="https://kuantor.github.io/drills/python-descriptors.html" />
+<meta property="og:type" content="website" />
+<style>
+  :root{
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  body{margin:0}
+  img{max-width:100%}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+<title>Descriptors Drill</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a single reading column of question cards, grouped into seven acts
+   that follow the talk. Palette lifted from the Ship It Live deck builder so
+   this reads as part of the series: roasted brown ground, brass accents. */
+:root{
+  --ground:#1A150E;
+  --surface:#262014;
+  --card:#312918;
+  --edge:#4A3D22;
+  --cream:#F1EADA;
+  --tan:#AC9F84;
+  --gold:#C8A24B;
+  --gold-lt:#E8CD86;
+  --teal:#6FB0A6;
+  --terra:#D0845A;
+  --sage:#8BA678;
+  --serif:"Source Serif 4",Cambria,Georgia,serif;
+  --sans:"Public Sans",Calibri,-apple-system,system-ui,sans-serif;
+  --mono:"IBM Plex Mono",Consolas,ui-monospace,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  background:var(--ground);color:var(--cream);font-family:var(--sans);
+  font-size:16px;line-height:1.55;margin:0;
+}
+.wrap{max-width:780px;margin:0 auto;padding-inline:16px;padding-block:40px 64px}
+
+header h1{
+  font-family:var(--serif);font-weight:700;color:var(--gold);
+  font-size:clamp(2rem,7vw,3rem);line-height:1.05;margin:0 0 .3em;text-wrap:balance;
+}
+.kicker{
+  font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--tan);margin:0 0 1.6rem;
+}
+.lede{color:var(--tan);font-size:1.05rem;margin:0 0 2rem;max-width:62ch}
+.lede strong{color:var(--cream);font-weight:600}
+
+.board{
+  position:sticky;top:env(safe-area-inset-top,0px);z-index:10;
+  background:var(--surface);border:1px solid var(--edge);border-radius:10px;
+  padding:14px 16px;margin-bottom:2.4rem;
+  display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;
+}
+.tally{display:flex;gap:18px;flex:1 1 auto;min-width:0}
+.stat{display:flex;flex-direction:column;line-height:1.15}
+.stat b{
+  font-family:var(--mono);font-size:1.25rem;font-weight:500;
+  font-variant-numeric:tabular-nums;color:var(--gold-lt);
+}
+.stat span{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--tan)}
+.stat.ok b{color:var(--sage)}
+.stat.no b{color:var(--terra)}
+.bar{flex:1 1 100%;height:4px;background:var(--edge);border-radius:2px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--gold);transition:width .3s ease}
+button{font-family:var(--sans);font-size:.85rem;cursor:pointer;border-radius:7px;transition:background .15s,border-color .15s,color .15s}
+button:focus-visible{outline:2px solid var(--gold-lt);outline-offset:2px}
+.ghost{background:transparent;border:1px solid var(--edge);color:var(--tan);padding:7px 13px}
+.ghost:hover{border-color:var(--gold);color:var(--gold-lt)}
+
+h2{
+  font-family:var(--serif);font-size:1.45rem;font-weight:600;color:var(--gold);
+  margin:2.8rem 0 .2rem;display:flex;align-items:baseline;gap:.6rem;text-wrap:balance;
+}
+h2 em{
+  font-family:var(--mono);font-style:normal;font-size:.7rem;color:var(--tan);
+  letter-spacing:.1em;flex:0 0 auto;
+}
+.act-note{color:var(--tan);font-size:.9rem;margin:0 0 1.4rem}
+
+.q{background:var(--card);border:1px solid var(--edge);border-radius:10px;padding:18px 20px;margin-bottom:14px}
+.q[data-state="ok"]{border-color:color-mix(in srgb,var(--sage) 55%,var(--edge))}
+.q[data-state="no"]{border-color:color-mix(in srgb,var(--terra) 55%,var(--edge))}
+.qhead{display:flex;gap:12px;align-items:flex-start}
+.num{
+  font-family:var(--mono);font-size:.78rem;color:var(--gold);
+  flex:0 0 auto;padding-top:.2em;font-variant-numeric:tabular-nums;
+}
+.prompt{margin:0;flex:1 1 auto;min-width:0;font-size:1rem}
+.prompt code,.a code{
+  font-family:var(--mono);font-size:.86em;background:var(--ground);
+  border:1px solid var(--edge);border-radius:4px;padding:.08em .35em;color:var(--gold-lt);
+}
+.tag{
+  display:inline-block;font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;
+  text-transform:uppercase;padding:.2em .5em;border-radius:4px;margin-left:.5rem;
+  vertical-align:.12em;border:1px solid;
+}
+.tag.numbers{color:var(--gold-lt);border-color:color-mix(in srgb,var(--gold) 45%,transparent)}
+.tag.trap{color:var(--terra);border-color:color-mix(in srgb,var(--terra) 45%,transparent)}
+.tag.apply{color:var(--teal);border-color:color-mix(in srgb,var(--teal) 45%,transparent)}
+
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;padding-left:calc(.78rem + 12px)}
+.reveal{background:transparent;border:1px solid var(--gold);color:var(--gold-lt);padding:7px 15px}
+.reveal:hover{background:color-mix(in srgb,var(--gold) 14%,transparent)}
+.mark{border:1px solid var(--edge);background:transparent;padding:7px 15px}
+.mark.yes{color:var(--sage)}
+.mark.yes:hover,.mark.yes[aria-pressed="true"]{background:color-mix(in srgb,var(--sage) 18%,transparent);border-color:var(--sage)}
+.mark.nope{color:var(--terra)}
+.mark.nope:hover,.mark.nope[aria-pressed="true"]{background:color-mix(in srgb,var(--terra) 18%,transparent);border-color:var(--terra)}
+
+.a{
+  margin:14px 0 0;padding:14px 16px;background:var(--ground);
+  border-left:3px solid var(--gold);border-radius:0 7px 7px 0;font-size:.96rem;
+}
+.a p{margin:0 0 .7em}
+.a p:last-child{margin-bottom:0}
+.a b{color:var(--gold-lt);font-weight:600}
+.a .why{color:var(--tan);font-size:.9rem;display:block;margin-top:.7em;padding-top:.7em;border-top:1px solid var(--edge)}
+
+details.ref{margin-top:3rem;border:1px solid var(--edge);border-radius:10px;background:var(--surface)}
+details.ref summary{
+  cursor:pointer;padding:14px 18px;font-family:var(--mono);font-size:.78rem;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--gold);
+}
+details.ref summary:focus-visible{outline:2px solid var(--gold-lt);outline-offset:-2px}
+.tablewrap{overflow-x:auto;padding:0 18px 18px}
+table{border-collapse:collapse;width:100%;min-width:460px;font-size:.92rem}
+th,td{text-align:right;padding:8px 10px;border-bottom:1px solid var(--edge)}
+th:first-child,td:first-child{text-align:left}
+thead th{color:var(--tan);font-weight:500;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase}
+tbody td{font-family:var(--mono);font-variant-numeric:tabular-nums}
+tbody td:first-child{font-family:var(--sans)}
+.win{color:var(--sage)}
+.lose{color:var(--terra)}
+.refnote{padding:0 18px 18px;margin:0;color:var(--tan);font-size:.85rem}
+
+footer{margin-top:3rem;padding-top:1.6rem;border-top:1px solid var(--edge);color:var(--tan);font-size:.88rem}
+footer b{color:var(--gold-lt)}
+#missed{margin:.8rem 0 0;padding-left:1.1rem}
+#missed li{margin-bottom:.3rem}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+<header>
+  <p class="kicker">Ship It Live! &middot; self-test</p>
+  <h1>Descriptors Drill</h1>
+  <p class="lede">Thirty-two questions on <strong>Descriptors &mdash; The Thing Under @property, ORMs and cached_property</strong>. Answer out loud before revealing, then mark yourself honestly. The hinge is the <strong>four-step lookup order</strong>: if you can recite it cold, every other answer on this page falls out of it.</p>
+</header>
+
+<div class="board">
+  <div class="tally">
+    <div class="stat"><b id="done">0</b><span>answered</span></div>
+    <div class="stat ok"><b id="right">0</b><span>got it</span></div>
+    <div class="stat no"><b id="wrong">0</b><span>missed</span></div>
+  </div>
+  <button class="ghost" id="reset">Reset</button>
+  <div class="bar"><i id="fill"></i></div>
+</div>
+
+<main id="quiz"></main>
+
+<details class="ref">
+  <summary>Reference &mdash; who is data and who is not</summary>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Object</th><th>Kind</th><th>Methods</th></tr></thead>
+    <tbody>
+      <tr><td><code>property</code></td><td class="lose">data</td><td>get + set</td></tr>
+      <tr><td><code>functools.cached_property</code></td><td class="win">non-data</td><td>get only</td></tr>
+      <tr><td><code>staticmethod</code></td><td class="win">non-data</td><td>get only</td></tr>
+      <tr><td><code>classmethod</code></td><td class="win">non-data</td><td>get only</td></tr>
+      <tr><td>every <code>function</code></td><td class="win">non-data</td><td>get only</td></tr>
+      <tr><td><code>__slots__</code> entries</td><td class="lose">data</td><td>get + set</td></tr>
+      <tr><td>SQLAlchemy <code>Column</code> / <code>Mapped</code></td><td class="lose">data</td><td>get + set</td></tr>
+      <tr><td>Django <code>ForeignKey</code></td><td class="lose">data</td><td>get + set</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Step</th><th><code>obj.name</code> checks</th><th>Stops if</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>data descriptor on the class</td><td>found</td></tr>
+      <tr><td>2</td><td>the instance <code>__dict__</code></td><td>found</td></tr>
+      <tr><td>3</td><td>non-data descriptor, or plain class attribute</td><td>found</td></tr>
+      <tr><td>4</td><td><code>__getattr__</code></td><td>last resort</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="refnote">Every row in the first table was produced by asking the interpreter — <code>verify_descriptors.py</code>, Python 3.14.3 — not from documentation.</p>
+</details>
+
+<footer>
+  <p id="verdict">Nothing answered yet.</p>
+  <ul id="missed" hidden></ul>
+</footer>
+</div>
+
+<script>
+const ACTS = [
+  { title: "The puzzle", note: "Slides 2–3. One object on the class, a different value per instance.", qs: [
+    { q: "<code>name = Column(String)</code> sits in the class body. So why does every instance get its own name?",
+      a: "<p>Because that one shared object <b>intercepts the assignment</b> and puts the value somewhere per-instance — in the instance's own <code>__dict__</code>.</p><p>There is exactly one Column object for the whole class. It never holds the data; it holds the <b>rule for where the data goes</b>.</p>" },
+    { q: "What is the tell, if you only look at the output?", tag: "trap",
+      a: "<p><code>u1.__dict__</code> comes back as <code>{'_name': 'Anna'}</code>. <b>A key nobody typed.</b></p><p>You never wrote <code>self._name</code> anywhere. Something rewrote the assignment on its way through.</p>" },
+    { q: "<code>User.name == \"Anna\"</code> gives a SQL fragment. <code>u.name == \"Anna\"</code> gives True. Is that a special case in the language?",
+      a: "<p><b>No.</b> One ordinary, documented mechanism produces both, and you can implement it in about forty lines.</p><p>It is the answer to the whole talk, and it turns on a single branch — see act 7.</p>" },
+  ]},
+  { title: "The lookup order", note: "Slides 4–5. The spine. Everything later is a consequence.", qs: [
+    { q: "Recite what <code>obj.name</code> does. Four steps, in order.", tag: "numbers",
+      a: "<p><b>1.</b> Walk the MRO for a class attribute. If it defines <code>__set__</code> or <code>__delete__</code> — a <b>data descriptor</b> — call its <code>__get__</code> and stop.<br><b>2.</b> Look in the instance <code>__dict__</code>.<br><b>3.</b> Back to the class attribute: if it defines only <code>__get__</code> — a <b>non-data descriptor</b> — call it. Otherwise return the attribute as it is.<br><b>4.</b> <code>__getattr__</code>, and only if everything above raised <code>AttributeError</code>.</p>" },
+    { q: "Steps 1 and 3 are the same class attribute. What separates them?",
+      a: "<p><b>Whether it defines a setter.</b> That single fact decides whether the attribute sits <b>in front of</b> the instance dict or <b>behind</b> it.</p><p>That gap is the entire talk.</p>" },
+    { q: "Common belief: <code>__getattr__</code> runs on every attribute access. True?", tag: "trap",
+      a: "<p><b>False.</b> It is the <b>last resort</b>, reached only when every earlier step raised <code>AttributeError</code>.</p><p><code>__getattribute__</code> is the one that runs every time — and it is the thing executing the four steps. Overriding it is almost always wrong.</p>" },
+    { q: "Name the three methods of the protocol, and say what you must inherit or register.",
+      a: "<p><code>__get__(self, obj, objtype=None)</code>, <code>__set__(self, obj, value)</code>, <code>__set_name__(self, owner, name)</code>. Plus the rarer <code>__delete__</code>.</p><p><b>Nothing to inherit and nothing to register.</b> The interpreter looks for the method names.</p>" },
+    { q: "Where must a descriptor live to work at all?", tag: "trap",
+      a: "<p><b>On the class.</b> Descriptors are looked up on the <i>type</i>, not the instance.</p><p>Put one in an instance's <code>__dict__</code> and it does nothing whatsoever — it is just an object sitting in a dictionary.</p>" },
+  ]},
+  { title: "Writing one", note: "Slides 6–8. Eleven lines, then validation.", qs: [
+    { q: "Write the smallest useful descriptor from memory. Three methods.",
+      a: "<p><code>__set_name__</code> stores the key: <code>self.store = \"_\" + name</code>.<br><code>__get__</code> returns <code>self</code> when <code>obj is None</code>, else <code>getattr(obj, self.store, None)</code>.<br><code>__set__</code> does <code>setattr(obj, self.store, value)</code>.</p>" },
+    { q: "What does <code>__set_name__</code> receive, when, and how many times?", tag: "numbers",
+      a: "<p>The <b>owning class</b> and the <b>attribute name</b>, <b>once per descriptor</b>, as the class object is being built — in the order the attributes were written.</p><p>Print from inside it on a two-field class and you get exactly two lines.</p>" },
+    { q: "What did it replace, and why was the old way a bug risk rather than just ugly?",
+      a: "<p>It replaced <code>name = Field(\"name\")</code> — saying the name twice.</p><p><b>A name typed twice is a name that can disagree with itself.</b> When it does, the field writes to the wrong key and nothing raises.</p>",
+      why: "Added in Python 3.6, and the reason modern ORMs stopped making you repeat yourself." },
+    { q: "Three reasons a validating <code>__set__</code> beats a check inside <code>save()</code>.", tag: "apply",
+      a: "<p><b>1.</b> The traceback points at <b>the assignment that was wrong</b>, not at a commit ten frames later.<br><b>2.</b> <b>It cannot be skipped</b> — no code path reaches the attribute without going through it, which is not true of a validate method somebody can forget to call.<br><b>3.</b> One class, reused by every field of that type on every model you own.</p>" },
+    { q: "What can a descriptor <em>not</em> validate on its own?", tag: "trap",
+      a: "<p><b>Construction.</b> It only ever sees assignments. A required field left unset is invisible to it.</p><p>That is one of the things a dataclass or a Pydantic model adds on top.</p>" },
+  ]},
+  { title: "Data versus non-data", note: "Slides 9–11. One extra method, opposite behaviour.", qs: [
+    { q: "Define both, by the method that decides it.",
+      a: "<p><b>Non-data</b>: defines <code>__get__</code> only. <b>The instance <code>__dict__</code> wins.</b><br><b>Data</b>: also defines <code>__set__</code> (or <code>__delete__</code>). <b>The descriptor wins, always.</b></p>" },
+    { q: "Why must a validating field be a data descriptor?", tag: "trap",
+      a: "<p>Because otherwise <b>the very first assignment writes straight into the instance <code>__dict__</code> and shadows it</b> — and nothing is ever validated again.</p><p>It would work in the test that only reads, and fail silently everywhere else.</p>" },
+    { q: "<code>functools.cached_property</code> — where does it keep the cached value?",
+      a: "<p>In the <b>instance's own <code>__dict__</code>, under the same name as itself</b>.</p><p>After the first access, step 2 of the lookup finds it and the descriptor is never reached again. <b>The lookup order is the cache.</b></p>" },
+    { q: "One question settles its whole design. What is it, and what is the answer?", tag: "numbers",
+      a: "<p><code>hasattr(cached_property, \"__set__\")</code> — and the answer is <b>False</b>.</p><p>It is a non-data descriptor, which is the only reason arranging to be shadowed works.</p>" },
+    { q: "Name its two rough edges, and derive both from that design.", tag: "apply",
+      a: "<p><b><code>del obj.thing</code> clears the cache</b>, because that removes the shadowing entry.<br><b>It cannot work with <code>__slots__</code></b>, because there is no instance <code>__dict__</code> to write into.</p><p>Neither is a special case. Both fall out of how it caches.</p>" },
+    { q: "Write the nine-line version.",
+      a: "<p><code>__init__</code> keeps the function. <code>__set_name__</code> records the name. <code>__get__</code> returns <code>self</code> if <code>obj is None</code>, otherwise computes <code>value = self.func(obj)</code>, writes <code>obj.__dict__[self.name] = value</code>, and returns it.</p><p>The real one adds a lock and a better error when there is no <code>__dict__</code>. The mechanism is this.</p>" },
+  ]},
+  { title: "What you already use", note: "Slides 12–13. Asked of the interpreter, not remembered.", qs: [
+    { q: "Sort these into data and non-data: property, cached_property, staticmethod, classmethod, function, <code>__slots__</code> entries.", tag: "numbers",
+      a: "<p><b>Data</b> (get + set): <code>property</code>, <code>__slots__</code> entries, and every ORM column — SQLAlchemy's <code>Column</code>/<code>Mapped</code>, Django's <code>ForeignKey</code>.</p><p><b>Non-data</b> (get only): <code>cached_property</code>, <code>staticmethod</code>, <code>classmethod</code>, and <b>every function</b>.</p>" },
+    { q: "What is <code>__slots__</code>, described in the vocabulary of this talk?",
+      a: "<p>Each declared name becomes a <b>data descriptor</b> that reads and writes a <b>fixed slot</b> instead of a dictionary.</p><p>That is what <code>__slots__</code> <i>is</i> — not a directive, a set of descriptors.</p>" },
+    { q: "How does <code>self</code> actually get passed?",
+      a: "<p><b>A function is a non-data descriptor.</b> Reaching it through an instance calls <code>function.__get__</code>, which returns a <b>bound method</b> — an object holding the function and the instance, which supplies <code>self</code> when called.</p><p><code>Greeter.greet.__get__(g)</code> gives you the identical bound method. <b>There is no special case for methods anywhere in the language.</b></p>" },
+    { q: "You attach a function to an instance and call it. Why does it complain about arguments?", tag: "trap",
+      a: "<p>Because <b>it is never bound</b>. Binding happens on the way out of the <i>class</i>; a function found in the instance <code>__dict__</code> is returned as it is, so nothing supplies <code>self</code>.</p><p>That is the classic monkey-patching surprise, and now it is a rule rather than a surprise.</p>" },
+  ]},
+  { title: "Mistakes and storage", note: "Slides 14–15. The one everybody writes.", qs: [
+    { q: "<code>def __set__(self, obj, value): self.value = value</code>. What happens, and why?", tag: "trap",
+      a: "<p><b>Every instance shares one value.</b> Set the first user to Anna and the second to Bohdan, and <b>both read back Bohdan</b>.</p><p><code>self</code> is the <b>descriptor</b>, created once in the class body. There is one of it for the whole class.</p>" },
+    { q: "Which familiar bug is that, wearing a different coat?",
+      a: "<p>The <b>mutable default argument</b>. State that looks per-instance and is really <b>per-definition</b> — created once at class-definition time and shared forever after.</p>" },
+    { q: "State the rule in one line, and say how many instances it takes to catch.",
+      a: "<p><b><code>obj</code> is where the value goes. <code>self</code> is where the configuration goes</b> — the name, the type, the limits. Never the data.</p><p><b>Two instances.</b> Write that test first and you will never ship this.</p>" },
+    { q: "Three places the value can live, and what each buys.", tag: "apply",
+      a: "<p><b><code>obj.__dict__[\"_name\"]</code></b> — simple and fast, right almost always. Needs a prefix, and the key is visible to anything walking the dict.</p><p><b><code>obj.__dict__[name]</code></b> — the cached_property trick. Perfect for a cache, useless for a field that must keep validating.</p><p><b><code>WeakKeyDictionary</code></b> — works with <code>__slots__</code>, never touches the object. Costs a lookup and needs the instance hashable and weak-referenceable.</p>" },
+  ]},
+  { title: "Reading the ORM", note: "Slides 16–19. The branch that closes the loop.", qs: [
+    { q: "<code>if obj is None: return self</code>. Defensive code, or mechanism?", tag: "trap",
+      a: "<p><b>Mechanism.</b> Python passes <code>None</code> as the instance when the attribute is reached <b>through the class</b>, because there isn't one.</p><p>Those two lines are how a descriptor answers differently for <code>User.name</code> and <code>u.name</code>.</p>" },
+    { q: "What does returning <code>self</code> there make possible?",
+      a: "<p>The descriptor itself lands in your hands — so it can implement <code>__eq__</code>, <code>__lt__</code>, <code>in_()</code>, <code>like()</code>, anything.</p><p><b>Without that one branch, <code>filter(User.name == \"Anna\")</code> could not exist as an API.</b></p>" },
+    { q: "So what does <code>Person.name == \"Anna\"</code> actually do?",
+      a: "<p><b>It compares nothing.</b> <code>__get__</code> saw <code>obj is None</code> and returned the descriptor; the comparison then called <b>the descriptor's <code>__eq__</code></b>, which returns whatever it likes — a SQL fragment.</p><p>On an instance, <code>__get__</code> returns the stored string and you compare two strings like any other day.</p>" },
+    { q: "Why is <code>filter(u.name == \"Anna\")</code> wrong?", tag: "apply",
+      a: "<p>Because it evaluates to <b><code>True</code> or <code>False</code> first</b>, and you have handed the query a boolean rather than a condition.</p><p>The class builds a query. The instance builds a value.</p>" },
+    { q: "When should you write a descriptor rather than a <code>@property</code>?", tag: "apply",
+      a: "<p>When there is <b>repetition</b> — the same managed behaviour on many attributes; <b>reuse</b> across classes you do not want coupled by inheritance; a <b>library</b> where users declare fields and you supply meaning; or you need <b><code>Model.field</code> to be an object in its own right</b>.</p><p>One attribute on one class: use <code>property</code>. <b>Three properties is fine. Thirty that differ only in a type check is a descriptor you have not written yet.</b></p>" },
+  ]},
+];
+
+const quiz = document.getElementById("quiz");
+const state = new Map();
+let n = 0;
+const total = ACTS.reduce((s, a) => s + a.qs.length, 0);
+
+ACTS.forEach((act, ai) => {
+  const h = document.createElement("h2");
+  h.innerHTML = `${act.title} <em>Act ${ai + 1}</em>`;
+  quiz.appendChild(h);
+  const note = document.createElement("p");
+  note.className = "act-note";
+  note.textContent = act.note;
+  quiz.appendChild(note);
+
+  act.qs.forEach(item => {
+    n += 1;
+    const id = n;
+    const card = document.createElement("section");
+    card.className = "q";
+    card.dataset.id = id;
+    const tag = item.tag ? `<span class="tag ${item.tag}">${item.tag}</span>` : "";
+    card.innerHTML = `
+      <div class="qhead">
+        <span class="num">${String(id).padStart(2, "0")}</span>
+        <p class="prompt">${item.q}${tag}</p>
+      </div>
+      <div class="a" id="a${id}" hidden>
+        ${item.a}${item.why ? `<span class="why">${item.why}</span>` : ""}
+      </div>
+      <div class="actions">
+        <button class="reveal" type="button">Show answer</button>
+        <button class="mark yes" type="button" aria-pressed="false" hidden>Got it</button>
+        <button class="mark nope" type="button" aria-pressed="false" hidden>Missed</button>
+      </div>`;
+    quiz.appendChild(card);
+
+    const ans = card.querySelector(".a");
+    const reveal = card.querySelector(".reveal");
+    const yes = card.querySelector(".mark.yes");
+    const nope = card.querySelector(".mark.nope");
+
+    reveal.addEventListener("click", () => {
+      const open = !ans.hidden;
+      ans.hidden = open;
+      reveal.textContent = open ? "Show answer" : "Hide answer";
+      yes.hidden = nope.hidden = open;
+    });
+    const mark = (v) => {
+      state.set(id, state.get(id) === v ? null : v);
+      const cur = state.get(id);
+      card.dataset.state = cur || "";
+      yes.setAttribute("aria-pressed", String(cur === "ok"));
+      nope.setAttribute("aria-pressed", String(cur === "no"));
+      score();
+    };
+    yes.addEventListener("click", () => mark("ok"));
+    nope.addEventListener("click", () => mark("no"));
+  });
+});
+
+const elDone = document.getElementById("done");
+const elRight = document.getElementById("right");
+const elWrong = document.getElementById("wrong");
+const fill = document.getElementById("fill");
+const verdict = document.getElementById("verdict");
+const missedList = document.getElementById("missed");
+
+function score() {
+  let ok = 0, no = 0;
+  state.forEach(v => { if (v === "ok") ok++; else if (v === "no") no++; });
+  const done = ok + no;
+  elDone.textContent = done;
+  elRight.textContent = ok;
+  elWrong.textContent = no;
+  fill.style.width = `${(done / total) * 100}%`;
+
+  missedList.innerHTML = "";
+  if (!done) {
+    verdict.textContent = "Nothing answered yet.";
+    missedList.hidden = true;
+    return;
+  }
+  const pct = Math.round((ok / done) * 100);
+  verdict.innerHTML = done === total
+    ? `All ${total} answered — <b>${ok} right, ${no} missed (${pct}%)</b>.`
+    : `<b>${done} of ${total}</b> answered — ${ok} right, ${no} missed (${pct}%).`;
+
+  const misses = [];
+  state.forEach((v, id) => { if (v === "no") misses.push(id); });
+  if (misses.length) {
+    missedList.hidden = false;
+    misses.sort((a, b) => a - b).forEach(id => {
+      const li = document.createElement("li");
+      const p = document.querySelector(`.q[data-id="${id}"] .prompt`);
+      li.textContent = `${String(id).padStart(2, "0")} — ${p.textContent.replace(/\s*(numbers|trap|apply)\s*$/, "")}`;
+      li.style.cursor = "pointer";
+      li.addEventListener("click", () => {
+        document.querySelector(`.q[data-id="${id}"]`).scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+      missedList.appendChild(li);
+    });
+  } else {
+    missedList.hidden = true;
+  }
+}
+
+document.getElementById("reset").addEventListener("click", () => {
+  state.clear();
+  document.querySelectorAll(".q").forEach(c => {
+    c.dataset.state = "";
+    c.querySelector(".a").hidden = true;
+    c.querySelector(".reveal").textContent = "Show answer";
+    c.querySelector(".mark.yes").hidden = true;
+    c.querySelector(".mark.nope").hidden = true;
+    c.querySelectorAll(".mark").forEach(b => b.setAttribute("aria-pressed", "false"));
+  });
+  score();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+score();
+</script>
+
+</body>
+</html>

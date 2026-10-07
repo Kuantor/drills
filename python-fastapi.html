@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta property="og:title" content="FastAPI Drill — Ship It Live!" />
+<meta property="og:description" content="Interactive self-test: FastAPI." />
+<meta property="og:image" content="https://kuantor.github.io/drills/background.jpg" />
+<meta property="og:url" content="https://kuantor.github.io/drills/python-fastapi.html" />
+<meta property="og:type" content="website" />
+<style>
+  :root{
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  body{margin:0}
+  img{max-width:100%}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+<title>FastAPI Drill</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a single reading column of question cards, grouped into seven acts
+   that follow the talk. Palette lifted from the Ship It Live deck builder so
+   this reads as part of the series: roasted brown ground, brass accents. */
+:root{
+  --ground:#1A150E;
+  --surface:#262014;
+  --card:#312918;
+  --edge:#4A3D22;
+  --cream:#F1EADA;
+  --tan:#AC9F84;
+  --gold:#C8A24B;
+  --gold-lt:#E8CD86;
+  --teal:#6FB0A6;
+  --terra:#D0845A;
+  --sage:#8BA678;
+  --serif:"Source Serif 4",Cambria,Georgia,serif;
+  --sans:"Public Sans",Calibri,-apple-system,system-ui,sans-serif;
+  --mono:"IBM Plex Mono",Consolas,ui-monospace,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  background:var(--ground);color:var(--cream);font-family:var(--sans);
+  font-size:16px;line-height:1.55;margin:0;
+}
+.wrap{max-width:780px;margin:0 auto;padding-inline:16px;padding-block:40px 64px}
+
+header h1{
+  font-family:var(--serif);font-weight:700;color:var(--gold);
+  font-size:clamp(2rem,7vw,3rem);line-height:1.05;margin:0 0 .3em;text-wrap:balance;
+}
+.kicker{
+  font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--tan);margin:0 0 1.6rem;
+}
+.lede{color:var(--tan);font-size:1.05rem;margin:0 0 2rem;max-width:62ch}
+.lede strong{color:var(--cream);font-weight:600}
+
+.board{
+  position:sticky;top:env(safe-area-inset-top,0px);z-index:10;
+  background:var(--surface);border:1px solid var(--edge);border-radius:10px;
+  padding:14px 16px;margin-bottom:2.4rem;
+  display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;
+}
+.tally{display:flex;gap:18px;flex:1 1 auto;min-width:0}
+.stat{display:flex;flex-direction:column;line-height:1.15}
+.stat b{
+  font-family:var(--mono);font-size:1.25rem;font-weight:500;
+  font-variant-numeric:tabular-nums;color:var(--gold-lt);
+}
+.stat span{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--tan)}
+.stat.ok b{color:var(--sage)}
+.stat.no b{color:var(--terra)}
+.bar{flex:1 1 100%;height:4px;background:var(--edge);border-radius:2px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--gold);transition:width .3s ease}
+button{font-family:var(--sans);font-size:.85rem;cursor:pointer;border-radius:7px;transition:background .15s,border-color .15s,color .15s}
+button:focus-visible{outline:2px solid var(--gold-lt);outline-offset:2px}
+.ghost{background:transparent;border:1px solid var(--edge);color:var(--tan);padding:7px 13px}
+.ghost:hover{border-color:var(--gold);color:var(--gold-lt)}
+
+h2{
+  font-family:var(--serif);font-size:1.45rem;font-weight:600;color:var(--gold);
+  margin:2.8rem 0 .2rem;display:flex;align-items:baseline;gap:.6rem;text-wrap:balance;
+}
+h2 em{
+  font-family:var(--mono);font-style:normal;font-size:.7rem;color:var(--tan);
+  letter-spacing:.1em;flex:0 0 auto;
+}
+.act-note{color:var(--tan);font-size:.9rem;margin:0 0 1.4rem}
+
+.q{background:var(--card);border:1px solid var(--edge);border-radius:10px;padding:18px 20px;margin-bottom:14px}
+.q[data-state="ok"]{border-color:color-mix(in srgb,var(--sage) 55%,var(--edge))}
+.q[data-state="no"]{border-color:color-mix(in srgb,var(--terra) 55%,var(--edge))}
+.qhead{display:flex;gap:12px;align-items:flex-start}
+.num{
+  font-family:var(--mono);font-size:.78rem;color:var(--gold);
+  flex:0 0 auto;padding-top:.2em;font-variant-numeric:tabular-nums;
+}
+.prompt{margin:0;flex:1 1 auto;min-width:0;font-size:1rem}
+.prompt code,.a code{
+  font-family:var(--mono);font-size:.86em;background:var(--ground);
+  border:1px solid var(--edge);border-radius:4px;padding:.08em .35em;color:var(--gold-lt);
+}
+.tag{
+  display:inline-block;font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;
+  text-transform:uppercase;padding:.2em .5em;border-radius:4px;margin-left:.5rem;
+  vertical-align:.12em;border:1px solid;
+}
+.tag.numbers{color:var(--gold-lt);border-color:color-mix(in srgb,var(--gold) 45%,transparent)}
+.tag.trap{color:var(--terra);border-color:color-mix(in srgb,var(--terra) 45%,transparent)}
+.tag.apply{color:var(--teal);border-color:color-mix(in srgb,var(--teal) 45%,transparent)}
+
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;padding-left:calc(.78rem + 12px)}
+.reveal{background:transparent;border:1px solid var(--gold);color:var(--gold-lt);padding:7px 15px}
+.reveal:hover{background:color-mix(in srgb,var(--gold) 14%,transparent)}
+.mark{border:1px solid var(--edge);background:transparent;padding:7px 15px}
+.mark.yes{color:var(--sage)}
+.mark.yes:hover,.mark.yes[aria-pressed="true"]{background:color-mix(in srgb,var(--sage) 18%,transparent);border-color:var(--sage)}
+.mark.nope{color:var(--terra)}
+.mark.nope:hover,.mark.nope[aria-pressed="true"]{background:color-mix(in srgb,var(--terra) 18%,transparent);border-color:var(--terra)}
+
+.a{
+  margin:14px 0 0;padding:14px 16px;background:var(--ground);
+  border-left:3px solid var(--gold);border-radius:0 7px 7px 0;font-size:.96rem;
+}
+.a p{margin:0 0 .7em}
+.a p:last-child{margin-bottom:0}
+.a b{color:var(--gold-lt);font-weight:600}
+.a .why{color:var(--tan);font-size:.9rem;display:block;margin-top:.7em;padding-top:.7em;border-top:1px solid var(--edge)}
+
+details.ref{margin-top:3rem;border:1px solid var(--edge);border-radius:10px;background:var(--surface)}
+details.ref summary{
+  cursor:pointer;padding:14px 18px;font-family:var(--mono);font-size:.78rem;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--gold);
+}
+details.ref summary:focus-visible{outline:2px solid var(--gold-lt);outline-offset:-2px}
+.tablewrap{overflow-x:auto;padding:0 18px 18px}
+table{border-collapse:collapse;width:100%;min-width:460px;font-size:.92rem}
+th,td{text-align:right;padding:8px 10px;border-bottom:1px solid var(--edge)}
+th:first-child,td:first-child{text-align:left}
+thead th{color:var(--tan);font-weight:500;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase}
+tbody td{font-family:var(--mono);font-variant-numeric:tabular-nums}
+tbody td:first-child{font-family:var(--sans)}
+.win{color:var(--sage)}
+.lose{color:var(--terra)}
+.refnote{padding:0 18px 18px;margin:0;color:var(--tan);font-size:.85rem}
+
+footer{margin-top:3rem;padding-top:1.6rem;border-top:1px solid var(--edge);color:var(--tan);font-size:.88rem}
+footer b{color:var(--gold-lt)}
+#missed{margin:.8rem 0 0;padding-left:1.1rem}
+#missed li{margin-bottom:.3rem}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+<header>
+  <p class="kicker">Ship It Live! &middot; self-test</p>
+  <h1>FastAPI Drill</h1>
+  <p class="lede">Thirty-seven questions on <strong>FastAPI and Pydantic &mdash; Validation from Type Hints</strong>. Answer out loud before revealing, then mark yourself honestly. The hinge is <strong>1.028 s versus 0.122 s</strong>: the same blocking call in async def and in def, and knowing why the plain def is the safe one.</p>
+</header>
+
+<div class="board">
+  <div class="tally">
+    <div class="stat"><b id="done">0</b><span>answered</span></div>
+    <div class="stat ok"><b id="right">0</b><span>got it</span></div>
+    <div class="stat no"><b id="wrong">0</b><span>missed</span></div>
+  </div>
+  <button class="ghost" id="reset">Reset</button>
+  <div class="bar"><i id="fill"></i></div>
+</div>
+
+<main id="quiz"></main>
+
+<details class="ref">
+  <summary>Reference &mdash; every measured number in the talk</summary>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Route, each request sleeps 0.1 s</th><th>Requests</th><th>All done in</th></tr></thead>
+    <tbody>
+      <tr><td>async def + time.sleep</td><td>10</td><td class="lose">1.028 s</td></tr>
+      <tr><td>def + time.sleep</td><td>10</td><td class="win">0.122 s</td></tr>
+      <tr><td>async def + await asyncio.sleep</td><td>10</td><td class="win">0.121 s</td></tr>
+      <tr><td>def + time.sleep (40-thread pool)</td><td>100</td><td>0.329 s</td></tr>
+      <tr><td>async def + await asyncio.sleep</td><td>100</td><td class="win">0.156 s</td></tr>
+      <tr><td>a route that does nothing</td><td>1</td><td>0.001 s</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Validating one order</th><th>&micro;s</th></tr></thead>
+    <tbody>
+      <tr><td>hand-written checks on a dict</td><td>1.97</td></tr>
+      <tr><td>Order.model_validate(dict)</td><td>3.02</td></tr>
+      <tr><td>json.loads + hand-written</td><td>7.38</td></tr>
+      <tr><td>json.loads + model_validate</td><td class="lose">8.96</td></tr>
+      <tr><td>Order.model_validate_json(bytes)</td><td class="win">3.48</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Lax coercion</th><th>Input</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr><td>int</td><td>"3" / 3.0</td><td class="win">3</td></tr>
+      <tr><td>int</td><td>3.5</td><td class="lose">int_from_float</td></tr>
+      <tr><td>bool</td><td>"yes" / 1</td><td>True</td></tr>
+      <tr><td>bool</td><td>"maybe"</td><td class="lose">bool_parsing</td></tr>
+      <tr><td>int, strict</td><td>"3" / 3.0</td><td class="lose">int_type</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>fastapi 0.142.2, pydantic 2.13.5, starlette 1.7.0, Python 3.14; medians of 8 runs from <code>fastapi_bench.py</code>, 3 October 2026.</p>
+</details>
+
+<footer>
+  <p id="verdict">Nothing answered yet.</p>
+  <ul id="missed" hidden></ul>
+</footer>
+</div>
+
+<script>
+const ACTS = [
+  { title: "Three libraries", note: "Slides 2–3. What FastAPI is made of.", qs: [
+    { q: "Name the three libraries in a FastAPI app and the job of each.",
+      a: "<p><b>Starlette</b> — the ASGI toolkit: routing, requests, responses, WebSockets, background tasks.<br><b>Pydantic</b> — turns data into typed objects or explains why it cannot: coercion, constraints, errors, JSON Schema.<br><b>FastAPI</b> — the glue: reads each signature, hands the parts to Pydantic, calls your function, writes the OpenAPI document.</p>" },
+    { q: "Routing and WebSockets: FastAPI's features or Starlette's?", tag: "trap",
+      a: "<p><b>Starlette's.</b> Most of what people credit to FastAPI belongs to one of the two libraries underneath it.</p>" },
+    { q: "The Flask handler validates by hand; the FastAPI one declares a model. Beyond fewer lines, what two things improved?",
+      a: "<p><b>Every error at once</b> — the Flask version stops at the first problem; FastAPI reports all of them in one 422.</p><p><b>The rules became data</b> a tool can read — which is where the generated docs come from.</p>" },
+  ]},
+  { title: "Where values come from, and what they become", note: "Slides 4–6. Sources and coercion.", qs: [
+    { q: "In <code>def update_item(item_id: int, item: ItemIn, notify: bool = False)</code> on <code>/items/{item_id}</code>, where does each parameter come from?",
+      a: "<p><b>item_id</b> — the path: its name is in the route.<br><b>notify</b> — the query string: a plain type, not in the route.<br><b>item</b> — the body: it is a Pydantic model.</p><p>Experiment 1 read this back out of <code>app.openapi()</code>.</p>" },
+    { q: "What made <code>notify</code> optional?",
+      a: "<p><b>Its default value</b>, <code>= False</code>. The OpenAPI document marks it <b>required: false</b>; <code>item_id</code> has no default and is required.</p>" },
+    { q: "In lax mode, what do these become for <code>n: int</code>: <code>\"3\"</code>, <code>3.0</code>, <code>3.5</code>? And <code>\"yes\"</code> for a bool?", tag: "numbers",
+      a: "<p><code>\"3\"</code> → <b>3</b>. <code>3.0</code> → <b>3</b>. <code>3.5</code> → <b>error, int_from_float</b>.</p><p><code>\"yes\"</code> → <b>True</b>.</p>" },
+    { q: "Why is 3.0 accepted as an int but 3.5 refused?", tag: "trap",
+      a: "<p>Lax mode converts what it can <b>without losing information</b>. 3.0 → 3 loses nothing; 3.5 → 3 would throw away the half, so it is an error.</p>" },
+    { q: "What does <code>ConfigDict(strict=True)</code> do to <code>\"3\"</code> and to <code>3.0</code>?",
+      a: "<p><b>Both become errors</b> (int_type). Only a real integer passes.</p>" },
+    { q: "Why is lax the right default for a web API?",
+      a: "<p><b>A query string is always text.</b> <code>?limit=10</code> arrives as the string \"10\" and has to become the number 10.</p>" },
+    { q: "A model has <code>tags: list[str] = []</code>. Is that the mutable-default bug?", tag: "trap",
+      a: "<p><b>No.</b> Pydantic copies the default: appending to one instance's tags leaves the next instance's empty. Checked in verify_snippets.py.</p>" },
+  ]},
+  { title: "The 422", note: "Slides 7–8. What a bad request gets back.", qs: [
+    { q: "PUT /items/abc with an empty name and a negative price. What status, and how many errors?", tag: "numbers",
+      a: "<p><b>422</b>, with <b>three</b> errors: <code>int_parsing</code> at path → item_id, <code>string_too_short</code> at body → name, <code>greater_than</code> at body → price.</p>" },
+    { q: "Each error has loc, type and msg. Which do you match on in code, and why?",
+      a: "<p><b>type.</b> msg is for people and may change wording between versions; <code>int_parsing</code> and <code>greater_than</code> are stable.</p><p><b>loc</b> says where — so a frontend can put each message beside its own input.</p>" },
+    { q: "Why 422 and not 400? And did the handler run?", tag: "trap",
+      a: "<p>The request was <b>well-formed</b> — valid JSON — but its <b>content broke the rules</b>.</p><p><b>The handler never ran.</b> Validation happens before your function is called.</p>" },
+    { q: "Write a <code>limit</code> query parameter: an int from 1 to 100, default 10.", tag: "apply",
+      a: "<p><code>limit: Annotated[int, Query(ge=1, le=100)] = 10</code></p><p>Annotated attaches the rule without changing the type — the Type Hints talk's idea.</p>" },
+    { q: "What do <code>?limit=500</code>, <code>?limit=0</code> and <code>?limit=ten</code> return?", tag: "numbers",
+      a: "<p>All <b>422</b>: <code>less_than_equal</code>, <code>greater_than_equal</code>, <code>int_parsing</code>. And <code>?limit=50</code> is 200: \"50\" coerced to 50.</p>" },
+  ]},
+  { title: "What leaves, and custom rules", note: "Slides 9–10. response_model and validators.", qs: [
+    { q: "A handler returns the stored user row, password hash included. Fix it without touching the handler.", tag: "apply",
+      a: "<p>Declare <b><code>response_model=UserOut</code></b>, where UserOut lists only id and email. Measured: with it, <code>{'id': 1, 'email': ...}</code>; without it, the hash leaves.</p>" },
+    { q: "Does response_model work when the handler returns a SQLAlchemy object, not a dict?",
+      a: "<p><b>Yes</b>, with <code>model_config = ConfigDict(from_attributes=True)</code> on the output model. It reads the attributes it lists and nothing else.</p>" },
+    { q: "When do you need a model_validator rather than a field_validator?",
+      a: "<p>When the rule involves <b>two fields at once</b> — passwords that must match. <code>mode=\"after\"</code> runs once every field is checked; a field_validator sees one field.</p>" },
+    { q: "A validator raises ValueError. What does the client see?",
+      a: "<p>An ordinary entry in the <b>422 list</b>, with its own loc and msg — like any built-in error.</p>" },
+    { q: "Is <code>nickname: str | None</code> optional?", tag: "trap",
+      a: "<p><b>No — it is still required.</b> The type says the value may be None, not that it may be missing. Only <code>= None</code> makes it optional.</p>" },
+  ]},
+  { title: "Depends and tests", note: "Slides 11–12. Dependency injection.", qs: [
+    { q: "In a dependency, what does <code>yield</code> divide, and when does the code after it run?",
+      a: "<p>Before the yield is <b>setup</b>; after it is <b>cleanup</b>, which runs after the response — and in a <code>finally</code>, even when the handler fails.</p>" },
+    { q: "get_db is used by the route and by get_current_user. Over three requests, how many calls?", tag: "numbers",
+      a: "<p><b>Three</b> — once per request, not twice. Cleanup ran three times, and both users received <b>the same object</b>.</p>" },
+    { q: "How do you make a dependency run every time it is asked for?",
+      a: "<p><code>Depends(dep, use_cache=False)</code>. Checked: two uses in one request gave two calls.</p>" },
+    { q: "Test a route without touching the real database.", tag: "apply",
+      a: "<p><code>app.dependency_overrides[get_db] = lambda: fake</code>, then <code>TestClient(app)</code>. Measured: the real get_db was called <b>0 times</b>.</p>" },
+    { q: "A test sets an override and never clears it. What breaks?", tag: "trap",
+      a: "<p><b>The next test</b> silently gets the fake. Clear <code>app.dependency_overrides</code> after each test.</p>" },
+  ]},
+  { title: "def or async def", note: "Slides 13–14. The most important measurement.", qs: [
+    { q: "Ten simultaneous requests, each sleeping 0.1 s. Times for: async def + time.sleep, def + time.sleep, async def + await asyncio.sleep?", tag: "numbers",
+      a: "<p>async def + time.sleep: <b>1.028 s</b> — one after another.<br>def + time.sleep: <b>0.122 s</b>.<br>async def + await asyncio.sleep: <b>0.121 s</b>.</p>" },
+    { q: "So which is the safe default, def or async def?", tag: "trap",
+      a: "<p><b>def.</b> FastAPI runs it in a thread pool, so blocking inside it is fine. The bug is a blocking call inside <b>async def</b>: it holds the one event loop, and every request on that worker waits.</p>" },
+    { q: "How big is the thread pool, and what did 100 blocking def requests take?", tag: "numbers",
+      a: "<p><b>40 threads</b> (anyio's default limiter). 100 requests took <b>0.329 s</b>: 40, then 40, then 20 — three trips of 0.1 s. 100 awaiting async requests took <b>0.156 s</b>.</p>" },
+    { q: "You must call requests.get() from inside an async def route. What are your options?", tag: "apply",
+      a: "<p>Make the route a plain <b>def</b>; or <b>await asyncio.to_thread(requests.get, url)</b>; or switch to an async client such as <b>httpx.AsyncClient</b> and await it.</p>" },
+    { q: "The first version of this measurement was wrong. What went wrong?", tag: "trap",
+      a: "<p><b>The client was the bottleneck.</b> httpx's async client added about 12 ms per request on this laptop: 100 do-nothing requests took 1.15 s through it and 0.09 s through raw sockets. Measure the measuring tool.</p>" },
+  ]},
+  { title: "Docs, speed and judgement", note: "Slides 15–20.", qs: [
+    { q: "Name the three documentation URLs FastAPI serves.",
+      a: "<p><b>/docs</b> — Swagger UI.<br><b>/redoc</b> — a readable reference.<br><b>/openapi.json</b> — the raw contract, for client generators.</p>" },
+    { q: "How big was the demo app's generated OpenAPI document?", tag: "numbers",
+      a: "<p><b>5 routes, 5 schemas, OpenAPI 3.1.0, 7,502 characters, 323 lines.</b> Written by hand: 0. Two schemas are FastAPI's own, describing the 422.</p>" },
+    { q: "Validating one six-field order: hand-written, model_validate, json.loads + model_validate, model_validate_json?", tag: "numbers",
+      a: "<p><b>1.97 µs</b>, <b>3.02 µs</b>, <b>8.96 µs</b>, <b>3.48 µs</b>.</p><p>Parsing costs more than checking; from bytes is <b>2.6×</b> faster than loads-then-validate.</p>" },
+    { q: "Does FastAPI validate request bodies straight from the bytes?", tag: "trap",
+      a: "<p><b>No.</b> Its source calls <code>request.json()</code>, then validates — the 8.96 µs row. Against a 1 ms request it does not matter; in a batch job, use <code>model_validate_json</code>.</p>" },
+    { q: "Give a good use of BackgroundTasks and one it must not be used for.",
+      a: "<p>Good: a <b>receipt email</b> after the response. Not: anything that must survive a restart — it lives in the server's memory. That needs a <b>real queue</b>.</p>" },
+    { q: "Name two reasons to stay with Flask.",
+      a: "<p>Any two: the app <b>renders HTML on the server</b>; a <b>working Flask codebase</b> exists; you depend on its <b>extensions</b> (logins, admin, forms); the routes are few and validation simple.</p>" },
+    { q: "Why does the talk not compare requests per second, Flask against FastAPI?",
+      a: "<p>On one laptop it measures <b>the server and the client</b> as much as the framework — and experiment 7 showed how easily the client wins. Real services spend their time in the database.</p>" },
+  ]},
+];
+
+const quiz = document.getElementById("quiz");
+const state = new Map();
+let n = 0;
+const total = ACTS.reduce((s, a) => s + a.qs.length, 0);
+
+ACTS.forEach((act, ai) => {
+  const h = document.createElement("h2");
+  h.innerHTML = `${act.title} <em>Act ${ai + 1}</em>`;
+  quiz.appendChild(h);
+  const note = document.createElement("p");
+  note.className = "act-note";
+  note.textContent = act.note;
+  quiz.appendChild(note);
+
+  act.qs.forEach(item => {
+    n += 1;
+    const id = n;
+    const card = document.createElement("section");
+    card.className = "q";
+    card.dataset.id = id;
+    const tag = item.tag ? `<span class="tag ${item.tag}">${item.tag}</span>` : "";
+    card.innerHTML = `
+      <div class="qhead">
+        <span class="num">${String(id).padStart(2, "0")}</span>
+        <p class="prompt">${item.q}${tag}</p>
+      </div>
+      <div class="a" id="a${id}" hidden>
+        ${item.a}${item.why ? `<span class="why">${item.why}</span>` : ""}
+      </div>
+      <div class="actions">
+        <button class="reveal" type="button">Show answer</button>
+        <button class="mark yes" type="button" aria-pressed="false" hidden>Got it</button>
+        <button class="mark nope" type="button" aria-pressed="false" hidden>Missed</button>
+      </div>`;
+    quiz.appendChild(card);
+
+    const ans = card.querySelector(".a");
+    const reveal = card.querySelector(".reveal");
+    const yes = card.querySelector(".mark.yes");
+    const nope = card.querySelector(".mark.nope");
+
+    reveal.addEventListener("click", () => {
+      const open = !ans.hidden;
+      ans.hidden = open;
+      reveal.textContent = open ? "Show answer" : "Hide answer";
+      yes.hidden = nope.hidden = open;
+    });
+    const mark = (v) => {
+      state.set(id, state.get(id) === v ? null : v);
+      const cur = state.get(id);
+      card.dataset.state = cur || "";
+      yes.setAttribute("aria-pressed", String(cur === "ok"));
+      nope.setAttribute("aria-pressed", String(cur === "no"));
+      score();
+    };
+    yes.addEventListener("click", () => mark("ok"));
+    nope.addEventListener("click", () => mark("no"));
+  });
+});
+
+const elDone = document.getElementById("done");
+const elRight = document.getElementById("right");
+const elWrong = document.getElementById("wrong");
+const fill = document.getElementById("fill");
+const verdict = document.getElementById("verdict");
+const missedList = document.getElementById("missed");
+
+function score() {
+  let ok = 0, no = 0;
+  state.forEach(v => { if (v === "ok") ok++; else if (v === "no") no++; });
+  const done = ok + no;
+  elDone.textContent = done;
+  elRight.textContent = ok;
+  elWrong.textContent = no;
+  fill.style.width = `${(done / total) * 100}%`;
+
+  missedList.innerHTML = "";
+  if (!done) {
+    verdict.textContent = "Nothing answered yet.";
+    missedList.hidden = true;
+    return;
+  }
+  const pct = Math.round((ok / done) * 100);
+  verdict.innerHTML = done === total
+    ? `All ${total} answered — <b>${ok} right, ${no} missed (${pct}%)</b>.`
+    : `<b>${done} of ${total}</b> answered — ${ok} right, ${no} missed (${pct}%).`;
+
+  const misses = [];
+  state.forEach((v, id) => { if (v === "no") misses.push(id); });
+  if (misses.length) {
+    missedList.hidden = false;
+    misses.sort((a, b) => a - b).forEach(id => {
+      const li = document.createElement("li");
+      const p = document.querySelector(`.q[data-id="${id}"] .prompt`);
+      li.textContent = `${String(id).padStart(2, "0")} — ${p.textContent.replace(/\s*(numbers|trap|apply)\s*$/, "")}`;
+      li.style.cursor = "pointer";
+      li.addEventListener("click", () => {
+        document.querySelector(`.q[data-id="${id}"]`).scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+      missedList.appendChild(li);
+    });
+  } else {
+    missedList.hidden = true;
+  }
+}
+
+document.getElementById("reset").addEventListener("click", () => {
+  state.clear();
+  document.querySelectorAll(".q").forEach(c => {
+    c.dataset.state = "";
+    c.querySelector(".a").hidden = true;
+    c.querySelector(".reveal").textContent = "Show answer";
+    c.querySelector(".mark.yes").hidden = true;
+    c.querySelector(".mark.nope").hidden = true;
+    c.querySelectorAll(".mark").forEach(b => b.setAttribute("aria-pressed", "false"));
+  });
+  score();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+score();
+</script>
+
+</body>
+</html>

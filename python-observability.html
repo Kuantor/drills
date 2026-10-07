@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta property="og:title" content="Observability Drill — Ship It Live!" />
+<meta property="og:description" content="Interactive self-test: Observability." />
+<meta property="og:image" content="https://kuantor.github.io/drills/background.jpg" />
+<meta property="og:url" content="https://kuantor.github.io/drills/python-observability.html" />
+<meta property="og:type" content="website" />
+<style>
+  :root{
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  body{margin:0}
+  img{max-width:100%}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+<title>Observability Drill</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a single reading column of question cards, grouped into seven acts
+   that follow the talk. Palette lifted from the Ship It Live deck builder so
+   this reads as part of the series: roasted brown ground, brass accents. */
+:root{
+  --ground:#1A150E;
+  --surface:#262014;
+  --card:#312918;
+  --edge:#4A3D22;
+  --cream:#F1EADA;
+  --tan:#AC9F84;
+  --gold:#C8A24B;
+  --gold-lt:#E8CD86;
+  --teal:#6FB0A6;
+  --terra:#D0845A;
+  --sage:#8BA678;
+  --serif:"Source Serif 4",Cambria,Georgia,serif;
+  --sans:"Public Sans",Calibri,-apple-system,system-ui,sans-serif;
+  --mono:"IBM Plex Mono",Consolas,ui-monospace,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  background:var(--ground);color:var(--cream);font-family:var(--sans);
+  font-size:16px;line-height:1.55;margin:0;
+}
+.wrap{max-width:780px;margin:0 auto;padding-inline:16px;padding-block:40px 64px}
+
+header h1{
+  font-family:var(--serif);font-weight:700;color:var(--gold);
+  font-size:clamp(2rem,7vw,3rem);line-height:1.05;margin:0 0 .3em;text-wrap:balance;
+}
+.kicker{
+  font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--tan);margin:0 0 1.6rem;
+}
+.lede{color:var(--tan);font-size:1.05rem;margin:0 0 2rem;max-width:62ch}
+.lede strong{color:var(--cream);font-weight:600}
+
+.board{
+  position:sticky;top:env(safe-area-inset-top,0px);z-index:10;
+  background:var(--surface);border:1px solid var(--edge);border-radius:10px;
+  padding:14px 16px;margin-bottom:2.4rem;
+  display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;
+}
+.tally{display:flex;gap:18px;flex:1 1 auto;min-width:0}
+.stat{display:flex;flex-direction:column;line-height:1.15}
+.stat b{
+  font-family:var(--mono);font-size:1.25rem;font-weight:500;
+  font-variant-numeric:tabular-nums;color:var(--gold-lt);
+}
+.stat span{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--tan)}
+.stat.ok b{color:var(--sage)}
+.stat.no b{color:var(--terra)}
+.bar{flex:1 1 100%;height:4px;background:var(--edge);border-radius:2px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--gold);transition:width .3s ease}
+button{font-family:var(--sans);font-size:.85rem;cursor:pointer;border-radius:7px;transition:background .15s,border-color .15s,color .15s}
+button:focus-visible{outline:2px solid var(--gold-lt);outline-offset:2px}
+.ghost{background:transparent;border:1px solid var(--edge);color:var(--tan);padding:7px 13px}
+.ghost:hover{border-color:var(--gold);color:var(--gold-lt)}
+
+h2{
+  font-family:var(--serif);font-size:1.45rem;font-weight:600;color:var(--gold);
+  margin:2.8rem 0 .2rem;display:flex;align-items:baseline;gap:.6rem;text-wrap:balance;
+}
+h2 em{
+  font-family:var(--mono);font-style:normal;font-size:.7rem;color:var(--tan);
+  letter-spacing:.1em;flex:0 0 auto;
+}
+.act-note{color:var(--tan);font-size:.9rem;margin:0 0 1.4rem}
+
+.q{background:var(--card);border:1px solid var(--edge);border-radius:10px;padding:18px 20px;margin-bottom:14px}
+.q[data-state="ok"]{border-color:color-mix(in srgb,var(--sage) 55%,var(--edge))}
+.q[data-state="no"]{border-color:color-mix(in srgb,var(--terra) 55%,var(--edge))}
+.qhead{display:flex;gap:12px;align-items:flex-start}
+.num{
+  font-family:var(--mono);font-size:.78rem;color:var(--gold);
+  flex:0 0 auto;padding-top:.2em;font-variant-numeric:tabular-nums;
+}
+.prompt{margin:0;flex:1 1 auto;min-width:0;font-size:1rem}
+.prompt code,.a code{
+  font-family:var(--mono);font-size:.86em;background:var(--ground);
+  border:1px solid var(--edge);border-radius:4px;padding:.08em .35em;color:var(--gold-lt);
+}
+.tag{
+  display:inline-block;font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;
+  text-transform:uppercase;padding:.2em .5em;border-radius:4px;margin-left:.5rem;
+  vertical-align:.12em;border:1px solid;
+}
+.tag.numbers{color:var(--gold-lt);border-color:color-mix(in srgb,var(--gold) 45%,transparent)}
+.tag.trap{color:var(--terra);border-color:color-mix(in srgb,var(--terra) 45%,transparent)}
+.tag.apply{color:var(--teal);border-color:color-mix(in srgb,var(--teal) 45%,transparent)}
+
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;padding-left:calc(.78rem + 12px)}
+.reveal{background:transparent;border:1px solid var(--gold);color:var(--gold-lt);padding:7px 15px}
+.reveal:hover{background:color-mix(in srgb,var(--gold) 14%,transparent)}
+.mark{border:1px solid var(--edge);background:transparent;padding:7px 15px}
+.mark.yes{color:var(--sage)}
+.mark.yes:hover,.mark.yes[aria-pressed="true"]{background:color-mix(in srgb,var(--sage) 18%,transparent);border-color:var(--sage)}
+.mark.nope{color:var(--terra)}
+.mark.nope:hover,.mark.nope[aria-pressed="true"]{background:color-mix(in srgb,var(--terra) 18%,transparent);border-color:var(--terra)}
+
+.a{
+  margin:14px 0 0;padding:14px 16px;background:var(--ground);
+  border-left:3px solid var(--gold);border-radius:0 7px 7px 0;font-size:.96rem;
+}
+.a p{margin:0 0 .7em}
+.a p:last-child{margin-bottom:0}
+.a b{color:var(--gold-lt);font-weight:600}
+.a .why{color:var(--tan);font-size:.9rem;display:block;margin-top:.7em;padding-top:.7em;border-top:1px solid var(--edge)}
+
+details.ref{margin-top:3rem;border:1px solid var(--edge);border-radius:10px;background:var(--surface)}
+details.ref summary{
+  cursor:pointer;padding:14px 18px;font-family:var(--mono);font-size:.78rem;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--gold);
+}
+details.ref summary:focus-visible{outline:2px solid var(--gold-lt);outline-offset:-2px}
+.tablewrap{overflow-x:auto;padding:0 18px 18px}
+table{border-collapse:collapse;width:100%;min-width:460px;font-size:.92rem}
+th,td{text-align:right;padding:8px 10px;border-bottom:1px solid var(--edge)}
+th:first-child,td:first-child{text-align:left}
+thead th{color:var(--tan);font-weight:500;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase}
+tbody td{font-family:var(--mono);font-variant-numeric:tabular-nums}
+tbody td:first-child{font-family:var(--sans)}
+.win{color:var(--sage)}
+.lose{color:var(--terra)}
+.refnote{padding:0 18px 18px;margin:0;color:var(--tan);font-size:.85rem}
+
+footer{margin-top:3rem;padding-top:1.6rem;border-top:1px solid var(--edge);color:var(--tan);font-size:.88rem}
+footer b{color:var(--gold-lt)}
+#missed{margin:.8rem 0 0;padding-left:1.1rem}
+#missed li{margin-bottom:.3rem}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+<header>
+  <p class="kicker">Ship It Live! &middot; self-test</p>
+  <h1>Observability Drill</h1>
+  <p class="lede">Twenty-nine questions on <strong>Observability &mdash; Seeing Inside a Running App</strong>. Answer out loud before revealing, then mark yourself honestly. The hinge is <strong>seven errors, and every page said 200</strong>: the outage the status codes missed, and the request ID that found it.</p>
+</header>
+
+<div class="board">
+  <div class="tally">
+    <div class="stat"><b id="done">0</b><span>answered</span></div>
+    <div class="stat ok"><b id="right">0</b><span>got it</span></div>
+    <div class="stat no"><b id="wrong">0</b><span>missed</span></div>
+  </div>
+  <button class="ghost" id="reset">Reset</button>
+  <div class="bar"><i id="fill"></i></div>
+</div>
+
+<main id="quiz"></main>
+
+<details class="ref">
+  <summary>Reference &mdash; every measured number in the talk</summary>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>KuantorFlow, observed from outside</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr><td>/progress signed in: p50 / p95 / connections</td><td>655 / 714 ms / 5</td></tr>
+      <tr><td>/ signed in: p50 / p95 / connections</td><td class="lose">596 / 681 ms / 7</td></tr>
+      <tr><td>/ anonymous: p50 / connections</td><td>144 ms / 2</td></tr>
+      <tr><td>outage: 5xx error rate</td><td class="lose">0.0%</td></tr>
+      <tr><td>outage: requests with an ERROR line</td><td class="win">2 of 165 (1.2%), 7 lines</td></tr>
+      <tr><td>the failed /progress answered in</td><td>9.9 ms, status 200</td></tr>
+      <tr><td>request log, /robots.txt: per line reopened / kept open</td><td>+478 / +170 &micro;s</td></tr>
+      <tr><td>a line break in a looked-up word</td><td class="lose">2 log lines</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>General</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr><td>one line: stdlib / loguru / loguru JSON / enqueue</td><td>43 / 51 / 92 / 210 &micro;s</td></tr>
+      <tr><td>discarded DEBUG: lazy / f-string</td><td>0.46 / 816 &micro;s</td></tr>
+      <tr><td>serialize=True line for "card saved"</td><td>705 characters, 13 fields</td></tr>
+      <tr><td>no handler: INFO / WARNING</td><td>dropped / printed bare</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>loguru 0.7.3, Python 3.14; from <code>observe_kuantorflow.py</code> and <code>observability_bench.py</code>, 5 October 2026.</p>
+</details>
+
+<footer>
+  <p id="verdict">Nothing answered yet.</p>
+  <ul id="missed" hidden></ul>
+</footer>
+</div>
+
+<script>
+const ACTS = [
+  { title: "What observability is", note: "Slides 2–4.", qs: [
+    { q: "What is observability, in one sentence?",
+      a: "<p>How well you can tell <b>what a running system is doing, and why</b>, from the outside — from what it wrote down while it ran.</p>" },
+    { q: "Monitoring against observability: what is the difference?", tag: "trap",
+      a: "<p>Monitoring answers <b>questions you planned</b> (is it up? errors over 1%?). Observability lets you answer <b>questions you did not plan</b> (why was this learner's page slow at 14:02?). Monitoring is part of it, not its opposite.</p>" },
+    { q: "Name the three pillars, what each answers, and the fourth signal joining them.",
+      a: "<p><b>Logs</b> — what happened? <b>Metrics</b> — how much, how often, getting worse? <b>Traces</b> — where did this request's time go? And <b>continuous profiling</b>.</p>" },
+    { q: "Where does the word come from?",
+      a: "<p>Control theory: <b>Rudolf Kálmán</b>'s measure of how well a system's inner state can be inferred from its outputs. Written <b>o11y</b>.</p>" },
+    { q: "Give three reasons it matters for a full-stack developer.", tag: "apply",
+      a: "<p>Any three of: production is where real bugs live; it comes <b>before profiling</b>; operable code is what <b>seniority</b> looks like; it is in job ads (Sentry, Grafana, OpenTelemetry); it is a <b>system design</b> question; audit trails are <b>security</b>.</p>" },
+  ]},
+  { title: "Python's logging and Loguru", note: "Slides 5–9.", qs: [
+    { q: "Name the four parts of Python's logging, and what each does.",
+      a: "<p><b>Logger</b> — what code calls, named, a tree by dots; <b>Handler</b> — where lines go; <b>Formatter</b> — what a line looks like; <b>Level</b> — DEBUG &lt; INFO &lt; WARNING &lt; ERROR &lt; CRITICAL.</p>" },
+    { q: "What does log.exception() do that log.error() does not?",
+      a: "<p>Logs at ERROR <b>and adds the traceback</b>. Call it inside an except block.</p>" },
+    { q: "A discarded DEBUG line of 1,000 rows: lazy %s against an f-string?", tag: "numbers",
+      a: "<p><b>0.46 µs</b> against <b>816 µs</b> — 1,773×. An f-string is built before logging is called; for a costly argument, check <code>isEnabledFor()</code>.</p>" },
+    { q: "What may a library add to its loggers, and why?", tag: "trap",
+      a: "<p>Only a <b>NullHandler</b>. Where lines go is the <b>application's</b> choice — only it knows its audience.</p>" },
+    { q: "A logger with no handler at all: what happens to INFO and to WARNING?", tag: "numbers",
+      a: "<p>INFO is <b>dropped</b>; WARNING is printed to stderr, <b>bare</b>, by the handler of last resort. KuantorFlow's AI companion's INFO lines went nowhere this way.</p>" },
+    { q: "Configure Loguru: a file, rotated monthly, twelve kept, JSON, no variable values.", tag: "apply",
+      a: "<p><code>logger.add(\"logs/app.log\", rotation=\"monthly\", retention=12, serialize=True, diagnose=False)</code></p>" },
+    { q: "bind() or contextualize()?",
+      a: "<p><b>bind()</b> returns a logger carrying fields; <b>contextualize()</b> sets them for everything inside a with-block, per thread and async task (contextvars).</p>" },
+    { q: "Why switch diagnose off in production?", tag: "trap",
+      a: "<p>It is <b>on by default</b> and prints variable values in a trace — measured: an API key held in a settings dict appeared in the log with it on, not with it off.</p>" },
+    { q: "One line to a file: stdlib, Loguru, Loguru JSON, Loguru enqueue?", tag: "numbers",
+      a: "<p><b>43 · 51 · 92 · 210 µs</b>. enqueue cost the caller four times more in a burst — its job is several processes, one file.</p>" },
+    { q: "Several processes, one log file: what does the standard library say?", tag: "trap",
+      a: "<p>It is <b>not supported</b> (the Logging Cookbook). Use a queue or socket handler, a file per process, stdout to the platform — or Loguru's enqueue.</p>" },
+  ]},
+  { title: "Structure, IDs, metrics, traces", note: "Slides 10–13.", qs: [
+    { q: "Why JSON lines rather than key=value?",
+      a: "<p>Both are greppable; JSON can be <b>counted, grouped and averaged</b> by any log tool, and it <b>escapes a line break</b> — key=value with plain quoting split into 2 lines.</p>" },
+    { q: "What problem does a request ID solve? Use KuantorFlow's own comment.",
+      a: "<p>Interleaved lines become a pile. KuantorFlow's lookup lines are <b>\"tied by the word and the timestamp\"</b> — two learners looking up one word in one second would be one story.</p>" },
+    { q: "Where must a request ID reach?", tag: "apply",
+      a: "<p>Every line (a patcher reads <code>g</code>), other threads and tasks (<b>contextvars</b>), other services (<b>traceparent</b>), and the user (an error page, an <b>X-Request-ID</b> header).</p>" },
+    { q: "Counter, gauge, histogram: one example each.",
+      a: "<p>Counter: requests served. Gauge: connections open. Histogram: request times in buckets.</p>" },
+    { q: "The four golden signals — and why percentiles?",
+      a: "<p><b>Latency, traffic, errors, saturation</b> (Google SRE). A mean of 100 ms can hide 1% taking 5 s; <b>p95/p99</b> are the users who complain.</p>" },
+    { q: "What is a trace made of, and how does it cross services?",
+      a: "<p>A tree of <b>spans</b>, each with a start, duration and parent. Across services in the <b>traceparent</b> header: version, 32-hex trace ID, parent span ID, flags. Standard: <b>OpenTelemetry</b>.</p>" },
+  ]},
+  { title: "KuantorFlow, observed", note: "Slides 14–22.", qs: [
+    { q: "What do KuantorFlow's action logs answer, and what can't they?",
+      a: "<p>They answer <b>what happened to this person's deck</b>. They cannot say how long pages take, which lines are one request, or how often a page fails while still answering.</p>" },
+    { q: "How did a log line once take down a request?", tag: "trap",
+      a: "<p><code>_write(name, action, **fields)</code> called with <code>action=</code>: <b>TypeError while binding arguments</b>, before the try that swallows errors. A positional-only <code>/</code> makes it impossible.</p>" },
+    { q: "How was KuantorFlow made observable without editing it?", tag: "apply",
+      a: "<p>Imported unedited; <b>before/after_request hooks</b> attached at run time for an ID and one JSON line; a counting wrapper on connect; <b>InterceptHandler</b> copying its own loggers' lines in.</p>" },
+    { q: "Which page did the log point at — and why was it a surprise?", tag: "numbers",
+      a: "<p>The <b>signed-in front page</b>: p50 <b>596 ms</b>, <b>7 connections</b> — almost /progress's 655 ms. The Profiling talk had profiled the page I suspected.</p>" },
+    { q: "The database refused connections: what did the status codes say, and what saw it?", tag: "numbers",
+      a: "<p>Every page said <b>200</b> — 0.0% 5xx. <b>2 of 165 requests</b> had ERROR lines (7 lines), joined by request ID. The failed page answered in <b>9.9 ms</b>: a fast error.</p>" },
+    { q: "Why did p95 of twenty requests first come out as the maximum?", tag: "trap",
+      a: "<p><code>round()</code>: Python rounds 19.5 to <b>20</b>. Nearest rank uses <b>ceil</b> — the 19th of 20.</p>" },
+    { q: "What did the request log cost per request?", tag: "numbers",
+      a: "<p>On /robots.txt: <b>+478 µs</b> reopening the file per line, <b>+170 µs</b> keeping it open. On /progress: lost in the noise (659 against 672 ms).</p>" },
+    { q: "Name three rules for logging safely.",
+      a: "<p>Never secrets (diagnose off); an <b>id rather than personal data</b>; one event per line (escape line breaks); decide retention; mind several processes.</p>" },
+  ]},
+];
+
+const quiz = document.getElementById("quiz");
+const state = new Map();
+let n = 0;
+const total = ACTS.reduce((s, a) => s + a.qs.length, 0);
+
+ACTS.forEach((act, ai) => {
+  const h = document.createElement("h2");
+  h.innerHTML = `${act.title} <em>Act ${ai + 1}</em>`;
+  quiz.appendChild(h);
+  const note = document.createElement("p");
+  note.className = "act-note";
+  note.textContent = act.note;
+  quiz.appendChild(note);
+
+  act.qs.forEach(item => {
+    n += 1;
+    const id = n;
+    const card = document.createElement("section");
+    card.className = "q";
+    card.dataset.id = id;
+    const tag = item.tag ? `<span class="tag ${item.tag}">${item.tag}</span>` : "";
+    card.innerHTML = `
+      <div class="qhead">
+        <span class="num">${String(id).padStart(2, "0")}</span>
+        <p class="prompt">${item.q}${tag}</p>
+      </div>
+      <div class="a" id="a${id}" hidden>
+        ${item.a}${item.why ? `<span class="why">${item.why}</span>` : ""}
+      </div>
+      <div class="actions">
+        <button class="reveal" type="button">Show answer</button>
+        <button class="mark yes" type="button" aria-pressed="false" hidden>Got it</button>
+        <button class="mark nope" type="button" aria-pressed="false" hidden>Missed</button>
+      </div>`;
+    quiz.appendChild(card);
+
+    const ans = card.querySelector(".a");
+    const reveal = card.querySelector(".reveal");
+    const yes = card.querySelector(".mark.yes");
+    const nope = card.querySelector(".mark.nope");
+
+    reveal.addEventListener("click", () => {
+      const open = !ans.hidden;
+      ans.hidden = open;
+      reveal.textContent = open ? "Show answer" : "Hide answer";
+      yes.hidden = nope.hidden = open;
+    });
+    const mark = (v) => {
+      state.set(id, state.get(id) === v ? null : v);
+      const cur = state.get(id);
+      card.dataset.state = cur || "";
+      yes.setAttribute("aria-pressed", String(cur === "ok"));
+      nope.setAttribute("aria-pressed", String(cur === "no"));
+      score();
+    };
+    yes.addEventListener("click", () => mark("ok"));
+    nope.addEventListener("click", () => mark("no"));
+  });
+});
+
+const elDone = document.getElementById("done");
+const elRight = document.getElementById("right");
+const elWrong = document.getElementById("wrong");
+const fill = document.getElementById("fill");
+const verdict = document.getElementById("verdict");
+const missedList = document.getElementById("missed");
+
+function score() {
+  let ok = 0, no = 0;
+  state.forEach(v => { if (v === "ok") ok++; else if (v === "no") no++; });
+  const done = ok + no;
+  elDone.textContent = done;
+  elRight.textContent = ok;
+  elWrong.textContent = no;
+  fill.style.width = `${(done / total) * 100}%`;
+
+  missedList.innerHTML = "";
+  if (!done) {
+    verdict.textContent = "Nothing answered yet.";
+    missedList.hidden = true;
+    return;
+  }
+  const pct = Math.round((ok / done) * 100);
+  verdict.innerHTML = done === total
+    ? `All ${total} answered — <b>${ok} right, ${no} missed (${pct}%)</b>.`
+    : `<b>${done} of ${total}</b> answered — ${ok} right, ${no} missed (${pct}%).`;
+
+  const misses = [];
+  state.forEach((v, id) => { if (v === "no") misses.push(id); });
+  if (misses.length) {
+    missedList.hidden = false;
+    misses.sort((a, b) => a - b).forEach(id => {
+      const li = document.createElement("li");
+      const p = document.querySelector(`.q[data-id="${id}"] .prompt`);
+      li.textContent = `${String(id).padStart(2, "0")} — ${p.textContent.replace(/\s*(numbers|trap|apply)\s*$/, "")}`;
+      li.style.cursor = "pointer";
+      li.addEventListener("click", () => {
+        document.querySelector(`.q[data-id="${id}"]`).scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+      missedList.appendChild(li);
+    });
+  } else {
+    missedList.hidden = true;
+  }
+}
+
+document.getElementById("reset").addEventListener("click", () => {
+  state.clear();
+  document.querySelectorAll(".q").forEach(c => {
+    c.dataset.state = "";
+    c.querySelector(".a").hidden = true;
+    c.querySelector(".reveal").textContent = "Show answer";
+    c.querySelector(".mark.yes").hidden = true;
+    c.querySelector(".mark.nope").hidden = true;
+    c.querySelectorAll(".mark").forEach(b => b.setAttribute("aria-pressed", "false"));
+  });
+  score();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+score();
+</script>
+
+</body>
+</html>

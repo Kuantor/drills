@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta property="og:title" content="Async Drill — Ship It Live!" />
+<meta property="og:description" content="Interactive self-test: Async Python." />
+<meta property="og:image" content="https://kuantor.github.io/drills/background.jpg" />
+<meta property="og:url" content="https://kuantor.github.io/drills/python-async-python.html" />
+<meta property="og:type" content="website" />
+<style>
+  :root{
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  body{margin:0}
+  img{max-width:100%}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+<title>Async Drill</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a single reading column of question cards, grouped into seven acts
+   that follow the talk. Palette lifted from the Ship It Live deck builder so
+   this reads as part of the series: roasted brown ground, brass accents. */
+:root{
+  --ground:#1A150E;
+  --surface:#262014;
+  --card:#312918;
+  --edge:#4A3D22;
+  --cream:#F1EADA;
+  --tan:#AC9F84;
+  --gold:#C8A24B;
+  --gold-lt:#E8CD86;
+  --teal:#6FB0A6;
+  --terra:#D0845A;
+  --sage:#8BA678;
+  --serif:"Source Serif 4",Cambria,Georgia,serif;
+  --sans:"Public Sans",Calibri,-apple-system,system-ui,sans-serif;
+  --mono:"IBM Plex Mono",Consolas,ui-monospace,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  background:var(--ground);color:var(--cream);font-family:var(--sans);
+  font-size:16px;line-height:1.55;margin:0;
+}
+.wrap{max-width:780px;margin:0 auto;padding-inline:16px;padding-block:40px 64px}
+
+header h1{
+  font-family:var(--serif);font-weight:700;color:var(--gold);
+  font-size:clamp(2rem,7vw,3rem);line-height:1.05;margin:0 0 .3em;text-wrap:balance;
+}
+.kicker{
+  font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--tan);margin:0 0 1.6rem;
+}
+.lede{color:var(--tan);font-size:1.05rem;margin:0 0 2rem;max-width:62ch}
+.lede strong{color:var(--cream);font-weight:600}
+
+.board{
+  position:sticky;top:env(safe-area-inset-top,0px);z-index:10;
+  background:var(--surface);border:1px solid var(--edge);border-radius:10px;
+  padding:14px 16px;margin-bottom:2.4rem;
+  display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;
+}
+.tally{display:flex;gap:18px;flex:1 1 auto;min-width:0}
+.stat{display:flex;flex-direction:column;line-height:1.15}
+.stat b{
+  font-family:var(--mono);font-size:1.25rem;font-weight:500;
+  font-variant-numeric:tabular-nums;color:var(--gold-lt);
+}
+.stat span{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--tan)}
+.stat.ok b{color:var(--sage)}
+.stat.no b{color:var(--terra)}
+.bar{flex:1 1 100%;height:4px;background:var(--edge);border-radius:2px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--gold);transition:width .3s ease}
+button{font-family:var(--sans);font-size:.85rem;cursor:pointer;border-radius:7px;transition:background .15s,border-color .15s,color .15s}
+button:focus-visible{outline:2px solid var(--gold-lt);outline-offset:2px}
+.ghost{background:transparent;border:1px solid var(--edge);color:var(--tan);padding:7px 13px}
+.ghost:hover{border-color:var(--gold);color:var(--gold-lt)}
+
+h2{
+  font-family:var(--serif);font-size:1.45rem;font-weight:600;color:var(--gold);
+  margin:2.8rem 0 .2rem;display:flex;align-items:baseline;gap:.6rem;text-wrap:balance;
+}
+h2 em{
+  font-family:var(--mono);font-style:normal;font-size:.7rem;color:var(--tan);
+  letter-spacing:.1em;flex:0 0 auto;
+}
+.act-note{color:var(--tan);font-size:.9rem;margin:0 0 1.4rem}
+
+.q{background:var(--card);border:1px solid var(--edge);border-radius:10px;padding:18px 20px;margin-bottom:14px}
+.q[data-state="ok"]{border-color:color-mix(in srgb,var(--sage) 55%,var(--edge))}
+.q[data-state="no"]{border-color:color-mix(in srgb,var(--terra) 55%,var(--edge))}
+.qhead{display:flex;gap:12px;align-items:flex-start}
+.num{
+  font-family:var(--mono);font-size:.78rem;color:var(--gold);
+  flex:0 0 auto;padding-top:.2em;font-variant-numeric:tabular-nums;
+}
+.prompt{margin:0;flex:1 1 auto;min-width:0;font-size:1rem}
+.prompt code,.a code{
+  font-family:var(--mono);font-size:.86em;background:var(--ground);
+  border:1px solid var(--edge);border-radius:4px;padding:.08em .35em;color:var(--gold-lt);
+}
+.tag{
+  display:inline-block;font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;
+  text-transform:uppercase;padding:.2em .5em;border-radius:4px;margin-left:.5rem;
+  vertical-align:.12em;border:1px solid;
+}
+.tag.numbers{color:var(--gold-lt);border-color:color-mix(in srgb,var(--gold) 45%,transparent)}
+.tag.trap{color:var(--terra);border-color:color-mix(in srgb,var(--terra) 45%,transparent)}
+.tag.apply{color:var(--teal);border-color:color-mix(in srgb,var(--teal) 45%,transparent)}
+
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;padding-left:calc(.78rem + 12px)}
+.reveal{background:transparent;border:1px solid var(--gold);color:var(--gold-lt);padding:7px 15px}
+.reveal:hover{background:color-mix(in srgb,var(--gold) 14%,transparent)}
+.mark{border:1px solid var(--edge);background:transparent;padding:7px 15px}
+.mark.yes{color:var(--sage)}
+.mark.yes:hover,.mark.yes[aria-pressed="true"]{background:color-mix(in srgb,var(--sage) 18%,transparent);border-color:var(--sage)}
+.mark.nope{color:var(--terra)}
+.mark.nope:hover,.mark.nope[aria-pressed="true"]{background:color-mix(in srgb,var(--terra) 18%,transparent);border-color:var(--terra)}
+
+.a{
+  margin:14px 0 0;padding:14px 16px;background:var(--ground);
+  border-left:3px solid var(--gold);border-radius:0 7px 7px 0;font-size:.96rem;
+}
+.a p{margin:0 0 .7em}
+.a p:last-child{margin-bottom:0}
+.a b{color:var(--gold-lt);font-weight:600}
+.a .why{color:var(--tan);font-size:.9rem;display:block;margin-top:.7em;padding-top:.7em;border-top:1px solid var(--edge)}
+
+details.ref{margin-top:3rem;border:1px solid var(--edge);border-radius:10px;background:var(--surface)}
+details.ref summary{
+  cursor:pointer;padding:14px 18px;font-family:var(--mono);font-size:.78rem;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--gold);
+}
+details.ref summary:focus-visible{outline:2px solid var(--gold-lt);outline-offset:-2px}
+.tablewrap{overflow-x:auto;padding:0 18px 18px}
+table{border-collapse:collapse;width:100%;min-width:440px;font-size:.92rem}
+th,td{text-align:right;padding:8px 10px;border-bottom:1px solid var(--edge)}
+th:first-child,td:first-child{text-align:left}
+thead th{color:var(--tan);font-weight:500;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase}
+tbody td{font-family:var(--mono);font-variant-numeric:tabular-nums}
+tbody td:first-child{font-family:var(--sans)}
+.win{color:var(--sage)}
+.lose{color:var(--terra)}
+.refnote{padding:0 18px 18px;margin:0;color:var(--tan);font-size:.85rem}
+
+footer{margin-top:3rem;padding-top:1.6rem;border-top:1px solid var(--edge);color:var(--tan);font-size:.88rem}
+footer b{color:var(--gold-lt)}
+#missed{margin:.8rem 0 0;padding-left:1.1rem}
+#missed li{margin-bottom:.3rem}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+<header>
+  <p class="kicker">Ship It Live! &middot; self-test</p>
+  <h1>Async Drill</h1>
+  <p class="lede">Thirty-six questions on <strong>Async Python — Waiting Without Blocking</strong>. Answer out loud before revealing, then mark yourself honestly. Two numbers carry this talk — <strong>124 MB</strong> and <strong>1019 ms</strong> — and the first third is about what async is <em>not</em>, which is where most of the traps live.</p>
+</header>
+
+<div class="board">
+  <div class="tally">
+    <div class="stat"><b id="done">0</b><span>answered</span></div>
+    <div class="stat ok"><b id="right">0</b><span>got it</span></div>
+    <div class="stat no"><b id="wrong">0</b><span>missed</span></div>
+  </div>
+  <button class="ghost" id="reset">Reset</button>
+  <div class="bar"><i id="fill"></i></div>
+</div>
+
+<main id="quiz"></main>
+
+<details class="ref">
+  <summary>Reference — the measured numbers</summary>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Simultaneous waits</th><th>Threads</th><th>Coroutines</th></tr></thead>
+    <tbody>
+      <tr><td>100</td><td>2.02s · 2.5 MB</td><td>2.01s · 0.1 MB</td></tr>
+      <tr><td>1,000</td><td>2.13s · 24.8 MB</td><td>2.03s · 0.2 MB</td></tr>
+      <tr><td>5,000</td><td class="lose">2.68s · 124.2 MB</td><td class="win">2.10s · 0.8 MB</td></tr>
+      <tr><td>each, in isolation</td><td>~25 KB</td><td>~170 bytes</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>A 10 ms task, while one slow task runs</th><th>Latency</th></tr></thead>
+    <tbody>
+      <tr><td><code>await asyncio.sleep(1)</code></td><td class="win">14.5 ms</td></tr>
+      <tr><td><code>time.sleep(1)</code> — blocking</td><td class="lose">1018.6 ms</td></tr>
+      <tr><td><code>await asyncio.to_thread(...)</code></td><td class="win">30.4 ms</td></tr>
+      <tr><td>CPU-bound, 4 tasks gathered</td><td class="lose">3.41s → 3.56s · 0.97&times; (0.78–1.12)</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="refnote">Means of eight runs of <code>async_bench.py</code> in the talk's folder, each a fresh process, on Python 3.14.3 with eight cores. The blocking figure never moved more than 8&nbsp;ms either way; the CPU ratio scattered between 0.78&times; and 1.12&times;. Re-run it on the machine you present from.</p>
+</details>
+
+<footer>
+  <p id="verdict">Nothing answered yet.</p>
+  <ul id="missed" hidden></ul>
+</footer>
+</div>
+
+<script>
+const ACTS = [
+  { title: "What async is not", note: "Slides 3–4. The misconception is near-universal, and everything lands better once it is gone.", qs: [
+    { q: "Which sentence does the talk open by destroying, and what replaces it?", tag: "trap",
+      a: "<p><b>&ldquo;Async makes your code faster.&rdquo;</b> It does not. What it does is <b>make waiting cheap</b>.</p><p>Nothing runs in parallel — one thread, one core, exactly as in the GIL talk. No computation gets faster. What changes is that ten thousand simultaneous waits become cheap. A much narrower claim than &ldquo;faster&rdquo; — but where it applies, it applies enormously.</p>",
+      why: "If somebody says they rewrote a CPU-heavy script in asyncio and it got faster, something else changed at the same time. Ask what." },
+    { q: "Define concurrency and parallelism, and give the kitchen image for each.",
+      a: "<p><b>Concurrency</b> is <i>dealing</i> with many things at once — a structure. Many tasks in flight, progress interleaved. <b>One cook managing four pans.</b> Nothing is simultaneous; everything advances.</p><p><b>Parallelism</b> is <i>doing</i> many things at once — an execution fact. Two things genuinely happening in the same instant, on two cores. <b>Four cooks at four stations.</b></p>",
+      why: "The distinction is Rob Pike's, from a 2012 talk about Go: concurrency is about structure, parallelism is about execution." },
+    { q: "Which of the three tools give concurrency, and which give parallelism?",
+      a: "<p><b>Threads and asyncio give concurrency.</b> In CPython, <b>only processes give parallelism</b> — that was the whole of the GIL talk.</p><p>So asyncio is a concurrency tool exclusively. <b>It never adds a core.</b></p>" },
+    { q: "Every question about whether to use asyncio reduces to one question. Which?", tag: "apply",
+      a: "<p><b>Is this program spending its life waiting, or working?</b></p>" },
+  ]},
+  { title: "The event loop", note: "Slides 5–6. Four steps, forever.", qs: [
+    { q: "Walk the four steps of the event loop.",
+      a: "<p><b>1.</b> Take the next ready task and run it — ordinary synchronous Python, nothing magical.<br><b>2.</b> Run until it hits an <code>await</code>. That keyword is the task saying: I am waiting on something, here is control back.<br><b>3.</b> Park the task and register the wait — hand the socket or timer to the OS and forget the task entirely.<br><b>4.</b> Go back to step one. When the OS reports the wait finished, the task rejoins the ready queue.</p>" },
+    { q: "State the consequence of that design carefully — the good half and the bad half.",
+      a: "<p>One thread, running one task at a time, from one await to the next. <b>Nothing can interrupt a task in the middle</b> — the OS is not scheduling any of this. The tasks are cooperating.</p><p><b>Wonderful:</b> between two awaits nothing else can run, so you need no locks there.<br><b>Terrible:</b> a task that does not cooperate takes everyone down with it.</p>" },
+    { q: "What does calling an <code>async def</code> function actually give you?", tag: "trap",
+      a: "<p><b>Not a result and not a thread — a coroutine object, and nothing has happened.</b> The function body has not run. It runs when you await it.</p><p>A coroutine is essentially a <b>paused function</b>: it holds its local variables and its position in the code, and can be resumed later. That is all it is.</p>",
+      why: "Forgetting the await is a real and common bug — though Python warns: \"coroutine was never awaited\"." },
+    { q: "What is the difference between a coroutine and a task?",
+      a: "<p>A <b>task</b> is a coroutine that has been handed to the loop, with <code>create_task</code>. <b>That is what makes things run concurrently.</b></p>" },
+    { q: "Why is awaiting three things one after another <em>not</em> concurrent?", tag: "trap",
+      a: "<p>Because each await finishes before the next begins. It is <b>a slow synchronous program with extra keywords</b>.</p><p>Concurrency starts when several are in flight at the same time: <code>gather</code>, or a task group.</p>" },
+  ]},
+  { title: "The syntax worth knowing", note: "Slide 7. Four constructs cover most of what you write.", qs: [
+    { q: "<code>gather</code> versus <code>TaskGroup</code> — which should you prefer, and why?",
+      a: "<p><b>TaskGroup</b>, from <b>Python 3.11</b>. It fans out the same way, but if one task fails it <b>cancels the siblings and raises</b>.</p><p>With plain <code>gather</code> you can end up with tasks still running that nobody is watching.</p>" },
+    { q: "What does <code>Semaphore</code> do, and why does it matter more than it looks?", tag: "apply",
+      a: "<p>It <b>limits how many run at once</b>.</p><p><code>gather</code> over ten thousand URLs will cheerfully open ten thousand sockets — and <b>the difference between fast and banned is usually a semaphore</b>.</p>" },
+    { q: "How does cancellation arrive, and what must you not do with it?", tag: "trap",
+      a: "<p>It arrives as <b>an exception raised inside your task</b>. <b>Let it propagate.</b></p><p>A bare <code>except</code> that swallows it <b>turns a clean shutdown into a hang</b>.</p>" },
+  ]},
+  { title: "Measured: five thousand waits", note: "Slides 8–9. The first peak of the talk.", qs: [
+    { q: "At 5,000 simultaneous waits — time and memory, threads versus coroutines.", tag: "numbers",
+      a: "<p><b>Threads: 2.68 s and 124.2 MB.</b> They have got <i>slower</i> — 2.68 against 2.10 — because five thousand OS threads cost real scheduling effort.</p><p><b>Coroutines: 2.10 s and 0.8 MB.</b></p><p>Roughly <b>150 times less memory</b> for the same work. All means of eight runs.</p>" },
+    { q: "At 100 and at 1,000 — what do the numbers show?", tag: "numbers",
+      a: "<p><b>At 100:</b> indistinguishable — about two seconds each, a couple of megabytes against nothing.</p><p><b>At 1,000:</b> threads 25 MB, coroutines a fifth of one megabyte.</p>" },
+    { q: "Be precise about what that table argues — and what it does not.", tag: "trap",
+      a: "<p><b>The argument for async is a memory argument, not a speed one.</b> It is about the <b>ceiling</b>.</p><p>Both approaches wait perfectly well; the threads are not broken. <b>Only one of them scales to ten thousand connections.</b></p>" },
+    { q: "Per unit, what does a thread cost and what does a coroutine cost?", tag: "numbers",
+      a: "<p>A thread: about <b>25 KB</b> each in practice.<br>A coroutine: about <b>170 bytes</b> each.</p>" },
+    { q: "Why is the difference that large? Name the mechanism on both sides.",
+      a: "<p>Because <b>one is an operating-system object and the other is a Python object</b>.</p><p>A <b>thread</b> gets its own call stack, reserved up front. The kernel knows about it and schedules it, and switching means <b>a trip into the kernel</b>.</p><p>A <b>coroutine</b> holds some locals and a position in the code. The kernel does not know it exists, and switching is <b>a function return — no system call at all</b>.</p>" },
+    { q: "Which kind of service makes that ceiling the entire design constraint?", tag: "apply",
+      a: "<p>One holding <b>many idle connections open</b> — websockets, long polling, server-sent events, streaming.</p><p>It is precisely why FastAPI can do things Flask cannot.</p>" },
+  ]},
+  { title: "One blocking call ruins everything", note: "Slides 10–11. The second peak, and the number to take away.", qs: [
+    { q: "Describe the setup, then give all three latencies.", tag: "numbers",
+      a: "<p>One event loop. Several trivial tasks that each wait <b>10 ms</b>. One slow task that takes a second.</p><p><code>await asyncio.sleep</code> → the small tasks take about <b>15 ms</b>.<br><code>time.sleep</code> → they take <b>1019 ms</b>, the average of eight runs.<br><code>await asyncio.to_thread</code> → <b>30 ms</b>.</p><p>A ten-millisecond task took over a second — <b>a hundred times its own duration</b>.</p>" },
+    { q: "Translate that into a web service.", tag: "apply",
+      a: "<p>That is not one slow request. That is <b>every other request on that worker</b>, waiting behind one careless call.</p>" },
+    { q: "Why is this worse than the same blocking call in a synchronous framework?", tag: "trap",
+      a: "<p>In a synchronous framework you block <b>one worker out of several</b>, and <b>the operating system pre-empts it anyway</b>.</p><p>On an event loop <b>there is nothing to pre-empt you</b>. Cooperative scheduling means exactly that.</p>" },
+    { q: "The two escape hatches — which for blocking I/O, which for CPU work, and why not the other way?",
+      a: "<p><b>Blocking I/O:</b> <code>asyncio.to_thread</code>. It runs the call on a worker thread and awaits the result, so the loop stays free. That is the 30 ms row.</p><p><b>CPU-bound:</b> <code>run_in_executor</code> with a <b>process</b> pool. Not a thread — <b>a thread would not help</b>. The GIL has not gone anywhere just because we are using async.</p>" },
+    { q: "There is a third option that is often the right one. What is it?", tag: "apply",
+      a: "<p><b>Do not use async at all.</b> If most of your work blocks, <b>async is a costume</b>. Flask with more Gunicorn workers is simpler and more honest.</p>" },
+    { q: "How do you find a blocking call you did not know you had?", tag: "apply",
+      a: "<p>Run with <b>debug mode</b>: the environment variable <code>PYTHONASYNCIODEBUG=1</code>, or <code>debug=True</code> passed to <code>asyncio.run</code>. The loop then <b>warns about any callback that took too long</b>.</p>",
+      why: "It is the async equivalent of turning on echo=True in the ORMs talk. Do it for an evening on your own code." },
+  ]},
+  { title: "And it still cannot compute", note: "Slides 12–13. The answer you already know.", qs: [
+    { q: "Four CPU-bound tasks gathered on the event loop — give both figures, the ratio and its range.", tag: "numbers",
+      a: "<p>Serial <b>3.41 s</b>, with asyncio <b>3.56 s</b> — <b>0.97×</b> on average, and across eight runs it moved between <b>0.78× and 1.12×</b>. It scatters around one: <b>no speed-up at all</b>.</p><p>The GIL talk found <b>the same thing</b> for threads on the same shape of work — no real change, <b>1.07×</b> across eight runs. A different figure, the same finding, for the same reason: <b>still one thread and still one GIL</b>. Tasks switch at await points, and a tight arithmetic loop does not have any.</p>" },
+    { q: "Give the full picture across both talks — three tools, waiting and computing.", tag: "numbers",
+      a: "<p><b>Threads:</b> waiting 3.99×, computing 1.07×.<br><b>Asyncio:</b> waiting scales to enormous numbers, computing 0.97×.<br><b>Processes:</b> waiting 2.85×, computing 2.36×.</p><p>Three tools, one question: <b>is this program waiting, or working?</b></p>" },
+    { q: "The decision table — when each of the three, plus the fourth option.", tag: "apply",
+      a: "<p><b>Asyncio</b> when there are many waits — hundreds or thousands at once. Web servers holding connections, scrapers, chatty API clients, websockets.</p><p><b>Threading</b> when there are a few waits, or a blocking library you cannot replace. Async and threads solve the <i>same</i> problem — they differ in ceiling, not in kind.</p><p><b>Multiprocessing</b> when there is genuine computation in Python.</p><p><b>Do nothing</b> — usually the right answer. Most services are not concurrency-bound; they are waiting on one database that answers in five milliseconds.</p>" },
+  ]},
+  { title: "Adopting it, ASGI, and the payoff", note: "Slides 14–17. Where the cost shows up, and the debt gets paid.", qs: [
+    { q: "&ldquo;Async all the way down&rdquo; — name the library swaps.",
+      a: "<p><code>asyncpg</code> rather than psycopg2. SQLAlchemy's <code>AsyncSession</code>. <code>httpx</code> rather than requests. <code>redis.asyncio</code>. <code>aiofiles</code> for files, which are otherwise always blocking.</p>" },
+    { q: "One synchronous library in the chain. Why is the result <em>worse</em> than the synchronous version?", tag: "trap",
+      a: "<p>An async framework calling a sync driver is <b>a synchronous application wearing async syntax</b> — and it is worse, because <b>now every query blocks the loop and there is no OS pre-emption to soften it</b>.</p><p>This is the most common way async projects end up slower than what they replaced.</p>",
+      why: "So before adopting async, check the hot path. If your database driver has no async version, stop there." },
+    { q: "How does the N+1 problem compound on an event loop?", tag: "trap",
+      a: "<p>A hundred and one queries on a blocked loop does not just make <i>that</i> request slow — <b>it stalls every other request on the worker too</b>. The two failure modes multiply.</p>" },
+    { q: "What does &ldquo;async is contagious&rdquo; mean, and what follows from it?", tag: "trap",
+      a: "<p>One <code>await</code> makes its caller async, and that caller's caller, <b>all the way up to the entry point</b>.</p><p>So <b>there is no small async pilot inside a synchronous codebase</b>. It is a codebase-wide decision.</p>" },
+    { q: "Why can WSGI not do websockets? Answer from the signature.",
+      a: "<p>WSGI is <b>a function taking <code>environ</code> and <code>start_response</code>, returning an iterable of bytes</b> — one call, one response.</p><p>There is <b>no way in that shape to express a connection that stays open</b>. It is not a missing feature; <b>the signature has nowhere to put it</b>.</p>" },
+    { q: "What is the ASGI signature, and what does it make possible?",
+      a: "<p>A <b>coroutine</b> taking a <b>scope</b> and two channels — <b><code>receive</code> and <code>send</code></b>. You can receive many messages and send many.</p><p>Websockets fit. Streaming fits. Long-lived connections fit.</p>",
+      why: "ASGI was inspired by WSGI rather than derived from it — a separate design for connections that persist, not a version two." },
+    { q: "Uvicorn is to ASGI what ___ is to WSGI. And why do you still run several Uvicorn workers?", tag: "apply",
+      a: "<p><b>Gunicorn.</b></p><p>You still run several workers because <b>async gives you concurrency inside one core, and worker processes give you parallelism across cores</b>. Two different problems, two different tools — a real deployment needs both.</p>",
+      why: "That single command line is the GIL talk and this one together." },
+    { q: "The interview question this talk answers — state it, then give the four beats.",
+      a: "<p><i>You have an async handler calling a synchronous database driver. What happens, and why is it worse than the same call in a synchronous framework?</i></p><p><b>1.</b> The blocking call holds the single event-loop thread. Every other coroutine on that worker stops — not just the current request, all of them.<br><b>2.</b> In sync you block one worker of several and the OS pre-empts it anyway; on a loop there is nothing to pre-empt you.<br><b>3.</b> The number: a 10 ms task behind one blocking second took <b>1019 ms</b> on average.<br><b>4.</b> The fix: an async driver, or <code>asyncio.to_thread</code> — found with debug mode.</p>" },
+    { q: "The one sentence that summarises the whole talk.",
+      a: "<p><b>Async does not make code faster. It makes waiting cheap — and it charges you the whole codebase for it.</b></p>" },
+  ]},
+];
+
+const quiz = document.getElementById("quiz");
+const state = new Map();
+let n = 0;
+const total = ACTS.reduce((s, a) => s + a.qs.length, 0);
+
+ACTS.forEach((act, ai) => {
+  const h = document.createElement("h2");
+  h.innerHTML = `${act.title} <em>Act ${ai + 1}</em>`;
+  quiz.appendChild(h);
+  const note = document.createElement("p");
+  note.className = "act-note";
+  note.textContent = act.note;
+  quiz.appendChild(note);
+
+  act.qs.forEach(item => {
+    n += 1;
+    const id = n;
+    const card = document.createElement("section");
+    card.className = "q";
+    card.dataset.id = id;
+    const tag = item.tag ? `<span class="tag ${item.tag}">${item.tag}</span>` : "";
+    card.innerHTML = `
+      <div class="qhead">
+        <span class="num">${String(id).padStart(2, "0")}</span>
+        <p class="prompt">${item.q}${tag}</p>
+      </div>
+      <div class="a" id="a${id}" hidden>
+        ${item.a}${item.why ? `<span class="why">${item.why}</span>` : ""}
+      </div>
+      <div class="actions">
+        <button class="reveal" type="button">Show answer</button>
+        <button class="mark yes" type="button" aria-pressed="false" hidden>Got it</button>
+        <button class="mark nope" type="button" aria-pressed="false" hidden>Missed</button>
+      </div>`;
+    quiz.appendChild(card);
+
+    const ans = card.querySelector(".a");
+    const reveal = card.querySelector(".reveal");
+    const yes = card.querySelector(".mark.yes");
+    const nope = card.querySelector(".mark.nope");
+
+    reveal.addEventListener("click", () => {
+      const open = !ans.hidden;
+      ans.hidden = open;
+      reveal.textContent = open ? "Show answer" : "Hide answer";
+      yes.hidden = nope.hidden = open;
+    });
+    const mark = (v) => {
+      state.set(id, state.get(id) === v ? null : v);
+      const cur = state.get(id);
+      card.dataset.state = cur || "";
+      yes.setAttribute("aria-pressed", String(cur === "ok"));
+      nope.setAttribute("aria-pressed", String(cur === "no"));
+      score();
+    };
+    yes.addEventListener("click", () => mark("ok"));
+    nope.addEventListener("click", () => mark("no"));
+  });
+});
+
+const elDone = document.getElementById("done");
+const elRight = document.getElementById("right");
+const elWrong = document.getElementById("wrong");
+const fill = document.getElementById("fill");
+const verdict = document.getElementById("verdict");
+const missedList = document.getElementById("missed");
+
+function score() {
+  let ok = 0, no = 0;
+  state.forEach(v => { if (v === "ok") ok++; else if (v === "no") no++; });
+  const done = ok + no;
+  elDone.textContent = done;
+  elRight.textContent = ok;
+  elWrong.textContent = no;
+  fill.style.width = `${(done / total) * 100}%`;
+
+  missedList.innerHTML = "";
+  if (!done) {
+    verdict.textContent = "Nothing answered yet.";
+    missedList.hidden = true;
+    return;
+  }
+  const pct = Math.round((ok / done) * 100);
+  verdict.innerHTML = done === total
+    ? `All ${total} answered — <b>${ok} right, ${no} missed (${pct}%)</b>.`
+    : `<b>${done} of ${total}</b> answered — ${ok} right, ${no} missed (${pct}%).`;
+
+  const misses = [];
+  state.forEach((v, id) => { if (v === "no") misses.push(id); });
+  if (misses.length) {
+    missedList.hidden = false;
+    misses.sort((a, b) => a - b).forEach(id => {
+      const li = document.createElement("li");
+      const p = document.querySelector(`.q[data-id="${id}"] .prompt`);
+      li.textContent = `${String(id).padStart(2, "0")} — ${p.textContent.replace(/\s*(numbers|trap|apply)\s*$/, "")}`;
+      li.style.cursor = "pointer";
+      li.addEventListener("click", () => {
+        document.querySelector(`.q[data-id="${id}"]`).scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+      missedList.appendChild(li);
+    });
+  } else {
+    missedList.hidden = true;
+  }
+}
+
+document.getElementById("reset").addEventListener("click", () => {
+  state.clear();
+  document.querySelectorAll(".q").forEach(c => {
+    c.dataset.state = "";
+    c.querySelector(".a").hidden = true;
+    c.querySelector(".reveal").textContent = "Show answer";
+    c.querySelector(".mark.yes").hidden = true;
+    c.querySelector(".mark.nope").hidden = true;
+    c.querySelectorAll(".mark").forEach(b => b.setAttribute("aria-pressed", "false"));
+  });
+  score();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+score();
+</script>
+
+</body>
+</html>

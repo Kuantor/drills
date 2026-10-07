@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta property="og:title" content="ORM Drill — Ship It Live!" />
+<meta property="og:description" content="Interactive self-test: ORMs." />
+<meta property="og:image" content="https://kuantor.github.io/drills/background.jpg" />
+<meta property="og:url" content="https://kuantor.github.io/drills/python-orms.html" />
+<meta property="og:type" content="website" />
+<style>
+  :root{
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  body{margin:0}
+  img{max-width:100%}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+<title>ORM Drill</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a single reading column of question cards, grouped into seven acts
+   that follow the talk. Palette lifted from the Ship It Live deck builder so
+   this reads as part of the series: roasted brown ground, brass accents. */
+:root{
+  --ground:#1A150E;
+  --surface:#262014;
+  --card:#312918;
+  --edge:#4A3D22;
+  --cream:#F1EADA;
+  --tan:#AC9F84;
+  --gold:#C8A24B;
+  --gold-lt:#E8CD86;
+  --teal:#6FB0A6;
+  --terra:#D0845A;
+  --sage:#8BA678;
+  --serif:"Source Serif 4",Cambria,Georgia,serif;
+  --sans:"Public Sans",Calibri,-apple-system,system-ui,sans-serif;
+  --mono:"IBM Plex Mono",Consolas,ui-monospace,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  background:var(--ground);color:var(--cream);font-family:var(--sans);
+  font-size:16px;line-height:1.55;margin:0;
+}
+.wrap{max-width:780px;margin:0 auto;padding-inline:16px;padding-block:40px 64px}
+
+header h1{
+  font-family:var(--serif);font-weight:700;color:var(--gold);
+  font-size:clamp(2rem,7vw,3rem);line-height:1.05;margin:0 0 .3em;text-wrap:balance;
+}
+.kicker{
+  font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--tan);margin:0 0 1.6rem;
+}
+.lede{color:var(--tan);font-size:1.05rem;margin:0 0 2rem;max-width:62ch}
+.lede strong{color:var(--cream);font-weight:600}
+
+.board{
+  position:sticky;top:env(safe-area-inset-top,0px);z-index:10;
+  background:var(--surface);border:1px solid var(--edge);border-radius:10px;
+  padding:14px 16px;margin-bottom:2.4rem;
+  display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;
+}
+.tally{display:flex;gap:18px;flex:1 1 auto;min-width:0}
+.stat{display:flex;flex-direction:column;line-height:1.15}
+.stat b{
+  font-family:var(--mono);font-size:1.25rem;font-weight:500;
+  font-variant-numeric:tabular-nums;color:var(--gold-lt);
+}
+.stat span{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--tan)}
+.stat.ok b{color:var(--sage)}
+.stat.no b{color:var(--terra)}
+.bar{flex:1 1 100%;height:4px;background:var(--edge);border-radius:2px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--gold);transition:width .3s ease}
+button{font-family:var(--sans);font-size:.85rem;cursor:pointer;border-radius:7px;transition:background .15s,border-color .15s,color .15s}
+button:focus-visible{outline:2px solid var(--gold-lt);outline-offset:2px}
+.ghost{background:transparent;border:1px solid var(--edge);color:var(--tan);padding:7px 13px}
+.ghost:hover{border-color:var(--gold);color:var(--gold-lt)}
+
+h2{
+  font-family:var(--serif);font-size:1.45rem;font-weight:600;color:var(--gold);
+  margin:2.8rem 0 .2rem;display:flex;align-items:baseline;gap:.6rem;text-wrap:balance;
+}
+h2 em{
+  font-family:var(--mono);font-style:normal;font-size:.7rem;color:var(--tan);
+  letter-spacing:.1em;flex:0 0 auto;
+}
+.act-note{color:var(--tan);font-size:.9rem;margin:0 0 1.4rem}
+
+.q{background:var(--card);border:1px solid var(--edge);border-radius:10px;padding:18px 20px;margin-bottom:14px}
+.q[data-state="ok"]{border-color:color-mix(in srgb,var(--sage) 55%,var(--edge))}
+.q[data-state="no"]{border-color:color-mix(in srgb,var(--terra) 55%,var(--edge))}
+.qhead{display:flex;gap:12px;align-items:flex-start}
+.num{
+  font-family:var(--mono);font-size:.78rem;color:var(--gold);
+  flex:0 0 auto;padding-top:.2em;font-variant-numeric:tabular-nums;
+}
+.prompt{margin:0;flex:1 1 auto;min-width:0;font-size:1rem}
+.prompt code,.a code{
+  font-family:var(--mono);font-size:.86em;background:var(--ground);
+  border:1px solid var(--edge);border-radius:4px;padding:.08em .35em;color:var(--gold-lt);
+}
+.tag{
+  display:inline-block;font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;
+  text-transform:uppercase;padding:.2em .5em;border-radius:4px;margin-left:.5rem;
+  vertical-align:.12em;border:1px solid;
+}
+.tag.numbers{color:var(--gold-lt);border-color:color-mix(in srgb,var(--gold) 45%,transparent)}
+.tag.trap{color:var(--terra);border-color:color-mix(in srgb,var(--terra) 45%,transparent)}
+.tag.apply{color:var(--teal);border-color:color-mix(in srgb,var(--teal) 45%,transparent)}
+
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;padding-left:calc(.78rem + 12px)}
+.reveal{background:transparent;border:1px solid var(--gold);color:var(--gold-lt);padding:7px 15px}
+.reveal:hover{background:color-mix(in srgb,var(--gold) 14%,transparent)}
+.mark{border:1px solid var(--edge);background:transparent;padding:7px 15px}
+.mark.yes{color:var(--sage)}
+.mark.yes:hover,.mark.yes[aria-pressed="true"]{background:color-mix(in srgb,var(--sage) 18%,transparent);border-color:var(--sage)}
+.mark.nope{color:var(--terra)}
+.mark.nope:hover,.mark.nope[aria-pressed="true"]{background:color-mix(in srgb,var(--terra) 18%,transparent);border-color:var(--terra)}
+
+.a{
+  margin:14px 0 0;padding:14px 16px;background:var(--ground);
+  border-left:3px solid var(--gold);border-radius:0 7px 7px 0;font-size:.96rem;
+}
+.a p{margin:0 0 .7em}
+.a p:last-child{margin-bottom:0}
+.a b{color:var(--gold-lt);font-weight:600}
+.a .why{color:var(--tan);font-size:.9rem;display:block;margin-top:.7em;padding-top:.7em;border-top:1px solid var(--edge)}
+
+details.ref{margin-top:3rem;border:1px solid var(--edge);border-radius:10px;background:var(--surface)}
+details.ref summary{
+  cursor:pointer;padding:14px 18px;font-family:var(--mono);font-size:.78rem;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--gold);
+}
+details.ref summary:focus-visible{outline:2px solid var(--gold-lt);outline-offset:-2px}
+.tablewrap{overflow-x:auto;padding:0 18px 18px}
+table{border-collapse:collapse;width:100%;min-width:460px;font-size:.92rem}
+th,td{text-align:right;padding:8px 10px;border-bottom:1px solid var(--edge)}
+th:first-child,td:first-child{text-align:left}
+thead th{color:var(--tan);font-weight:500;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase}
+tbody td{font-family:var(--mono);font-variant-numeric:tabular-nums}
+tbody td:first-child{font-family:var(--sans)}
+.win{color:var(--sage)}
+.lose{color:var(--terra)}
+.refnote{padding:0 18px 18px;margin:0;color:var(--tan);font-size:.85rem}
+
+footer{margin-top:3rem;padding-top:1.6rem;border-top:1px solid var(--edge);color:var(--tan);font-size:.88rem}
+footer b{color:var(--gold-lt)}
+#missed{margin:.8rem 0 0;padding-left:1.1rem}
+#missed li{margin-bottom:.3rem}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+<header>
+  <p class="kicker">Ship It Live! &middot; self-test</p>
+  <h1>ORM Drill</h1>
+  <p class="lede">Thirty-six questions on <strong>ORMs — How Python Speaks to the Database</strong>. Answer out loud before revealing, then mark yourself honestly. The hinge is <strong>101 versus 11</strong>, and the second number is the one that separates someone who read about N+1 from someone who measured it.</p>
+</header>
+
+<div class="board">
+  <div class="tally">
+    <div class="stat"><b id="done">0</b><span>answered</span></div>
+    <div class="stat ok"><b id="right">0</b><span>got it</span></div>
+    <div class="stat no"><b id="wrong">0</b><span>missed</span></div>
+  </div>
+  <button class="ghost" id="reset">Reset</button>
+  <div class="bar"><i id="fill"></i></div>
+</div>
+
+<main id="quiz"></main>
+
+<details class="ref">
+  <summary>Reference — the measured query counts</summary>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>100 articles</th><th>Queries</th><th>Note</th></tr></thead>
+    <tbody>
+      <tr><td>Lazy, 100 distinct authors</td><td class="lose">101</td><td>the textbook 1 + N</td></tr>
+      <tr><td>Lazy, 10 shared authors</td><td class="lose">11</td><td>1 + distinct related rows</td></tr>
+      <tr><td><code>joinedload</code></td><td class="win">1</td><td>LEFT OUTER JOIN</td></tr>
+      <tr><td><code>selectinload</code></td><td class="win">2</td><td>WHERE id IN (…)</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>100 authors &times; 50 articles</th><th>Queries</th><th>Rows returned</th></tr></thead>
+    <tbody>
+      <tr><td>Lazy</td><td class="lose">101</td><td>—</td></tr>
+      <tr><td><code>joinedload</code> on a collection</td><td>1</td><td class="lose">5,000</td></tr>
+      <tr><td><code>selectinload</code> on a collection</td><td>2</td><td class="win">no duplication</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="refnote">Counted with SQLAlchemy's <code>before_cursor_execute</code> event — what actually reached the driver, not an estimate.</p>
+</details>
+
+<footer>
+  <p id="verdict">Nothing answered yet.</p>
+  <ul id="missed" hidden></ul>
+</footer>
+</div>
+
+<script>
+const ACTS = [
+  { title: "Two models that disagree", note: "Slides 2–4. The problem before the solution.", qs: [
+    { q: "Name the disagreements between the relational and object models.",
+      a: "<p>Tables vs classes. Rows vs instances. Columns vs attributes. A relationship is a <b>foreign key followed with a join</b> in one and <b>a reference followed with a dot</b> in the other. Databases have no inheritance; your object model probably does. A database identifies a row by <b>primary key</b>, Python identifies an object by <b>where it lives in memory</b>. Databases think in <b>sets</b>; Python thinks in <b>loops</b>.</p>" },
+    { q: "What is the name for that, and where does the metaphor come from?",
+      a: "<p>The <b>object-relational impedance mismatch</b>. <b>Impedance</b> is borrowed from electrical engineering: connect two circuits with different impedance and part of the signal does not pass through — <b>it reflects back at the junction</b>.</p><p>Both models are perfectly coherent on their own. <b>It is the junction between them that costs you.</b></p>",
+      why: "The term dates to the 1990s object-database debates, and the electrical metaphor is the original one, not a later retrofit." },
+    { q: "So what does an ORM actually do about the mismatch?", tag: "trap",
+      a: "<p>It is <b>the adapter you put in that junction</b>. It <b>does not remove the mismatch — it moves it somewhere you can manage.</b></p>" },
+    { q: "Life without an ORM works. Name the three problems anyway.",
+      a: "<p><b>1.</b> The column order appears <b>twice</b> — in the SELECT and in the unpacking. Add a column in the middle and <code>row[1]</code> silently becomes the wrong field. Nothing raises; you just get wrong data, quietly, forever.</p><p><b>2.</b> You get back a <b>tuple</b> — no behaviour, no validation, no methods. Data with the meaning stripped off.</p><p><b>3.</b> Want the author? That is <b>a second query, and joining the results is your problem, every time</b>.</p>" },
+  ]},
+  { title: "The mapping, and SQLAlchemy", note: "Slides 5–8. Three sentences, then everything follows.", qs: [
+    { q: "The whole idea in three correspondences.",
+      a: "<p>A <b>class</b> maps to a <b>table</b>. An <b>instance</b> maps to a <b>row</b>. An <b>attribute</b> maps to a <b>column</b>.</p><p>Everything else in the talk follows from those three sentences.</p>" },
+    { q: "What do you get from the mapping? Four things.",
+      a: "<p>The <b>schema lives in one place</b>, in a class your editor and type checker can read.<br>The <b>INSERTs, UPDATEs and DELETEs are generated</b> from the changes you actually made.<br>Values are <b>bound as parameters</b> rather than pasted into strings — which removes the commonest route to SQL injection almost by accident.<br><b>Portability</b> — the same code against Postgres, MySQL or SQLite.</p>" },
+    { q: "And what do you <em>not</em> get?", tag: "trap",
+      a: "<p><b>Freedom from SQL.</b> The ORM writes queries on your behalf. <b>If you do not know what it is writing, you cannot tell a fast page from a slow one.</b></p><p>Most of the rest of the talk is a worked example of that one sentence.</p>" },
+    { q: "Django's ORM and SQLAlchemy differ in style. Name both patterns and why it matters.",
+      a: "<p>Django is <b>Active Record</b> — the model object knows how to save itself.<br>SQLAlchemy is <b>Data Mapper</b> — the objects are plain, and a separate <b>session</b> is responsible for persistence.</p><p>That sounds academic <b>until you try to unit-test a Django model without a database</b>.</p>" },
+    { q: "What does Flask-SQLAlchemy actually give you?", tag: "apply",
+      a: "<p>It does not replace SQLAlchemy — it <b>wires it into Flask</b>, so you get <b>exactly one session per request, closed when the response is sent</b>.</p><p>That request-scoped session is the whole value, and it is precisely the thing you would otherwise get wrong.</p>" },
+    { q: "&ldquo;SQLAlchemy is two libraries.&rdquo; Name them and say what each is for.",
+      a: "<p><b>Core</b> — a SQL expression language. Tables, columns, composable selects that compile to your dialect. No classes, no session, no objects. <b>Set-based, and where fast bulk work belongs.</b></p><p><b>The ORM</b> — classes mapped to tables, a session tracking changes, relationships traversed with a dot.</p><p>And you can drop from the ORM into Core mid-query, <b>sharing the same connection and the same transaction</b>.</p>" },
+    { q: "What is SQLAlchemy's design philosophy, in one contrast?",
+      a: "<p>It <b>assumes you know SQL and want leverage, not concealment</b>. Some ORMs try to make the database invisible; this one tries to make it convenient.</p><p>When the abstraction cannot express what you want, <b>you drop a level rather than fight it</b>.</p>",
+      why: "The talk's image: the difference between a distillery that shows you the copper and one that just hands you a bottle." },
+    { q: "In a 2.0 declarative mapping, what is the type annotation doing?",
+      a: "<p>Real work — <b>it is part of the schema definition</b>. <code>Mapped[int]</code> with <code>primary_key=True</code> defines the primary key. <code>Mapped[str]</code> implies <b>NOT NULL</b>; <code>Mapped[str | None]</code> is <b>nullable</b>.</p><p>Your type checker reads the same thing the database does.</p>" },
+    { q: "<code>relationship()</code> — what is it, and what does <code>back_populates</code> do?", tag: "trap",
+      a: "<p>It is <b>not a column</b> — there is no relationship column in the table. It is <b>the join, expressed once, in Python</b>.</p><p><code>back_populates</code> keeps the two sides in sync: append an article to an author's list and <b>the article's author attribute updates in memory immediately, before any SQL runs at all</b>.</p>" },
+  ]},
+  { title: "The session and the identity map", note: "Slides 9–10. Two named patterns, both older than most frameworks.", qs: [
+    { q: "The three steps of the Unit of Work.",
+      a: "<p><b>1. You change objects.</b> Add an article, or just assign to a title. Nothing has gone to the database.</p><p><b>2. Flush.</b> The session works out which statements are needed and emits them <b>in dependency order</b> — parents before children, so a foreign key never points at a row that does not exist. You did not write that ordering; it was derived from your object graph.</p><p><b>3. Commit</b>, which ends the transaction and calls flush for you if you have not.</p>",
+      why: "Unit of Work comes from Martin Fowler's Patterns of Enterprise Application Architecture, 2002 — as does the identity map." },
+    { q: "The rule about session scope — and why is breaking it not merely a performance problem?", tag: "trap",
+      a: "<p><b>One session per request, closed when the response is sent.</b></p><p>A long-lived session shared across requests is <b>a correctness issue, not a performance one</b>: it shows up as stale data, and eventually as <b>one user seeing another user's objects</b>.</p>" },
+    { q: "State the identity map in one sentence, and say which operator demonstrates it.",
+      a: "<p><b>Within one session, one row is one object. Always.</b></p><p>Fetch article 42 twice and you get <b>the same object</b> — <code>a is b</code>. <b>Identity, not equality.</b></p>" },
+    { q: "Why does the identity map need to exist?",
+      a: "<p>Without it, two queries touching the same row hand you <b>two copies</b>, and changing one would not change the other. <b>You would spend your life reconciling duplicates.</b></p><p>With it, mutation inside a session is coherent: there is exactly one Article 42 and everybody is holding it.</p>" },
+    { q: "Two of its three consequences — including the one that produces a named error.",
+      a: "<p><b>1.</b> Asking for a row you already loaded <b>costs nothing</b> — no query is issued.</p><p><b>2.</b> It is why objects <b>go stale after a commit</b>: attributes expire and reload on next access, and if the session has closed you get <b>DetachedInstanceError</b> — the object in your hand is a ghost, still looks like data, but the session that gave it life is gone.</p>",
+      why: "The third consequence is deliberately left hanging for four minutes, because it changes the punchline of the next section." },
+  ]},
+  { title: "The hinge", note: "Slides 11–13. Four lines that review clean.", qs: [
+    { q: "The four lines look fine. Where is the tell?", tag: "trap",
+      a: "<p><code>a.author</code>. It reads like an attribute access — the same shape as <code>a.title</code>, one character earlier on the same line.</p><p>But <b>the author was never loaded</b>, so the first time you touch that attribute <b>SQLAlchemy quietly issues a query to fetch it</b>.</p>" },
+    { q: "What is that behaviour called, and who turned it on?", tag: "trap",
+      a: "<p><b>Lazy loading</b>, and it is <b>the default for every relationship you declare</b>. <b>Nobody turned it on. It was already on.</b></p>",
+      why: "The talk's image: lazy loading is a bar tab. Every individual round seems reasonable at the time, and then the bill arrives all at once." },
+    { q: "Give the number, where the name comes from, and how it was obtained.", tag: "numbers",
+      a: "<p><b>101.</b> One query for the list of articles, then one more for each of the hundred authors. <b>One plus N</b> — that is where the name comes from.</p><p>And it is <b>measured, not estimated</b>: hooked to SQLAlchemy's <b><code>before_cursor_execute</code></b> event, counting what actually reached the driver.</p>" },
+    { q: "Why does this bug survive so long in real codebases?", tag: "apply",
+      a: "<p>Locally, against <b>SQLite on your laptop with a hundred test rows</b>, those 101 queries take a couple of milliseconds. Nobody notices. Tests are green.</p><p>Against a real database over a network at <b>roughly a millisecond of round trip each</b>, the same page takes <b>a fifth of a second longer than it needs to</b>.</p><p>And <b>it never crashes. It will never crash.</b> It just gets slightly worse every month as your data grows.</p>" },
+    { q: "Same code, same hundred articles — but you measured eleven queries, not 101. Why?", tag: "numbers",
+      a: "<p><b>The identity map.</b> The hundred articles shared only <b>ten authors</b>. Once an author is in the session, touching that author again does not re-query.</p><p>So the real formula is <b>not 1 + N. It is 1 + the number of distinct related rows.</b></p>" },
+    { q: "That is better than the textbook version. Why is it much <em>worse</em> for you?", tag: "trap",
+      a: "<p>Your <b>test fixtures have three authors</b>. Your <b>staging data has ten</b>. So the page looks completely fine in development and completely fine in CI — and <b>the problem scales with production data, the one environment where nobody measured it</b>.</p><p><b>A bug that hides in your test data and only appears in production is the most expensive kind there is.</b></p>",
+      why: "Most write-ups state N+1 as 1+N and stop. The distinct-rows version is what you actually observe with a session-backed ORM." },
+  ]},
+  { title: "Two fixes, and which one", note: "Slides 14–15. The part people get wrong.", qs: [
+    { q: "<code>joinedload</code> and <code>selectinload</code> — what SQL does each produce?",
+      a: "<p><b>joinedload</b> — one query, articles and authors together, with a <b>LEFT OUTER JOIN</b>. One statement instead of 101.</p><p><b>selectinload</b> — one query for the articles, then a second fetching all needed authors at once with <b>WHERE id IN</b>. Two statements, no join.</p><p>Both are <b>eager loading</b>, the opposite of lazy.</p>" },
+    { q: "What did not change when you applied the fix?", tag: "apply",
+      a: "<p><b>The loop.</b> Same four lines. <b>The bug and the fix live entirely in how you asked the question</b> — and the fix is not a line in the loop.</p>" },
+    { q: "Which one do you use? State the rule by direction.", tag: "apply",
+      a: "<p><b>Many-to-one</b> (<code>article.author</code> — many articles, one author): <b>joinedload</b>. There is exactly one author per article, so the join just adds columns to each row. It costs almost nothing.</p><p><b>One-to-many</b> (<code>author.articles</code> — one author, a list): <b>selectinload</b>. A join in that direction <b>repeats the parent row once for every child</b>.</p>" },
+    { q: "100 authors, 50 articles each — give the measured comparison.", tag: "numbers",
+      a: "<p><b>Lazy:</b> 101 queries.<br><b>joinedload:</b> one query — which sounds like a win, <b>until you notice it returns 5,000 rows to build 100 objects</b>. Every author repeated fifty times, sent across the network, then de-duplicated in Python. That is why you have to call <code>.unique()</code> on a joined collection result.<br><b>selectinload:</b> two queries, no duplication.</p>" },
+    { q: "So what is the lesson about counting queries?", tag: "trap",
+      a: "<p><b>On a collection, one query is not automatically the cheaper query.</b> The <b>number of rows crossing the network</b> matters more than the number of round trips.</p>" },
+  ]},
+  { title: "Catching it, and moving the schema", note: "Slides 16–17.", qs: [
+    { q: "Three ways to catch an N+1. Name all three.", tag: "apply",
+      a: "<p><b>1.</b> <code>echo=True</code> on <code>create_engine</code> — every statement prints to your console. If a single page request scrolls hundreds of near-identical SELECT WHERE id = lines past you, you have found one.</p><p><b>2.</b> <code>lazy=\"raise\"</code> on a relationship — an accidental lazy load becomes <b>a loud exception instead of a silent query</b>. Turn it on in your test suite and N+1 becomes a failing test rather than a production incident.</p><p><b>3.</b> In Flask, the <b>debug toolbar</b> shows a query count per request in the browser.</p>",
+      why: "You will not spot this by reading code — slide 11 proved that. You spot it by looking at the SQL." },
+    { q: "What is Alembic, who wrote it, and where does the name come from?",
+      a: "<p><b>Versioned migration scripts</b>, chained in order, with a table in the database recording where it stands. <b>Same author as SQLAlchemy</b> — Michael Bayer. SQLAlchemy describes your schema; it does not migrate a live database.</p><p>An <b>alembic is a still</b> — the copper vessel alchemists used for distillation, from Arabic <b>al-anbīq</b>. Named as a pun on SQLAlchemy.</p>",
+      why: "Which makes the WSGI talk whiskey, the Flask talk a flask, and this one the still — entirely by accident." },
+    { q: "What does Alembic's autogenerate get wrong, and what does it cost?", tag: "trap",
+      a: "<p><b>Renames.</b> Rename a column and autogenerate will confidently produce a <b>DROP followed by an ADD</b>. Structurally correct — and it <b>silently destroys every value in that column</b>.</p><p>So read every generated migration before you run it. <b>Autogenerate is a very confident intern</b> — fast, useful, occasionally catastrophic, and it will not apologise.</p>",
+      why: "Migrations are the one part of the ORM story where a mistake is not slow. It is gone." },
+  ]},
+  { title: "When it is the wrong tool, and the close", note: "Slides 18–19.", qs: [
+    { q: "Four cases where you should reach past the ORM.", tag: "apply",
+      a: "<p><b>When the query is the point</b> — reporting, analytics, aggregation over large tables.<br><b>Bulk operations</b> — loading a million rows into objects to change one field is enormously wasteful; a set-based UPDATE does it in one statement.<br><b>Vendor-specific features</b> — INSERT ON CONFLICT, window functions, CTEs, JSONB operators, full-text search.<br><b>A schema you do not control</b> — a legacy database with no primary keys can cost more to map than to query directly.</p>" },
+    { q: "What makes dropping down cheap in SQLAlchemy specifically?",
+      a: "<p><b>Core is the same library</b>, sharing one connection and one transaction. Dropping down does not mean abandoning it.</p><p><b>The escape hatch costs you nothing except the abstraction you were fighting anyway</b> — which is the whole argument for this library in one sentence.</p>" },
+    { q: "The four closing points.",
+      a: "<p><b>An ORM writes SQL. It does not abolish it.</b> Those queries still run, still hit a real database, and are still yours to answer for.</p><p><b>The default is lazy</b> — convenient when you touch one row, quietly quadratic when you touch a page of them. The fix is one options call.</p><p><b>Measure, do not guess.</b> Everything shown was counted, not estimated, and the counting took about twenty lines.</p><p><b>And it is all still WSGI.</b> Underneath the objects and sessions and the identity map, the same request goes in and the same response comes out.</p>" },
+    { q: "The closing line.",
+      a: "<p><b>Learn the contract, learn the framework, and then learn what your objects are really doing to your database.</b></p>" },
+  ]},
+];
+
+const quiz = document.getElementById("quiz");
+const state = new Map();
+let n = 0;
+const total = ACTS.reduce((s, a) => s + a.qs.length, 0);
+
+ACTS.forEach((act, ai) => {
+  const h = document.createElement("h2");
+  h.innerHTML = `${act.title} <em>Act ${ai + 1}</em>`;
+  quiz.appendChild(h);
+  const note = document.createElement("p");
+  note.className = "act-note";
+  note.textContent = act.note;
+  quiz.appendChild(note);
+
+  act.qs.forEach(item => {
+    n += 1;
+    const id = n;
+    const card = document.createElement("section");
+    card.className = "q";
+    card.dataset.id = id;
+    const tag = item.tag ? `<span class="tag ${item.tag}">${item.tag}</span>` : "";
+    card.innerHTML = `
+      <div class="qhead">
+        <span class="num">${String(id).padStart(2, "0")}</span>
+        <p class="prompt">${item.q}${tag}</p>
+      </div>
+      <div class="a" id="a${id}" hidden>
+        ${item.a}${item.why ? `<span class="why">${item.why}</span>` : ""}
+      </div>
+      <div class="actions">
+        <button class="reveal" type="button">Show answer</button>
+        <button class="mark yes" type="button" aria-pressed="false" hidden>Got it</button>
+        <button class="mark nope" type="button" aria-pressed="false" hidden>Missed</button>
+      </div>`;
+    quiz.appendChild(card);
+
+    const ans = card.querySelector(".a");
+    const reveal = card.querySelector(".reveal");
+    const yes = card.querySelector(".mark.yes");
+    const nope = card.querySelector(".mark.nope");
+
+    reveal.addEventListener("click", () => {
+      const open = !ans.hidden;
+      ans.hidden = open;
+      reveal.textContent = open ? "Show answer" : "Hide answer";
+      yes.hidden = nope.hidden = open;
+    });
+    const mark = (v) => {
+      state.set(id, state.get(id) === v ? null : v);
+      const cur = state.get(id);
+      card.dataset.state = cur || "";
+      yes.setAttribute("aria-pressed", String(cur === "ok"));
+      nope.setAttribute("aria-pressed", String(cur === "no"));
+      score();
+    };
+    yes.addEventListener("click", () => mark("ok"));
+    nope.addEventListener("click", () => mark("no"));
+  });
+});
+
+const elDone = document.getElementById("done");
+const elRight = document.getElementById("right");
+const elWrong = document.getElementById("wrong");
+const fill = document.getElementById("fill");
+const verdict = document.getElementById("verdict");
+const missedList = document.getElementById("missed");
+
+function score() {
+  let ok = 0, no = 0;
+  state.forEach(v => { if (v === "ok") ok++; else if (v === "no") no++; });
+  const done = ok + no;
+  elDone.textContent = done;
+  elRight.textContent = ok;
+  elWrong.textContent = no;
+  fill.style.width = `${(done / total) * 100}%`;
+
+  missedList.innerHTML = "";
+  if (!done) {
+    verdict.textContent = "Nothing answered yet.";
+    missedList.hidden = true;
+    return;
+  }
+  const pct = Math.round((ok / done) * 100);
+  verdict.innerHTML = done === total
+    ? `All ${total} answered — <b>${ok} right, ${no} missed (${pct}%)</b>.`
+    : `<b>${done} of ${total}</b> answered — ${ok} right, ${no} missed (${pct}%).`;
+
+  const misses = [];
+  state.forEach((v, id) => { if (v === "no") misses.push(id); });
+  if (misses.length) {
+    missedList.hidden = false;
+    misses.sort((a, b) => a - b).forEach(id => {
+      const li = document.createElement("li");
+      const p = document.querySelector(`.q[data-id="${id}"] .prompt`);
+      li.textContent = `${String(id).padStart(2, "0")} — ${p.textContent.replace(/\s*(numbers|trap|apply)\s*$/, "")}`;
+      li.style.cursor = "pointer";
+      li.addEventListener("click", () => {
+        document.querySelector(`.q[data-id="${id}"]`).scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+      missedList.appendChild(li);
+    });
+  } else {
+    missedList.hidden = true;
+  }
+}
+
+document.getElementById("reset").addEventListener("click", () => {
+  state.clear();
+  document.querySelectorAll(".q").forEach(c => {
+    c.dataset.state = "";
+    c.querySelector(".a").hidden = true;
+    c.querySelector(".reveal").textContent = "Show answer";
+    c.querySelector(".mark.yes").hidden = true;
+    c.querySelector(".mark.nope").hidden = true;
+    c.querySelectorAll(".mark").forEach(b => b.setAttribute("aria-pressed", "false"));
+  });
+  score();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+score();
+</script>
+
+</body>
+</html>

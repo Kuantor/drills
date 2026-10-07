@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta property="og:title" content="AI Training Drill — Ship It Live!" />
+<meta property="og:description" content="Interactive self-test: AI Training." />
+<meta property="og:image" content="https://kuantor.github.io/drills/background.jpg" />
+<meta property="og:url" content="https://kuantor.github.io/drills/python-ai-training.html" />
+<meta property="og:type" content="website" />
+<style>
+  :root{
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  body{margin:0}
+  img{max-width:100%}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+<title>AI Training Drill</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a single reading column of question cards, grouped into seven acts
+   that follow the talk. Palette lifted from the Ship It Live deck builder so
+   this reads as part of the series: roasted brown ground, brass accents. */
+:root{
+  --ground:#1A150E;
+  --surface:#262014;
+  --card:#312918;
+  --edge:#4A3D22;
+  --cream:#F1EADA;
+  --tan:#AC9F84;
+  --gold:#C8A24B;
+  --gold-lt:#E8CD86;
+  --teal:#6FB0A6;
+  --terra:#D0845A;
+  --sage:#8BA678;
+  --serif:"Source Serif 4",Cambria,Georgia,serif;
+  --sans:"Public Sans",Calibri,-apple-system,system-ui,sans-serif;
+  --mono:"IBM Plex Mono",Consolas,ui-monospace,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  background:var(--ground);color:var(--cream);font-family:var(--sans);
+  font-size:16px;line-height:1.55;margin:0;
+}
+.wrap{max-width:780px;margin:0 auto;padding-inline:16px;padding-block:40px 64px}
+
+header h1{
+  font-family:var(--serif);font-weight:700;color:var(--gold);
+  font-size:clamp(2rem,7vw,3rem);line-height:1.05;margin:0 0 .3em;text-wrap:balance;
+}
+.kicker{
+  font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--tan);margin:0 0 1.6rem;
+}
+.lede{color:var(--tan);font-size:1.05rem;margin:0 0 2rem;max-width:62ch}
+.lede strong{color:var(--cream);font-weight:600}
+
+.board{
+  position:sticky;top:env(safe-area-inset-top,0px);z-index:10;
+  background:var(--surface);border:1px solid var(--edge);border-radius:10px;
+  padding:14px 16px;margin-bottom:2.4rem;
+  display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;
+}
+.tally{display:flex;gap:18px;flex:1 1 auto;min-width:0}
+.stat{display:flex;flex-direction:column;line-height:1.15}
+.stat b{
+  font-family:var(--mono);font-size:1.25rem;font-weight:500;
+  font-variant-numeric:tabular-nums;color:var(--gold-lt);
+}
+.stat span{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--tan)}
+.stat.ok b{color:var(--sage)}
+.stat.no b{color:var(--terra)}
+.bar{flex:1 1 100%;height:4px;background:var(--edge);border-radius:2px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--gold);transition:width .3s ease}
+button{font-family:var(--sans);font-size:.85rem;cursor:pointer;border-radius:7px;transition:background .15s,border-color .15s,color .15s}
+button:focus-visible{outline:2px solid var(--gold-lt);outline-offset:2px}
+.ghost{background:transparent;border:1px solid var(--edge);color:var(--tan);padding:7px 13px}
+.ghost:hover{border-color:var(--gold);color:var(--gold-lt)}
+
+h2{
+  font-family:var(--serif);font-size:1.45rem;font-weight:600;color:var(--gold);
+  margin:2.8rem 0 .2rem;display:flex;align-items:baseline;gap:.6rem;text-wrap:balance;
+}
+h2 em{
+  font-family:var(--mono);font-style:normal;font-size:.7rem;color:var(--tan);
+  letter-spacing:.1em;flex:0 0 auto;
+}
+.act-note{color:var(--tan);font-size:.9rem;margin:0 0 1.4rem}
+
+.q{background:var(--card);border:1px solid var(--edge);border-radius:10px;padding:18px 20px;margin-bottom:14px}
+.q[data-state="ok"]{border-color:color-mix(in srgb,var(--sage) 55%,var(--edge))}
+.q[data-state="no"]{border-color:color-mix(in srgb,var(--terra) 55%,var(--edge))}
+.qhead{display:flex;gap:12px;align-items:flex-start}
+.num{
+  font-family:var(--mono);font-size:.78rem;color:var(--gold);
+  flex:0 0 auto;padding-top:.2em;font-variant-numeric:tabular-nums;
+}
+.prompt{margin:0;flex:1 1 auto;min-width:0;font-size:1rem}
+.prompt code,.a code{
+  font-family:var(--mono);font-size:.86em;background:var(--ground);
+  border:1px solid var(--edge);border-radius:4px;padding:.08em .35em;color:var(--gold-lt);
+}
+.tag{
+  display:inline-block;font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;
+  text-transform:uppercase;padding:.2em .5em;border-radius:4px;margin-left:.5rem;
+  vertical-align:.12em;border:1px solid;
+}
+.tag.numbers{color:var(--gold-lt);border-color:color-mix(in srgb,var(--gold) 45%,transparent)}
+.tag.trap{color:var(--terra);border-color:color-mix(in srgb,var(--terra) 45%,transparent)}
+.tag.apply{color:var(--teal);border-color:color-mix(in srgb,var(--teal) 45%,transparent)}
+
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;padding-left:calc(.78rem + 12px)}
+.reveal{background:transparent;border:1px solid var(--gold);color:var(--gold-lt);padding:7px 15px}
+.reveal:hover{background:color-mix(in srgb,var(--gold) 14%,transparent)}
+.mark{border:1px solid var(--edge);background:transparent;padding:7px 15px}
+.mark.yes{color:var(--sage)}
+.mark.yes:hover,.mark.yes[aria-pressed="true"]{background:color-mix(in srgb,var(--sage) 18%,transparent);border-color:var(--sage)}
+.mark.nope{color:var(--terra)}
+.mark.nope:hover,.mark.nope[aria-pressed="true"]{background:color-mix(in srgb,var(--terra) 18%,transparent);border-color:var(--terra)}
+
+.a{
+  margin:14px 0 0;padding:14px 16px;background:var(--ground);
+  border-left:3px solid var(--gold);border-radius:0 7px 7px 0;font-size:.96rem;
+}
+.a p{margin:0 0 .7em}
+.a p:last-child{margin-bottom:0}
+.a b{color:var(--gold-lt);font-weight:600}
+.a .why{color:var(--tan);font-size:.9rem;display:block;margin-top:.7em;padding-top:.7em;border-top:1px solid var(--edge)}
+
+details.ref{margin-top:3rem;border:1px solid var(--edge);border-radius:10px;background:var(--surface)}
+details.ref summary{
+  cursor:pointer;padding:14px 18px;font-family:var(--mono);font-size:.78rem;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--gold);
+}
+details.ref summary:focus-visible{outline:2px solid var(--gold-lt);outline-offset:-2px}
+.tablewrap{overflow-x:auto;padding:0 18px 18px}
+table{border-collapse:collapse;width:100%;min-width:460px;font-size:.92rem}
+th,td{text-align:right;padding:8px 10px;border-bottom:1px solid var(--edge)}
+th:first-child,td:first-child{text-align:left}
+thead th{color:var(--tan);font-weight:500;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase}
+tbody td{font-family:var(--mono);font-variant-numeric:tabular-nums}
+tbody td:first-child{font-family:var(--sans)}
+.win{color:var(--sage)}
+.lose{color:var(--terra)}
+.refnote{padding:0 18px 18px;margin:0;color:var(--tan);font-size:.85rem}
+
+footer{margin-top:3rem;padding-top:1.6rem;border-top:1px solid var(--edge);color:var(--tan);font-size:.88rem}
+footer b{color:var(--gold-lt)}
+#missed{margin:.8rem 0 0;padding-left:1.1rem}
+#missed li{margin-bottom:.3rem}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+<header>
+  <p class="kicker">Ship It Live! &middot; self-test</p>
+  <h1>AI Training Drill</h1>
+  <p class="lede">Thirty-four questions on <strong>AI Training &mdash; How a Model Learns</strong>. Answer out loud before revealing, then mark yourself honestly. Follow the perplexity: <strong>30</strong> untrained, <strong>10.3</strong> after training, <strong>4.6</strong> with context &mdash; and <strong>10.3</strong> again once it starts memorising.</p>
+</header>
+
+<div class="board">
+  <div class="tally">
+    <div class="stat"><b id="done">0</b><span>answered</span></div>
+    <div class="stat ok"><b id="right">0</b><span>got it</span></div>
+    <div class="stat no"><b id="wrong">0</b><span>missed</span></div>
+  </div>
+  <button class="ghost" id="reset">Reset</button>
+  <div class="bar"><i id="fill"></i></div>
+</div>
+
+<main id="quiz"></main>
+
+<details class="ref">
+  <summary>Reference &mdash; every measured number in the talk</summary>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Training, lr 50</th><th>Loss</th><th>Perplexity</th></tr></thead>
+    <tbody>
+      <tr><td>step 0 (all zeros)</td><td>3.401</td><td class="lose">30.0</td></tr>
+      <tr><td>step 10</td><td>2.535</td><td>12.6</td></tr>
+      <tr><td>step 400 (0.39 s)</td><td>2.337</td><td class="win">10.3</td></tr>
+      <tr><td>counting optimum</td><td>2.330</td><td>10.3</td></tr>
+      <tr><td>held-back text</td><td>2.342</td><td>10.4</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Learning rate</th><th>After 10 steps</th><th>After 100 steps</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>3.336</td><td>2.936</td></tr>
+      <tr><td>10</td><td>2.932</td><td>2.447</td></tr>
+      <tr><td>50</td><td>2.535</td><td class="win">2.357</td></tr>
+      <tr><td>500</td><td class="lose">7.415</td><td class="lose">7.837</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Looks back</th><th>Contexts</th><th>New-text perplexity</th></tr></thead>
+    <tbody>
+      <tr><td>nothing</td><td>1</td><td>18.0</td></tr>
+      <tr><td>1 character</td><td>30</td><td>10.4</td></tr>
+      <tr><td>2 characters</td><td>559</td><td>6.5</td></tr>
+      <tr><td>3 characters</td><td>3,813</td><td>4.6</td></tr>
+      <tr><td>4 characters</td><td>13,325</td><td class="win">4.6</td></tr>
+      <tr><td>5 characters</td><td>30,959</td><td>5.7</td></tr>
+      <tr><td>6 characters</td><td>52,112</td><td>7.7</td></tr>
+      <tr><td>7 characters</td><td>73,081</td><td class="lose">10.3</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="refnote">Measured by <code>train_tiny.py</code> on <code>corpus.txt</code> (177,128 characters of this series' speeches), Python 3.14.3. The figures for GPT-3, Chinchilla, Llama 3, InstructGPT and LoRA are published numbers, cited in the speech.</p>
+</details>
+
+<footer>
+  <p id="verdict">Nothing answered yet.</p>
+  <ul id="missed" hidden></ul>
+</footer>
+</div>
+
+<script>
+const ACTS = [
+  { title: "One loop", note: "Slides 2–3. The spine of the talk.", qs: [
+    { q: "Which earlier talk's claim does this one set out to explain?",
+      a: "<p>The RAG talk's rule: <b>fine-tuning teaches a model a skill or a style, and is a poor way to teach it a fact.</b> It was stated there and never explained.</p>" },
+    { q: "Name the four steps of the training loop.", tag: "numbers",
+      a: "<p><b>1. Predict</b> — show the model text and ask what comes next.<br><b>2. Score</b> — compare with what really came next; the loss is how surprised it was.<br><b>3. Nudge</b> — move every number a little in the direction that would have made it less surprised.<br><b>4. Repeat</b> — with the next piece of text, an enormous number of times.</p>" },
+    { q: "At the predict step, does the model make a guess?", tag: "trap",
+      a: "<p><b>No — it gives a probability to every possibility.</b> The loss then looks at how much probability it gave to the thing that really happened.</p>" },
+    { q: "Where in that loop does anybody tell the model what it should know?", tag: "trap",
+      a: "<p><b>Nowhere.</b> Nobody programs in grammar, facts or that Paris is in France.</p><p>A trained model is <b>whatever numbers make its training text least surprising</b>. Everything else follows from that.</p>" },
+  ]},
+  { title: "Text, numbers and the model", note: "Slides 4–5. What goes in, and what is inside.", qs: [
+    { q: "How does our model turn text into numbers?",
+      a: "<p>A vocabulary of <b>30 characters</b> — a to z, space, full stop, comma, apostrophe — and each character becomes its <b>position in that list</b>: space is 0, the apostrophe 1, comma 2, full stop 3, a is 4, up to z at 29.</p>" },
+    { q: "What do real models use instead, and how long is one, roughly?", tag: "numbers",
+      a: "<p><b>Tokens</b>: pieces from a vocabulary of tens of thousands. A common word is one token, a rare one several.</p><p>For English a token averages <b>roughly four characters</b> — a rule of thumb, not a constant. Characters are used here only to keep every number small enough for a slide.</p>" },
+    { q: "Give the corpus size and how it was split. Why split it at all?", tag: "numbers",
+      a: "<p><b>177,128 characters</b> of narration from ten of this series' speeches: <b>159,415 to learn from</b>, <b>17,713 held back</b>.</p><p>Held-back text is <b>the only honest test of a model</b> — it is text the model never saw.</p>" },
+    { q: "What exactly is our model?",
+      a: "<p><b>One table of 30 × 30 = 900 numbers</b>, and nothing else.</p><p>A <b>row</b> is the character just seen, a <b>column</b> a candidate for the next one. <b>Softmax</b> turns a row into probabilities: bigger numbers get bigger shares, and the shares add up to one.</p>" },
+    { q: "Before training, what does it predict after any character?", tag: "numbers",
+      a: "<p>Every number is <b>zero</b>, so every row is identical: it gives <b>every character 3.3%</b> — one in thirty. It knows nothing.</p>" },
+    { q: "What are parameters, or weights?",
+      a: "<p>The same thing: <b>the numbers training is allowed to change.</b> Ours has 900; a real model has billions, in many layers, so its prediction can depend on far more than the last character.</p>" },
+  ]},
+  { title: "Measuring wrong, and walking downhill", note: "Slides 6–7. The loss and gradient descent.", qs: [
+    { q: "Define the loss, and give its value for four probabilities.", tag: "numbers",
+      a: "<p><b>loss = −log(probability given to what really came next)</b>.</p><p>Certainty, 1: <b>0.000</b>. A coin flip, 1/2: <b>0.693</b>. A blind guess, 1/30: <b>3.401</b>. Almost nothing, 1/1000: <b>6.908</b>.</p>" },
+    { q: "What behaviour does that formula punish hardest?", tag: "trap",
+      a: "<p><b>Being confident and wrong.</b> Confident and right costs nothing; giving the truth one chance in a thousand costs nearly seven.</p>" },
+    { q: "What is perplexity, and what is the untrained model's?",
+      a: "<p><b>e raised to the loss</b>: the model is as unsure as a fair choice between that many characters.</p><p>Untrained: loss 3.401 = <b>perplexity 30</b>, a blind guess among all thirty.</p>" },
+    { q: "Name the three parts of gradient descent.",
+      a: "<p><b>The gradient</b> — for each number, which direction lowers the loss and how steeply.<br><b>The learning rate</b> — how big a step to take; the one setting you always choose.<br><b>The step</b> — every number moves a little against its gradient, all at once; then measure again.</p>" },
+    { q: "For this model, what is the gradient in plain words?",
+      a: "<p><b>What it predicted minus what actually happened.</b> It pushes up what should have been likelier and pushes down everything else.</p>" },
+    { q: "Why is &ldquo;walking downhill in fog&rdquo; the right image?", tag: "apply",
+      a: "<p>Because <b>it never sees the whole landscape</b> — only the slope where it is standing. So it takes a small step, and feels again. That is true of the largest models too.</p>" },
+  ]},
+  { title: "Watching it learn", note: "Slides 8–10. The first measurement.", qs: [
+    { q: "Give the perplexity at steps 0, 10 and 400.", tag: "numbers",
+      a: "<p>Step 0: <b>30.0</b> (loss 3.401). Step 10: <b>12.6</b> (2.535) — most of the gain already. Step 400: <b>10.3</b> (2.337), settled.</p><p>Learning rate 50, starting from all zeros.</p>" },
+    { q: "How long did the 400 steps take, and on what?", tag: "numbers",
+      a: "<p><b>0.39 seconds</b> — the mean of five runs — in pure Python on a laptop. The whole script, all three experiments, takes about five seconds.</p>" },
+    { q: "Name three things the trained model now predicts.", tag: "numbers",
+      a: "<p>After a full stop: <b>a space, 99%</b>. After &ldquo;t&rdquo;: <b>&ldquo;h&rdquo; 32%</b>. After &ldquo;q&rdquo;: <b>&ldquo;u&rdquo; 81% — and &ldquo;l&rdquo; 10%</b>, because this series says SQL a lot.</p><p>Nobody told it any of that. It learned <b>this text</b>, not English in general.</p>" },
+    { q: "Training reached 2.337; plain counting gives 2.330. What does that show — and why not just count?", tag: "trap",
+      a: "<p>Gradient descent <b>rediscovered counting</b> — within 0.007 of the best possible numbers, without being told to count.</p><p>But counting only works when the model <b>is</b> a table. A real model's billions of numbers only mean something together; there is nothing to count. <b>Gradient descent works for both.</b></p>" },
+    { q: "On held-back text it scored 2.342. What does that prove?",
+      a: "<p>That it <b>learned rather than memorised</b>. 900 numbers cannot memorise 159,415 characters, so what it learned has to be general — and the score on unseen text is almost identical.</p>" },
+  ]},
+  { title: "The learning rate", note: "Slide 11. The one dial.", qs: [
+    { q: "Four learning rates, 100 steps each. Give the losses.", tag: "numbers",
+      a: "<p><b>1</b> → 2.936, barely moving. <b>10</b> → 2.447, getting there. <b>50</b> → 2.357, about right. <b>500</b> → <b>7.837</b>.</p>" },
+    { q: "Why is a learning rate of 500 worse than slow?", tag: "trap",
+      a: "<p>Each step <b>jumps past the bottom of the valley</b> and lands higher on the other side. After 100 steps the loss is 7.837 — <b>more than twice the 3.401 of a model that has learned nothing</b>. Training went backwards.</p><p>That is why real runs <b>schedule</b> the learning rate: small, then up, then gradually down.</p>" },
+  ]},
+  { title: "Context, and memorising", note: "Slides 12–14. Better, then worse.", qs: [
+    { q: "New-text perplexity looking back 0, 1, 2, 3 and 4 characters?", tag: "numbers",
+      a: "<p><b>18.0, 10.4, 6.5, 4.6, 4.6.</b></p><p>Looking back four, it writes &ldquo;is the productionary. sixty second small or a per vectoring later, it washing at the same import flask&rdquo; — almost English, in the series' own vocabulary.</p><p>These models were <b>counted rather than trained</b>: the quickest way to see what context buys.</p>" },
+    { q: "Keep going to 5, 6 and 7 characters. What happens?", tag: "trap",
+      a: "<p>New-text perplexity <b>rises: 5.7, 7.7, 10.3</b>, while the training score stays good. At seven characters back it needs <b>73,081 contexts</b> and is <b>no better on new text than the one-character model</b> — 10.3 against 10.4.</p><p>That is <b>overfitting</b>.</p>" },
+    { q: "How do you know the seven-character model is reciting, not writing?", tag: "numbers",
+      a: "<p><b>45 characters of a 400-character sample are copied word for word</b> from the speeches — &ldquo;through arabic, al anb q. michael bayer&rdquo; is the ORMs talk's alembic, verbatim.</p>" },
+    { q: "If you had only watched the training loss, what would you have concluded?", tag: "trap",
+      a: "<p><b>That everything was fine.</b> Training loss stays good while memorising. Only <b>held-back text</b> shows the problem — which is why every serious training run keeps some back.</p>" },
+    { q: "Why do real models not just count with a longer context?", tag: "apply",
+      a: "<p>Counting needs <b>a row for every context it has seen</b>, and an unseen context is a blank. Seven characters already needed 73,081 rows; real models look back thousands of tokens.</p><p>A network <b>shares its numbers</b> across contexts, so similar contexts get similar predictions and an unseen one still gets a sensible answer. <b>Attention</b> lets every position weigh every earlier one.</p><p>And the loop is <b>exactly the same</b>: predict, score, nudge, repeat.</p>" },
+  ]},
+  { title: "Scale, behaviour, and which tool", note: "Slides 15–19. Published figures from here on.", qs: [
+    { q: "Our model against GPT-3, Chinchilla and Llama 3: parameters and training text.", tag: "numbers",
+      a: "<p><b>Ours</b>: 900 numbers, 159,415 characters.<br><b>GPT-3 (2020)</b>: 175 billion, about 300 billion tokens.<br><b>Chinchilla (2022)</b>: 70 billion, 1.4 trillion tokens.<br><b>Llama 3 (2024)</b>: 8 and 70 billion, over 15 trillion tokens.</p><p>GPT-3 has <b>about two hundred million times</b> as many numbers as ours — trained by the same loop.</p>" },
+    { q: "What was Chinchilla's rule of thumb, and how did GPT-3 compare?", tag: "numbers",
+      a: "<p>For a fixed budget, train on <b>roughly 20 tokens per parameter</b>. GPT-3 had used <b>under two</b> — big models had been trained on too little text for their size.</p>" },
+    { q: "Ask a pretrained-only model &ldquo;What is the capital of France?&rdquo; What might it do, and why?", tag: "trap",
+      a: "<p>Continue with <b>more quiz questions</b> — not a wrong answer, a <b>likely document</b>. Trained only to continue text, it continues text.</p><p>(The talk shows this as an illustration, not a measurement.)</p>" },
+    { q: "Why does a pretrained model invent things so confidently?", tag: "trap",
+      a: "<p>Because <b>the loss rewards what is likely, not what is true</b>. A smooth, plausible wrong sentence scores well.</p><p>Which is why the RAG talk handed the model the right page instead of hoping it knew.</p>" },
+    { q: "What two kinds of training turn it into an assistant — and what did InstructGPT show?",
+      a: "<p><b>Fine-tuning on examples</b> — the same loop on example conversations: a question, then the kind of answer wanted.<br><b>Preference training</b> — two answers, a judge picks the better, training moves toward it. The judge can be people, or a model applying written principles (Anthropic's Constitutional AI).</p><p>InstructGPT (2022): people preferred a <b>1.3-billion</b>-parameter model trained this way over the <b>175-billion</b> GPT-3.</p>" },
+    { q: "Climb the ladder: four ways to change a model's behaviour, cheapest first. And why is fine-tuning poor at facts?", tag: "apply",
+      a: "<p><b>1. Prompting</b> — free, instant, reversible.<br><b>2. Retrieval</b> — the right page at answer time; for facts that change or are private.<br><b>3. Fine-tuning</b> — for a style, a format or a skill. LoRA trains small add-on matrices; its paper reports <b>10,000 times fewer trainable numbers</b> for GPT-3.<br><b>4. Pretraining</b> — almost never your problem.</p><p>Fine-tuning runs the same loop, so it learns whatever makes the examples least surprising — <b>a habit</b>. A fact is squeezed into numbers that also hold everything else, and <b>you cannot point at where it went</b>. Facts belong in retrieval.</p>" },
+  ]},
+];
+
+const quiz = document.getElementById("quiz");
+const state = new Map();
+let n = 0;
+const total = ACTS.reduce((s, a) => s + a.qs.length, 0);
+
+ACTS.forEach((act, ai) => {
+  const h = document.createElement("h2");
+  h.innerHTML = `${act.title} <em>Act ${ai + 1}</em>`;
+  quiz.appendChild(h);
+  const note = document.createElement("p");
+  note.className = "act-note";
+  note.textContent = act.note;
+  quiz.appendChild(note);
+
+  act.qs.forEach(item => {
+    n += 1;
+    const id = n;
+    const card = document.createElement("section");
+    card.className = "q";
+    card.dataset.id = id;
+    const tag = item.tag ? `<span class="tag ${item.tag}">${item.tag}</span>` : "";
+    card.innerHTML = `
+      <div class="qhead">
+        <span class="num">${String(id).padStart(2, "0")}</span>
+        <p class="prompt">${item.q}${tag}</p>
+      </div>
+      <div class="a" id="a${id}" hidden>
+        ${item.a}${item.why ? `<span class="why">${item.why}</span>` : ""}
+      </div>
+      <div class="actions">
+        <button class="reveal" type="button">Show answer</button>
+        <button class="mark yes" type="button" aria-pressed="false" hidden>Got it</button>
+        <button class="mark nope" type="button" aria-pressed="false" hidden>Missed</button>
+      </div>`;
+    quiz.appendChild(card);
+
+    const ans = card.querySelector(".a");
+    const reveal = card.querySelector(".reveal");
+    const yes = card.querySelector(".mark.yes");
+    const nope = card.querySelector(".mark.nope");
+
+    reveal.addEventListener("click", () => {
+      const open = !ans.hidden;
+      ans.hidden = open;
+      reveal.textContent = open ? "Show answer" : "Hide answer";
+      yes.hidden = nope.hidden = open;
+    });
+    const mark = (v) => {
+      state.set(id, state.get(id) === v ? null : v);
+      const cur = state.get(id);
+      card.dataset.state = cur || "";
+      yes.setAttribute("aria-pressed", String(cur === "ok"));
+      nope.setAttribute("aria-pressed", String(cur === "no"));
+      score();
+    };
+    yes.addEventListener("click", () => mark("ok"));
+    nope.addEventListener("click", () => mark("no"));
+  });
+});
+
+const elDone = document.getElementById("done");
+const elRight = document.getElementById("right");
+const elWrong = document.getElementById("wrong");
+const fill = document.getElementById("fill");
+const verdict = document.getElementById("verdict");
+const missedList = document.getElementById("missed");
+
+function score() {
+  let ok = 0, no = 0;
+  state.forEach(v => { if (v === "ok") ok++; else if (v === "no") no++; });
+  const done = ok + no;
+  elDone.textContent = done;
+  elRight.textContent = ok;
+  elWrong.textContent = no;
+  fill.style.width = `${(done / total) * 100}%`;
+
+  missedList.innerHTML = "";
+  if (!done) {
+    verdict.textContent = "Nothing answered yet.";
+    missedList.hidden = true;
+    return;
+  }
+  const pct = Math.round((ok / done) * 100);
+  verdict.innerHTML = done === total
+    ? `All ${total} answered — <b>${ok} right, ${no} missed (${pct}%)</b>.`
+    : `<b>${done} of ${total}</b> answered — ${ok} right, ${no} missed (${pct}%).`;
+
+  const misses = [];
+  state.forEach((v, id) => { if (v === "no") misses.push(id); });
+  if (misses.length) {
+    missedList.hidden = false;
+    misses.sort((a, b) => a - b).forEach(id => {
+      const li = document.createElement("li");
+      const p = document.querySelector(`.q[data-id="${id}"] .prompt`);
+      li.textContent = `${String(id).padStart(2, "0")} — ${p.textContent.replace(/\s*(numbers|trap|apply)\s*$/, "")}`;
+      li.style.cursor = "pointer";
+      li.addEventListener("click", () => {
+        document.querySelector(`.q[data-id="${id}"]`).scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+      missedList.appendChild(li);
+    });
+  } else {
+    missedList.hidden = true;
+  }
+}
+
+document.getElementById("reset").addEventListener("click", () => {
+  state.clear();
+  document.querySelectorAll(".q").forEach(c => {
+    c.dataset.state = "";
+    c.querySelector(".a").hidden = true;
+    c.querySelector(".reveal").textContent = "Show answer";
+    c.querySelector(".mark.yes").hidden = true;
+    c.querySelector(".mark.nope").hidden = true;
+    c.querySelectorAll(".mark").forEach(b => b.setAttribute("aria-pressed", "false"));
+  });
+  score();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+score();
+</script>
+
+</body>
+</html>
