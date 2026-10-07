@@ -14,8 +14,11 @@
     body {
       background: #0e1a17 url("background.jpg") center / cover fixed no-repeat;
       min-height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
-    main { min-height: 60vh; }
+    main { flex: 1; }
+    footer { background: none; }
     .back { margin-top: 24px; }
   </style>
 </head>
@@ -29,7 +32,9 @@
     <a class="button back" href="https://kuantor.github.io/">🏠 Back to Main Page</a>
   </main>
   <footer>
-    <p>© 2026 Anton</p>
+    <p>
+      <span style="font-family: Arial, sans-serif;">©</span> 2026 Anton
+    </p>
   </footer>
 </body>
 </html>
