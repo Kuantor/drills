@@ -1,0 +1,900 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta property="og:title" content="System Design Drill" />
+<meta property="og:description" content="Interactive self-test: system design — 60 scenarios and 14 open questions." />
+<meta property="og:image" content="https://kuantor.github.io/drills/background.jpg" />
+<meta property="og:url" content="https://kuantor.github.io/drills/system-design.html" />
+<meta property="og:type" content="website" />
+<style>
+  :root{
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  body{margin:0}
+  img{max-width:100%}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+<title>System Design Drill</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column of cards in nine acts, a sticky scoreboard with a
+   complexity filter. Scenario cards are multiple choice and lock on the first
+   pick; concept cards reveal and self-mark. Ship It Live drill palette, single theme. */
+:root{
+  --ground:#1A150E;
+  --surface:#262014;
+  --card:#312918;
+  --edge:#4A3D22;
+  --cream:#F1EADA;
+  --tan:#AC9F84;
+  --gold:#C8A24B;
+  --gold-lt:#E8CD86;
+  --sage:#8BA678;
+  --terra:#D0845A;
+  --serif:"Source Serif 4",Cambria,Georgia,serif;
+  --sans:"Public Sans",Calibri,-apple-system,system-ui,sans-serif;
+  --mono:"IBM Plex Mono",Consolas,ui-monospace,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--cream);font-family:var(--sans);font-size:16px;line-height:1.55;margin:0}
+.wrap{max-width:780px;margin:0 auto;padding-inline:16px;padding-block:40px 64px}
+
+header h1{font-family:var(--serif);font-weight:700;color:var(--gold);font-size:clamp(2rem,7vw,3rem);line-height:1.05;margin:0 0 .3em;text-wrap:balance}
+.kicker{font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--tan);margin:0 0 1.6rem}
+.lede{color:var(--tan);font-size:1.05rem;margin:0 0 1.2rem;max-width:62ch}
+.lede strong{color:var(--cream);font-weight:600}
+.legend{display:grid;gap:6px;margin:0 0 2rem;color:var(--tan);font-size:.86rem}
+.legend div{display:flex;gap:.6rem;align-items:baseline;flex-wrap:wrap}
+.legend .lvl{margin:0}
+
+/* scoreboard */
+.board{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:var(--surface);border:1px solid var(--edge);border-radius:10px;padding:14px 16px;margin-bottom:2.4rem;display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center}
+.tally{display:flex;gap:18px;flex:1 1 auto;min-width:0}
+.stat{display:flex;flex-direction:column;line-height:1.15}
+.stat b{font-family:var(--mono);font-size:1.25rem;font-weight:500;font-variant-numeric:tabular-nums;color:var(--gold-lt)}
+.stat span{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--tan)}
+.stat.ok b{color:var(--sage)}
+.stat.no b{color:var(--terra)}
+.bar{flex:1 1 100%;height:4px;background:var(--edge);border-radius:2px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--gold);transition:width .3s ease}
+button{font-family:var(--sans);font-size:.85rem;cursor:pointer;border-radius:7px;transition:background .15s,border-color .15s,color .15s}
+button:focus-visible{outline:2px solid var(--gold-lt);outline-offset:2px}
+.ghost{background:transparent;border:1px solid var(--edge);color:var(--tan);padding:7px 13px}
+.ghost:hover{border-color:var(--gold);color:var(--gold-lt)}
+.ghost.armed{border-color:var(--terra);color:var(--terra)}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{background:transparent;border:1px solid var(--edge);color:var(--tan);padding:7px 11px}
+.seg button:hover{border-color:var(--gold);color:var(--gold-lt)}
+.seg button[aria-pressed="true"]{border-color:var(--gold);color:var(--gold-lt);background:color-mix(in srgb,var(--gold) 14%,transparent)}
+.seg button b{font-family:var(--mono);font-weight:500;font-variant-numeric:tabular-nums;margin-left:.4em}
+
+h2{font-family:var(--serif);font-size:1.45rem;font-weight:600;color:var(--gold);margin:2.8rem 0 .2rem;display:flex;align-items:baseline;gap:.6rem;text-wrap:balance}
+h2 em{font-family:var(--mono);font-style:normal;font-size:.7rem;color:var(--tan);letter-spacing:.1em;flex:0 0 auto}
+.act-note{color:var(--tan);font-size:.9rem;margin:0 0 1.4rem;max-width:66ch}
+
+.q{background:var(--card);border:1px solid var(--edge);border-radius:10px;padding:18px 20px;margin-bottom:14px}
+.q[data-state="ok"]{border-color:color-mix(in srgb,var(--sage) 55%,var(--edge))}
+.q[data-state="no"]{border-color:color-mix(in srgb,var(--terra) 55%,var(--edge))}
+.qhead{display:flex;gap:12px;align-items:flex-start}
+.num{font-family:var(--mono);font-size:.78rem;color:var(--gold);flex:0 0 auto;padding-top:.2em;font-variant-numeric:tabular-nums;min-width:1.8em}
+.body{flex:1 1 auto;min-width:0}
+.meta{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin:0 0 .45rem}
+.src{font-family:var(--mono);font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;color:var(--tan)}
+.title{font-family:var(--serif);font-weight:600;font-size:1.08rem;color:var(--cream);margin:0 0 .35rem}
+.prompt{margin:0;font-size:1rem}
+.prompt code,.a code,.opt code{font-family:var(--mono);font-size:.86em;background:var(--ground);border:1px solid var(--edge);border-radius:4px;padding:.08em .35em;color:var(--gold-lt);overflow-wrap:anywhere}
+
+/* complexity badge: three pips, filled to the level */
+.lvl{display:inline-flex;align-items:center;gap:.45em;font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;padding:.22em .55em;border-radius:4px;border:1px solid color-mix(in srgb,var(--gold) 45%,transparent);color:var(--gold-lt)}
+.lvl i{display:inline-flex;gap:2px}
+.lvl i s{display:block;width:6px;height:6px;border-radius:1px;border:1px solid currentColor;text-decoration:none}
+.lvl i s.on{background:currentColor}
+.lvl.l3{background:var(--gold-lt);border-color:var(--gold-lt);color:var(--ground);font-weight:500}
+.tag{display:inline-block;font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;padding:.2em .5em;border-radius:4px;border:1px solid color-mix(in srgb,var(--tan) 45%,transparent);color:var(--tan)}
+
+/* multiple-choice options */
+.opts{display:grid;gap:8px;margin:14px 0 0;padding:0;list-style:none}
+.opt{display:flex;gap:10px;align-items:flex-start;width:100%;text-align:left;background:var(--ground);border:1px solid var(--edge);color:var(--cream);padding:10px 12px;font-size:.93rem;line-height:1.45}
+.opt:hover:not(:disabled){border-color:var(--gold)}
+.opt b{font-family:var(--mono);font-weight:500;color:var(--gold);flex:0 0 auto}
+.opt span{min-width:0}
+.opt:disabled{cursor:default}
+.opt.right{border-color:var(--sage);background:color-mix(in srgb,var(--sage) 14%,var(--ground))}
+.opt.right b{color:var(--sage)}
+.opt.picked-wrong{border-color:var(--terra);background:color-mix(in srgb,var(--terra) 14%,var(--ground))}
+.opt.picked-wrong b{color:var(--terra)}
+.opt.dim{opacity:.6}
+
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.reveal{background:transparent;border:1px solid var(--gold);color:var(--gold-lt);padding:7px 15px}
+.reveal:hover{background:color-mix(in srgb,var(--gold) 14%,transparent)}
+.mark{border:1px solid var(--edge);background:transparent;padding:7px 15px}
+.mark.yes{color:var(--sage)}
+.mark.yes:hover,.mark.yes[aria-pressed="true"]{background:color-mix(in srgb,var(--sage) 18%,transparent);border-color:var(--sage)}
+.mark.nope{color:var(--terra)}
+.mark.nope:hover,.mark.nope[aria-pressed="true"]{background:color-mix(in srgb,var(--terra) 18%,transparent);border-color:var(--terra)}
+
+.a{margin:14px 0 0;padding:14px 16px;background:var(--ground);border-left:3px solid var(--gold);border-radius:0 7px 7px 0;font-size:.96rem}
+.a p{margin:0 0 .7em}
+.a p:last-child{margin-bottom:0}
+.a b{color:var(--gold-lt);font-weight:600}
+.a .verdict-line{font-family:var(--mono);font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;margin:0 0 .6em}
+.a .verdict-line.ok{color:var(--sage)}
+.a .verdict-line.no{color:var(--terra)}
+.a .why{color:var(--tan);font-size:.9rem;display:block;margin-top:.7em;padding-top:.7em;border-top:1px solid var(--edge)}
+
+/* reference blocks */
+details.ref{margin-top:1.4rem;border:1px solid var(--edge);border-radius:10px;background:var(--surface)}
+details.ref:first-of-type{margin-top:3rem}
+details.ref summary{cursor:pointer;padding:14px 18px;font-family:var(--mono);font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)}
+details.ref summary:focus-visible{outline:2px solid var(--gold-lt);outline-offset:-2px}
+.tablewrap{overflow-x:auto;padding:0 18px 18px}
+table{border-collapse:collapse;width:100%;min-width:420px;font-size:.92rem}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--edge);vertical-align:top}
+thead th{color:var(--tan);font-weight:500;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase}
+td.v{font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--gold-lt);white-space:nowrap}
+.patterns{margin:0;padding:0 18px 18px 38px;color:var(--cream);font-size:.93rem}
+.patterns li{margin-bottom:.6rem}
+.patterns b{color:var(--gold-lt);font-weight:600}
+.refnote{padding:0 18px 18px;margin:0;color:var(--tan);font-size:.85rem}
+
+footer{margin-top:3rem;padding-top:1.6rem;border-top:1px solid var(--edge);color:var(--tan);font-size:.88rem}
+footer b{color:var(--gold-lt)}
+#levels{margin:.4rem 0 0}
+#missed{margin:.8rem 0 0;padding-left:1.1rem}
+#missed li{margin-bottom:.3rem;cursor:pointer}
+#missed li:hover{color:var(--cream)}
+.credit{margin-top:1.4rem;font-size:.8rem}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+<header>
+  <p class="kicker">System design &middot; self-test</p>
+  <h1>System Design Drill</h1>
+  <p class="lede"><strong><span data-count="all">74</span> questions</strong> from the System Design wiki: <strong>all 60 scenario drills</strong> as multiple choice, plus 14 open questions on method and fundamentals that the scenarios don't cover. On a scenario, your first pick is final, which is the point: commit, then read why the attractive answer attracts. On an open question, answer out loud, reveal, and mark yourself. Progress is kept in this browser.</p>
+  <div class="legend">
+    <div><span class="lvl l1"><i><s class="on"></s><s></s><s></s></i>Foundation</span> one concept decides it, and the textbook answer is right.</div>
+    <div><span class="lvl l2"><i><s class="on"></s><s class="on"></s><s></s></i>Intermediate</span> a stated constraint, or the difference between two close options, decides it.</div>
+    <div><span class="lvl l3"><i><s class="on"></s><s class="on"></s><s class="on"></s></i>Advanced</span> the tempting answer is sophisticated and partly right, or several failure modes interact.</div>
+  </div>
+</header>
+
+<div class="board">
+  <div class="tally">
+    <div class="stat"><b id="done">0</b><span>answered</span></div>
+    <div class="stat ok"><b id="right">0</b><span>got it</span></div>
+    <div class="stat no"><b id="wrong">0</b><span>missed</span></div>
+  </div>
+  <div class="seg" role="group" aria-label="Show questions by complexity">
+    <button type="button" id="f-all" data-filter="all" aria-pressed="true">All<b data-count="all">74</b></button>
+    <button type="button" id="f-1" data-filter="1" aria-pressed="false">Foundation<b data-count="1">17</b></button>
+    <button type="button" id="f-2" data-filter="2" aria-pressed="false">Intermediate<b data-count="2">39</b></button>
+    <button type="button" id="f-3" data-filter="3" aria-pressed="false">Advanced<b data-count="3">18</b></button>
+  </div>
+  <button class="ghost" id="reset" type="button">Reset</button>
+  <div class="bar"><i id="fill"></i></div>
+</div>
+
+<main id="quiz"></main>
+
+<details class="ref">
+  <summary>Reference — the patterns behind all sixty answers</summary>
+  <ol class="patterns">
+    <li><b>The trap is usually the more sophisticated option.</b> Redlock over fencing tokens, a sliding-window log over a token bucket, active–active over a read replica, microservices over a modular monolith. Ask what the sophistication buys here.</li>
+    <li><b>Constraints select the answer.</b> A deadline, an audit, a team's existing tools. An answer that ignores the stated constraint is wrong, however good the architecture.</li>
+    <li><b>Fix the cause, not the symptom.</b> Caching an N+1, adding capacity to a hot key, shorter timeouts plus more retries, a bigger pool for slow queries: the graph improves and the defect stays.</li>
+    <li><b>Name the failure precisely.</b> Simultaneous execution wants a lock; repeated execution wants idempotency; concurrent divergence wants a merge strategy.</li>
+    <li><b>Bursts and sustained imbalance are different.</b> Buffers, autoscaling and jitter absorb bursts. Only reducing input or shedding to durable storage fixes an imbalance.</li>
+    <li><b>Scope the expensive guarantee.</b> Read-your-writes for the user who just wrote, primary reads for payment status, strong consistency where money is.</li>
+    <li><b>Ask whether the problem is volume or shape.</b> Replicas fix volume. Projections, different engines and different indexes fix shape.</li>
+    <li><b>Two systems can't be updated atomically.</b> "Keep the cache and the database both current" really means "lose one occasionally". Invalidate, or make the invalidation durable.</li>
+    <li><b>Known shape versus discovered shape</b> decides coordination: a DAG when dependencies are known, a central controller when they aren't.</li>
+  </ol>
+</details>
+
+<details class="ref">
+  <summary>Reference — numbers to estimate with</summary>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Quantity</th><th>Value</th><th>Use</th></tr></thead>
+    <tbody>
+      <tr><td>Seconds per day, rounded</td><td class="v">86,400 &asymp; 100,000</td><td>RPS = DAU &times; actions &divide; 100 K</td></tr>
+      <tr><td>Peak multiplier, consumer traffic</td><td class="v">2&ndash;5&times;</td><td>higher with a scheduled event</td></tr>
+      <tr><td>Retry amplification during an incident</td><td class="v">2&ndash;3&times;</td><td>add it to the peak you size for</td></tr>
+      <tr><td>Index overhead on a well-indexed table</td><td class="v">0.5&ndash;1.0&times;</td><td>storage per year</td></tr>
+      <tr><td>Round trip, same datacentre</td><td class="v">~0.5 ms</td><td>latency budget</td></tr>
+      <tr><td>Round trip, cross-continent</td><td class="v">~100&ndash;150 ms</td><td>why the fix is geographic</td></tr>
+      <tr><td>SSD read / memory read</td><td class="v">~100 &micro;s / ~100 ns</td><td>latency budget</td></tr>
+      <tr><td>Downtime allowed at 99.9% / 99.99%</td><td class="v">43 / 4.3 min a month</td><td>which nines need multi-region</td></tr>
+      <tr><td>Five dependencies at 99.9% each</td><td class="v">&asymp; 99.5%</td><td>availability multiplies</td></tr>
+      <tr><td><code>hash % N</code>, going from 4 to 5 nodes</td><td class="v">~80% of keys move</td><td>why consistent hashing exists</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="refnote">From the wiki's <i>How to estimate capacity quickly</i> and <i>Availability and SLOs</i> pages. Every one is an order of magnitude to reason with, not a measurement.</p>
+</details>
+
+<footer>
+  <p id="verdict">Nothing answered yet.</p>
+  <p id="levels" hidden></p>
+  <ul id="missed" hidden></ul>
+  <p class="credit">The 60 scenarios come from the wiki's drill sets, which adapt them from Deep concept's <i>60+ System Design Scenario Questions</i> (Medium, July 2026), based on a question set by Joud Awad. The trade-off analysis is the wiki's.</p>
+</footer>
+</div>
+
+<script>
+/* Two kinds of question. Open: {q, a, why?, lvl, tag?}. Scenario: {d (wiki drill number),
+   t (title), s (situation), o (options), c (index of the right option), a (answer),
+   w (why the trap is tempting), k (carry away), lvl}. */
+const ACTS = [
+  { title: "Method and fundamentals", note: "Open questions. The scenarios assume all of this; none of them tests it directly.", qs: [
+    { lvl: 1, q: "A system design interview opens with “design a ride-hailing backend”. What do you do in the first ten minutes, and what do you deliberately not do?",
+      a: "<p><b>Requirements, then numbers.</b> Functional scope, with explicit exclusions said out loud; then the non-functional requirements that decide the design. Then three minutes of estimation: peak RPS, bytes per day, connections.</p><p><b>Don't draw yet.</b> Boxes within ninety seconds is the most common failure. After that: API and data model, the simplest design that meets the numbers, scale it one bottleneck at a time, then break it on purpose.</p>",
+      why: "The break-it step (cache dies, queue backs up, client retries) is the one most candidates skip and the one that separates them." },
+    { lvl: 1, q: "Which non-functional requirements actually decide the architecture?",
+      a: "<p><b>Read/write ratio and volume</b>, <b>latency at a percentile</b>, <b>consistency per operation</b> (not one level for the whole system), <b>durability, retention and compliance</b>, and <b>deadline and budget</b>.</p><p>A six-week deadline is an architectural input just as much as a latency target.</p>" },
+    { lvl: 1, tag: "numbers", q: "2 M daily active users, 20 actions each. Average and peak requests per second, in your head?",
+      a: "<p>Use 86,400 &asymp; 100,000 seconds a day: 2 M &times; 20 &divide; 100 K = <b>400 RPS average</b>. With a peak multiplier of about 4 for consumer traffic: <b>~1,600 RPS at peak</b>.</p><p>Then ask for the read/write split. At 90% reads that is ~1,440 read RPS and 160 write RPS, and caches and replicas become the whole answer.</p>" },
+    { lvl: 2, tag: "numbers", q: "At 1,600 RPS with a 50 ms service time, how many synchronous workers do you need, and what happens to Postgres connections with 5 per worker?",
+      a: "<p>Concurrency = rate &times; time: 1,600 &times; 0.05 s &asymp; <b>80 requests in flight</b>, so at least <b>80 synchronous workers</b>. At 5 connections each that is <b>400 connections</b>, well past a default Postgres <code>max_connections</code> of 100.</p><p>So the arithmetic, not taste, puts a <b>pooler</b> (PgBouncer) in the diagram. The formula to check: instances &times; workers &times; pool size &le; <code>max_connections</code>.</p>" },
+    { lvl: 2, tag: "numbers", q: "3 M orders a week at about 1 KB each. Storage per year, and is it a big-data problem?",
+      a: "<p>3 M &times; 52 &times; 1 KB &asymp; <b>150 GB a year raw</b>. With indexes (0.5–1&times; overhead) and three copies (a primary and two replicas), roughly <b>450 GB or more</b>.</p><p>That is <b>a table, not a warehouse</b>. Ten times that is when partitioning comes up.</p>" },
+    { lvl: 2, q: "What does PACELC add to CAP, and why does it matter more day to day?",
+      a: "<p>CAP covers what happens during a <b>partition</b>: refuse requests (consistency) or answer with possibly stale data (availability). Partitions are rare.</p><p>PACELC adds the <b>Else</b>: when there is no partition, you trade <b>latency against consistency</b>. A synchronous replica costs latency on every write, partition or not, and that is where most real decisions live.</p>" },
+    { lvl: 2, q: "Strong, eventual, read-your-writes, monotonic reads, causal. Give a concrete place you would use each.",
+      a: "<p><b>Strong</b>: money, inventory, permissions. <b>Eventual</b>: feeds, search indexes, dashboards. <b>Read-your-writes</b>: the user who just edited their profile, by routing their reads to the primary briefly. <b>Monotonic reads</b>: one session never seeing time go backwards, by keeping it on the same replica. <b>Causal</b>: collaborative and social systems where a reply must not appear before the post it answers.</p><p>The question is never whether staleness is acceptable in the abstract, but how stale it can be and what breaks at that staleness.</p>" },
+    { lvl: 3, q: "An interviewer asks: “so you'd use serializable isolation for consistency?” What's confused in that question?",
+      a: "<p>Two different axes. <b>Isolation levels</b> (read committed, repeatable read, serializable) govern <b>concurrent transactions on one node</b>. <b>Consistency models</b> govern <b>what replicas show</b> after a write.</p><p>Serializable on the primary does nothing about a lagging read replica, and read-your-writes routing does nothing about a lost update between two transactions.</p>" },
+    { lvl: 1, q: "SLI, SLO, SLA, and error budget. What is each, and which do most teams actually need?",
+      a: "<p><b>SLI</b>: the indicator you measure, such as success rate or latency at a percentile, measured close to the user. <b>SLO</b>: the target, for example 99.9% of checkout requests under 400 ms over 30 days. <b>SLA</b>: a contract with penalties. <b>Error budget</b>: 1 &minus; SLO, a spendable quantity.</p><p>Most teams need the first two and should avoid the third. The budget is the rule: ship while it lasts, fix things when it runs out.</p>" },
+    { lvl: 2, tag: "numbers", q: "How much downtime a month do 99.9% and 99.99% allow, and what happens to availability across five dependencies at 99.9% each?",
+      a: "<p><b>99.9% &asymp; 43 minutes a month</b>, which a single region with fast recovery can meet. <b>99.99% &asymp; 4.3 minutes</b>, which no manual failover can meet, so it forces multi-region and its consistency costs.</p><p>Dependencies <b>multiply</b>: 0.999<sup>5</sup> &asymp; <b>99.5%</b>. And <b>MTTR beats MTBF</b>: recovering in two minutes usually buys more availability than failing less often.</p>" },
+    { lvl: 1, q: "“Every distributed property is bought.” Give four examples of what each costs.",
+      a: "<p><b>Ordering</b> costs parallelism. <b>Strong consistency</b> costs latency or availability. <b>Independent deployability</b> costs transactions (you get sagas instead). <b>Caching</b> costs correctness.</p><p>So start from the cheap end of each axis and move only when a stated requirement forces you, saying out loud what you give up.</p>" },
+    { lvl: 2, tag: "numbers", q: "Why does <code>hash(key) % N</code> fail when you add a node, and what does consistent hashing do instead?",
+      a: "<p>Changing N reshuffles almost everything: going from 4 to 5 cache nodes moves <b>about 80% of keys</b>, which in front of a loaded database is an outage.</p><p>Consistent hashing puts keys and nodes on one ring, and a key belongs to the next node clockwise, so adding a node takes one slice and only <b>~1/N of keys move</b>. <b>Virtual nodes</b>, many ring positions per server, even out the load.</p>" },
+    { lvl: 3, q: "When is consistent hashing the wrong tool, even though it rebalances cheaply?",
+      a: "<p>It balances <b>keys, not traffic</b>: one celebrity key or dominant tenant still saturates its node. And placement is a function of the hash, not a decision, so you <b>can't move one specific heavy tenant</b>.</p><p>When the problem is “these three customers are enormous”, a <b>directory</b> (explicit key-to-shard mapping) is right. Redis Cluster's 16,384 hash slots are effectively a directory, which is why it allows manual moves.</p>" },
+    { lvl: 3, q: "Wall clock, monotonic clock, logical clock: which do you use to measure a timeout, record an event, and order two events from different servers?",
+      a: "<p><b>Measure durations with a monotonic clock</b> (timeouts, leases, rate limiters): it never goes backwards. <b>Record events with a wall clock</b>, in UTC: it is human-readable but can jump when NTP steps it. <b>Order events with neither</b>: use a logical clock.</p><p><b>Lamport clocks</b> give a total order; <b>vector clocks</b> also detect concurrency; a <b>fencing token</b> sidesteps clocks entirely. Last-write-wins on wall-clock timestamps from two machines is how data gets silently lost.</p>" },
+  ]},
+
+  { title: "APIs and clients", note: "Seven scenarios at the boundary: entry points, transports, protocol versions, long-running work, contracts that outlive their clients.", qs: [
+    { d: 1, lvl: 1, t: "Decoupling a mobile app from backend services",
+      s: "A mobile app calls <code>UserService</code>, <code>OrderService</code> and <code>PaymentService</code> directly, and <code>NotificationService</code> ships next sprint. Every new service means another domain, another auth flow and another error format for the mobile team.",
+      o: ["Add an API gateway", "Build a backend for frontend (BFF)", "Add a load balancer", "Adopt GraphQL federation"], c: 0,
+      a: "One entry point routing to services. The fourth service becomes a routing rule, the app changes nothing, and auth, rate limiting, TLS and error shape are implemented once.",
+      w: "A BFF is a real pattern for a different problem: clients needing differently <i>shaped</i> payloads. A load balancer spreads traffic across copies of one service rather than routing between services. Federation is a migration to fix a routing problem.",
+      k: "Match the tool to the actual complaint, not to the most sophisticated pattern on the same diagram." },
+    { d: 11, lvl: 2, t: "Handling webhook retries",
+      s: "A payment provider sends webhooks. Your handler verifies, writes to the database, calls two internal services, then returns 200. Under load it exceeds the provider's timeout, so the provider retries and events are processed twice, sometimes out of order.",
+      o: ["Idempotency key with a deduplication table", "Retry with exponential backoff and a dead-letter queue", "Verify the signature, return 200 immediately, and push the event to an internal queue", "Sequence numbers and a consumer-side reorder buffer"], c: 2,
+      a: "The endpoint's only job is to authenticate the event and accept it durably. Processing happens in a worker, where slowness costs latency instead of triggering provider retries.",
+      w: "Deduplication is still needed in the consumer, because delivery is at least once. But it is insufficient on its own: it stops double processing and does nothing about the slow endpoint, so retries continue and the provider may disable the webhook.",
+      k: "Separate accepting an event from processing it. The endpoint's SLA belongs to the sender." },
+    { d: 21, lvl: 1, t: "Choosing a real-time streaming transport",
+      s: "You are streaming AI-generated tokens to a browser as they are produced. The client sends one prompt and then only listens.",
+      o: ["WebSockets", "Server-sent events", "gRPC server streaming", "Long polling"], c: 1,
+      a: "One-way and bound for the browser. SSE is plain HTTP with automatic reconnection and <code>Last-Event-ID</code> resumption built into <code>EventSource</code>, and it passes proxies like any normal response.",
+      w: "“Real-time” has come to mean WebSocket, and it works, but it hands you reconnection, heartbeats and framing to build for a two-way channel this feature never uses.",
+      k: "Choose the transport by the direction and shape of the data, not by the technology's reputation." },
+    { d: 36, lvl: 2, t: "HTTP/3 versus HTTP/2 at the edge",
+      s: "After switching CDN providers, API response time dropped from 320 ms to 95 ms with no backend change. The new provider speaks HTTP/3 to clients. What do you standardise on?",
+      o: ["HTTP/2 only", "HTTP/3 only", "HTTP/2 to clients and to the origin", "HTTP/3 to clients, HTTP/2 to the origin"], c: 3,
+      a: "Client networks are lossy and mobile, which is exactly where QUIC's independent streams and faster setup pay off. The CDN-to-origin hop is stable and low-loss, where mature HTTP/2 gains little from QUIC.",
+      w: "HTTP/3 everywhere generalises the measured win, but the win came from the client leg, and some corporate networks block UDP entirely.",
+      k: "Put the newest protocol where the packet loss is, and keep the well-understood one on the hop you operate." },
+    { d: 40, lvl: 1, t: "Moving heavy browser work off the main thread",
+      s: "A React dashboard freezes for four seconds when a user uploads an 80 MB CSV with 200,000 rows. Scrolling stops, animations halt, and even the loading spinner is stuck.",
+      o: ["<code>requestIdleCallback</code> with time slicing", "A Web Worker with <code>postMessage</code>", "<code>SharedArrayBuffer</code> and Atomics across several workers", "Replace the parser with WebAssembly"], c: 1,
+      a: "The frozen spinner is the diagnosis: the main thread, which also does layout, paint and input, is blocked. Move parsing and validation into a worker and the UI stays responsive.",
+      w: "Time slicing improves responsiveness while keeping the work on the very thread that is the problem. Faster parsing (WebAssembly, more workers) optimises the wrong axis: the complaint is the frozen UI, not the four seconds.",
+      k: "Ask which resource is blocked. Making blocking work faster isn't the same as not blocking." },
+    { d: 52, lvl: 2, t: "Versioning an API without breaking clients",
+      s: "<code>/users</code> used to return <code>first_name</code> and now returns <code>name</code>. Three mobile clients break and a partner integration goes down. Old clients won't be updated for years.",
+      o: ["URL path versioning (<code>/v1/users</code>)", "Header versioning (<code>API-Version: 2</code>)", "A query parameter (<code>?version=2</code>)"], c: 0,
+      a: "The practical default: not the most elegant, but the easiest to operate. The version is visible in every log line, proxy rule and support ticket. Keep shared business logic under the versioned route layer so only the contract is duplicated.",
+      w: "Header versioning is cleaner and fine between internal services. On a public API it is invisible unless logged, and a client that stops sending the header gets the default. If the default is “latest”, untouched clients break the day v2 ships.",
+      k: "For public contracts, optimise for debuggability. You'll read this version string during an incident." },
+    { d: 56, lvl: 2, t: "Tracking long-running jobs",
+      s: "A background job runs for four minutes. The load balancer times out at 30 seconds, the mobile app retries, and a retry may start the same work again. Scale it to millions of users with uploads taking two to eight minutes.",
+      o: ["A polling endpoint with a job id", "A webhook callback", "SSE or WebSocket progress push", "Keep the HTTP request open"], c: 0,
+      a: "Return <code>202</code> with a job id, and the client polls <code>/jobs/{id}</code>. It works through every proxy, survives the app being killed and reopened, and holds no connection open.",
+      w: "Push is a nicer live experience and a fine addition, but it only serves the client watching right now. A user returning an hour later still needs polling. Webhooks suit servers that can host an endpoint, which a phone can't.",
+      k: "Deduplicate the user's original submission: a retry must return the same job id, not start a second job." },
+  ]},
+
+  { title: "Data and queries", note: "Twelve scenarios on the storage layer: wrong queries, over-broad indexes, deep pagination, and shard keys chosen for the wrong reason.", qs: [
+    { d: 2, lvl: 1, t: "Killing the N+1 query problem",
+      s: "<code>/orders</code> returns 50 orders with a P95 of 2.4 s. The database and app server look healthy. The query log shows 1 query for the orders and 50 for their customers.",
+      o: ["Eager-load the relation", "Add a DataLoader to batch the ids", "Cache customers in Redis", "Denormalise <code>customer_name</code> into orders"], c: 0,
+      a: "The ORM lazily loads <code>order.customer</code> inside a loop. Fetch the relation with the original query and it becomes one round trip.",
+      w: "Caching is the most seductive option because it works: latency drops. It also keeps 50 lookups, adds invalidation, and hides the defect until a cold cache sends the full load to the database at once. A DataLoader is right in GraphQL, where many resolvers request the same records.",
+      k: "Fix the query before adding caching, batching or duplicated data. A cache in front of a bad query is a scheduled outage." },
+    { d: 5, lvl: 3, t: "Choosing a sharding strategy",
+      s: "500 M orders, growing 3 M a week. Range queries went from 40 ms to 800 ms. 80% of reads are one customer's recent orders, 15% are analytics over date ranges, 5% are writes at about 400 RPS, doubling on sale days.",
+      o: ["Hash on <code>order_id</code>", "Range on <code>created_at</code>", "Directory-based on <code>customer_id</code>", "Consistent hashing with virtual nodes"], c: 2,
+      a: "80% of reads are scoped to one customer, so each customer's orders must live on one shard. A directory maps customer to shard, is cached for routing, and lets one heavy customer move without disturbing the rest.",
+      w: "Hashing the order id distributes perfectly, which is the wrong goal: it scatters each customer's history so the dominant query becomes a scatter-gather limited by the slowest shard. Date ranges put every new write on the newest shard, a hotspot on sale days. Consistent hashing gives no per-customer control.",
+      k: "The shard key follows the dominant access pattern. Even distribution is a constraint, not the goal." },
+    { d: 12, lvl: 2, t: "Indexing a high-ingest table",
+      s: "A table ingests millions of rows a day. The hot query filters on a small, predictable subset (pending records), and every extra index slows the write path.",
+      o: ["A composite B-tree index", "A covering index", "Stop adding indexes to the primary", "A partial index"], c: 3,
+      a: "<code>CREATE INDEX ... WHERE status = 'pending'</code> indexes only the rows the query touches. The index stays tiny, and writes to non-matching rows pay almost nothing.",
+      w: "Composite and covering indexes are the textbook answers, and both index the entire table. On a high-ingest table that is exactly the cost you can't afford, and a covering index is the widest of all.",
+      k: "When the hot query touches a small predictable slice, index the slice." },
+    { d: 13, lvl: 3, t: "Managing a shared connection pool",
+      s: "A REST API on ECS, Lambda functions and long-running analytics workers all share one RDS Postgres, and connections are exhausted. The workers need stable session state; the API and the Lambdas are short and stateless.",
+      o: ["PgBouncer transaction mode for everyone", "Session mode for the workers, transaction mode for the API and Lambdas", "RDS Proxy for Lambda plus PgBouncer transaction mode for ECS", "A read replica for analytics plus transaction mode for the rest"], c: 1,
+      a: "Different workloads need different pool modes. Transaction mode multiplexes short stateless requests aggressively; session mode keeps the connection state long-running workers depend on.",
+      w: "Transaction mode for everyone maximises multiplexing, which looks like the whole point. It also silently breaks every session-scoped feature the workers use (prepared statements, <code>SET</code>, advisory locks, <code>LISTEN/NOTIFY</code>), and the failure appears later as a bug, not as a configuration error.",
+      k: "The pool mode is a per-workload decision." },
+    { d: 15, lvl: 2, t: "Fast “has the user seen this?” checks",
+      s: "A feed checks whether a user has already seen each candidate post. The table holds billions of rows, the check runs on every candidate, and the answer is “no” almost every time.",
+      o: ["A Bloom filter per user in Redis, querying Postgres only on “maybe”", "Each user's complete seen-set in a Redis SET", "Move the table to Cassandra", "Add a read replica and a pooler"], c: 0,
+      a: "A Bloom filter's “definitely not seen” is certain and its “maybe” isn't. Since almost every check is negative, the database is consulted for a tiny fraction, at a few kilobytes per user and sub-millisecond speed.",
+      w: "Cassandra and replicas treat it as a capacity problem and work at ten times the cost. An exact Redis set has no false positives and stores every id ever seen, per user, forever.",
+      k: "When most answers are “no” and a small false-positive rate is acceptable, use a probabilistic structure rather than more hardware." },
+    { d: 19, lvl: 2, t: "Read-your-writes with read replicas",
+      s: "Reads were moved to replicas. Now users update their profile and immediately see the old value, because the read landed on a lagging replica.",
+      o: ["Read-your-writes: send that user's reads to the primary briefly after a write", "Synchronous replication", "Monitor lag and retry against the primary above a threshold", "Send all critical reads to the primary; replicas for analytics only"], c: 0,
+      a: "Only the user who just wrote needs the guarantee. Pin their reads to the primary for a short window; everyone else stays on the replicas.",
+      w: "Synchronous replication makes the problem impossible by adding a round trip to every write in the system and tying write availability to replica health, all to fix one user's few seconds.",
+      k: "Scope a strong guarantee to the smallest set of operations that needs it." },
+    { d: 24, lvl: 1, t: "Paginating large result sets",
+      s: "Offset pagination over tens of millions of rows. Early pages are fast; deep pages take seconds, because <code>OFFSET 100000</code> reads and throws away a hundred thousand rows.",
+      o: ["Cursor pagination: encode the last <code>created_at</code> and <code>id</code> in a token", "Keyset pagination: <code>WHERE (created_at, id) &lt; (...)</code> directly", "Deferred join: offset over ids, then join back", "Keep offset, with a covering index on <code>(status, created_at, id)</code>"], c: 0,
+      a: "A cursor is keyset pagination with the position wrapped in an opaque token, which also keeps the sort key out of the public contract.",
+      w: "Indexing is the reflex, but an index only makes each skipped row cheaper; it doesn't stop the skipping, so the cost still grows with depth. Raw keyset is mechanically right but exposes the sort key to clients.",
+      k: "Indexes reduce the constant. Only changing the algorithm removes the growth." },
+    { d: 35, lvl: 3, t: "Finding nearby drivers at scale",
+      s: "500,000 active drivers report GPS every 5 seconds, and there are about 100,000 searches a second for drivers within 2 km. The first version is a <code>lat BETWEEN ... AND lng BETWEEN ...</code> bounding-box query.",
+      o: ["Geohash partitioning", "PostGIS with spatial indexes", "An in-memory quadtree", "An H3 hexagonal grid"], c: 3,
+      a: "Hexagons at fixed resolutions give the same neighbour distance in every direction and cheap ring lookups, so candidate sets and load stay predictable at this write and query rate.",
+      w: "PostGIS is the most correct option, with true geometry and exact distances, and it puts 100,000 position updates a second through a transactional database. Correctness isn't the binding constraint here; write throughput is.",
+      k: "When write rate is the constraint, the most accurate option is often the wrong one." },
+    { d: 45, lvl: 2, t: "Scaling search when Postgres slows down",
+      s: "Search used to answer in about 80 ms. After another 50 million documents it takes over 4 seconds, and relevance ranking and typo tolerance are now product requirements.",
+      o: ["Elasticsearch", "Postgres GIN indexes on <code>tsvector</code>", "A Redis cache of the top 1,000 queries", "Typesense or Meilisearch"], c: 0,
+      a: "At this corpus size, with relevance, fuzzy matching and facets required, a dedicated inverted-index search engine is what the workload needs.",
+      w: "GIN indexes are the right first answer at smaller scale, and they are exactly what has been outgrown. Caching the top queries leaves the long tail, which in search is most of the traffic. Typesense and Meilisearch are legitimate, lighter options; the scale and filtering requirements tip it.",
+      k: "Notice which requirement changed. Volume alone is an index problem; volume plus relevance needs a different engine." },
+    { d: 49, lvl: 2, t: "Reducing warehouse scan costs",
+      s: "A $4,200 monthly BigQuery bill, driven by twelve simple queries from one analyst: “the last 30 days of events for customer X”. The SQL is fine.",
+      o: ["Partition by ingestion date", "Partition by customer id ranges", "No partitioning; Redshift-style DISTKEY and SORTKEY", "Partition by date and cluster by customer id"], c: 3,
+      a: "The date partition skips whole days before reading; clustering orders each partition by customer so the customer filter reads less of what remains. The query has two predicates and needs both.",
+      w: "Date partitioning alone is the standard advice and handles half the query: every customer's data in those 30 days is still scanned.",
+      k: "On scan-priced storage, cost is bytes read. Match the physical layout to every predicate in the dominant query." },
+    { d: 53, lvl: 2, t: "Changing a large schema without downtime",
+      s: "A migration that worked in staging took production down: a live 40 M-row <code>users</code> table, altered while eight services read and wrote it.",
+      o: ["One big <code>ALTER TABLE</code>", "Expand and contract", "A shadow <code>users_v2</code> table with dual writes", "A compatibility view that rebuilds the old column"], c: 1,
+      a: "Add nullable columns, write to both, backfill in batches, switch the readers, and drop the old column a release later. Every step can be deployed and reversed on its own.",
+      w: "A shadow table is the heavyweight version and right for some changes. It also means copying 40 M rows, keeping two tables in sync, and a much bigger cutover than this change needs. A view leaves the schema unmigrated forever.",
+      k: "Prefer the smallest reversible sequence. Four boring deploys beat one clever one." },
+    { d: 57, lvl: 2, t: "Fresh payment reads without slowing the database",
+      s: "About 50,000 writes a second and ten times as many reads, on one primary and two replicas. Payment confirmation screens sometimes show a payment that “doesn't exist yet”.",
+      o: ["Synchronous replication", "Semi-synchronous replication", "Read payment confirmations from the primary; everything else from replicas", "Sleep 500 ms before reading"], c: 2,
+      a: "Classify reads by how fresh they must be. Payment status reads the primary; browsing and history read replicas.",
+      w: "Synchronous replication makes staleness impossible by adding a replica round trip to all 50,000 writes a second and coupling write availability to replica health. That is enormous cost for a narrow correctness need. Sleeping is a race condition with a timer.",
+      k: "Choose consistency per operation: strong for money, eventual for everything else." },
+  ]},
+
+  { title: "Caching and CDN", note: "Four scenarios on the second copy of your data. Every wrong answer here works in staging; the failures appear only with real concurrency and real traffic.", qs: [
+    { d: 8, lvl: 2, t: "Keeping cache and database in sync",
+      s: "An e-commerce catalogue with Redis in front of Postgres, about 40 K requests a second at peak. In production customers see stale prices and wrong stock counts. Three systems write product data: the admin panel, the inventory service and the order service.",
+      o: ["Write-through: update Redis and Postgres on every write", "Write-behind: write Redis first, flush to Postgres asynchronously", "Cache-aside: update Postgres, delete the key, let the next read repopulate", "Read-through: Redis loads from Postgres on a miss"], c: 2,
+      a: "Each writer updates Postgres, then deletes the key. The database stays the source of truth, the cache stays disposable, and if Redis disappears the system becomes slower rather than wrong.",
+      w: "Write-through sounds more correct, keeping both stores current. But Redis and Postgres can't be updated in one transaction: if the database commits and the cache write fails, the stale value stays. Write-behind makes Redis the temporary source of truth, so a failover loses updates.",
+      k: "With several writers, the only thing they reliably share is the database. Write there, invalidate, repopulate lazily." },
+    { d: 18, lvl: 3, t: "Surviving a cache stampede",
+      s: "A known hot key, the home-page product list, is read thousands of times a second and has a predictable TTL. When it expires, every concurrent request misses and hits Postgres at once.",
+      o: ["A mutex: one request rebuilds while the others wait", "Probabilistic early expiry", "Request coalescing", "Pre-warming: a background job refreshes the key before it expires"], c: 3,
+      a: "The key is known and its expiry predictable, so no user request needs to pay for the rebuild. Refresh ahead of time and keep serving the existing value meanwhile.",
+      w: "A mutex is the textbook answer and does prevent the stampede, by making one request slow and the rest wait, on the hottest key, at peak: a latency spike on a schedule. Coalescing works only within one process; twenty workers still mean twenty queries. Early expiry is strong when hot keys can't be listed, and here they can.",
+      k: "When the hot set is known and expiry predictable, refresh ahead. Reactive remedies are for the long tail you can't list." },
+    { d: 26, lvl: 3, t: "Write-path cache consistency",
+      s: "Every write must update Postgres and invalidate Redis, and lost invalidations are causing visible staleness. The invalidation must survive a Redis blip.",
+      o: ["Write-through", "Write-behind", "Write-around: write only Postgres and let the next miss repopulate", "Dual-write with an outbox: commit the row and an outbox event together, and a consumer updates Redis"], c: 3,
+      a: "The data change and the intent to invalidate commit in one transaction. A consumer applies the invalidation with retries, so a Redis failure delays it instead of losing it.",
+      w: "Write-through looks even more reasonable here, since the requirement is not to lose the invalidation. But two systems can't be updated atomically, so write-through is the lossy path. Write-around quietly accepts that a missed invalidation lasts until the TTL.",
+      k: "When an invalidation must not be lost, make it a durable event in the same transaction." },
+    { d: 43, lvl: 2, t: "Keeping CDN content fresh after a deploy",
+      s: "A production fix shipped and the deploy succeeded, but users keep getting the old JavaScript bundle because the edge still has it and the TTL hasn't expired. Someone ran a manual purge and picked the wrong environment.",
+      o: ["Anycast routing, <code>stale-while-revalidate</code> and an automated purge in the pipeline", "Shorten TTLs globally", "Manual purge with a better runbook", "Version the assets only"], c: 0,
+      a: "Automate the purge so no person picks an environment from a dropdown, and use <code>stale-while-revalidate</code> so a revalidation in progress serves the previous copy instead of causing a miss storm at the origin.",
+      w: "Short TTLs trade away most of the CDN's value all the time, to fix a problem that happens at deploy time. A better runbook improves the process that just failed. Also add content-hashed, immutable filenames: a new build is a new URL, so there is nothing to purge.",
+      k: "Prefer removing the dependency on invalidation over making invalidation more reliable." },
+  ]},
+
+  { title: "Messaging and events", note: "Seven scenarios on the asynchronous half. The traps cluster around two illusions: that ordering can be global and free, and that a buffer can absorb a sustained imbalance.", qs: [
+    { d: 7, lvl: 2, t: "Preserving event order in a queue",
+      s: "An order service publishes <code>created → paid → cancelled</code> into a standard SQS queue read by five workers. Processed in parallel, <code>cancelled</code> ran first and the state machine rejected <code>created</code>.",
+      o: ["SQS FIFO with <code>MessageGroupId = order_id</code>", "Sequence numbers and a consumer-side reorder buffer", "Replace the flow with a saga", "Event versions and an order-agnostic state machine"], c: 0,
+      a: "You need ordering within each order, not across the queue. With the order id as the message group, one order's events arrive in sequence while different orders still process in parallel.",
+      w: "A reorder buffer means building sequence tracking, timeouts, missing-event handling and crash recovery yourself: FIFO, reimplemented inside your app. A saga solves a different problem.",
+      k: "Partition by the entity that needs ordering. Global ordering means one consumer; per-entity ordering keeps the parallelism." },
+    { d: 9, lvl: 3, t: "Splitting read and write models",
+      s: "One Postgres database with 8 K writes and 40 K reads a minute. Writes need normalised orders, line items, payments, shipments and addresses. One dashboard card needs seven joins, and reporting pushes CPU to 85%. Indexes and caching are already optimised.",
+      o: ["CQRS with a denormalised read projection", "Read replicas", "Denormalise the write schema", "GraphQL with DataLoader"], c: 0,
+      a: "Reads and writes need different shapes. Keep the normalised transactional model and project changes into a read model where one card is one row.",
+      w: "Replicas are cheaper and answer a different problem, too much traffic for one machine. Here the query's structure is the cost, and the same seven-way join on a replica is still a seven-way join. “Indexes and caching are already optimised” is the clue that rules replicas out.",
+      k: "Ask whether the problem is volume or shape. Replicas fix volume; projections fix shape." },
+    { d: 17, lvl: 2, t: "Backpressure on an overwhelmed consumer",
+      s: "A Kafka consumer can't keep up with sustained traffic. Lag grows steadily; this is not a burst.",
+      o: ["Drop events so the consumer recovers", "Make the producer block until the consumer catches up", "More buffering: bigger in-memory queue, bigger batches, more consumers", "Rate-limit and shed the excess into a durable secondary topic or DLQ"], c: 3,
+      a: "Process at a safe, controlled rate and send the excess somewhere durable to be replayed later. Nothing is lost and the backlog is explicit.",
+      w: "More buffering is what everyone tries first and works for bursts, which is exactly why it's the trap. Against a sustained imbalance a bigger buffer turns a throughput problem into an out-of-memory crash, and more consumers usually move the bottleneck onto the database.",
+      k: "Buffers answer bursts. Only reducing input or shedding to durable storage answers a sustained imbalance." },
+    { d: 22, lvl: 3, t: "Reliable messaging across services",
+      s: "A payment service must notify a notification service, and sometimes the notification never happens.",
+      o: ["Retry with exponential backoff until you get a 200", "Two-phase commit across both services", "The outbox pattern", "SQS with at-least-once delivery and an idempotent consumer keyed on a stable id"], c: 3,
+      a: "Durable at-least-once delivery plus a consumer that deduplicates: repeated messages produce one final result.",
+      w: "The outbox is an excellent answer and the one most people pick. It solves the publish half, guaranteeing the event is emitted atomically with the database write, but it doesn't make the consumer safe, and with at-least-once delivery the consumer will see duplicates. The two combine.",
+      k: "Reliable messaging isn't the absence of duplicates; it's durable delivery plus a consumer for which duplicates are harmless." },
+    { d: 25, lvl: 2, t: "Queue backpressure during a spike",
+      s: "Queue depth grows because producers are consistently faster than consumers, and the consumers' own bottleneck is the database.",
+      o: ["Scale consumers horizontally", "Configure visibility timeouts and a DLQ", "Rate-limit producers at the source", "Use SQS delay queues to slow delivery"], c: 2,
+      a: "Treat queue depth as a backpressure signal and throttle publishers so messages enter at a rate the consumers and their database can absorb.",
+      w: "Autoscaling consumers is the instinct, and when their bottleneck is the database, more consumers make it worse: more workers fighting over one saturated resource. Delay queues postpone visibility without reducing the rate.",
+      k: "Before scaling consumers, check what they're waiting on." },
+    { d: 33, lvl: 2, t: "Reconstructing state",
+      s: "An order service at about 200 writes a second. Six months of data show two orders sharing an id with different totals. You can see the current value but not how it got there, because every update overwrote the previous state.",
+      o: ["Event sourcing", "Change data capture", "An audit log table", "Dual-write to two tables"], c: 0,
+      a: "Make the sequence of changes the source of truth. Current state is a fold over an append-only log, so how an order reached its state is always answerable and any past moment can be rebuilt.",
+      w: "An audit table is much cheaper and gets most of the way, but it's a parallel record that can drift, written by the same code path that just got the state wrong. CDC gives a change stream but ties consumers to the physical schema.",
+      k: "Event sourcing is a large commitment; take it when the history is the domain. Otherwise the cheaper options are usually right." },
+    { d: 41, lvl: 2, t: "Replacing batch with real-time fraud streaming",
+      s: "Fraud signals must be ready within 500 ms of each transaction, at about 8,000 transactions a second on AWS. Today it's a nightly Spark batch job. The team knows Spark, and someone has already opened a PR using Spark Structured Streaming.",
+      o: ["Keep the batch job and run it more often", "Apache Flink", "Spark Structured Streaming", "A Lambda triggered per transaction"], c: 1,
+      a: "Flink processes event by event with managed keyed state and event-time semantics, reaching the tens-of-milliseconds range the requirement implies.",
+      w: "Structured Streaming is the organisational answer: the team knows it and the PR exists. But it's micro-batch, so latency lands in seconds, not hundreds of milliseconds. Familiarity doesn't move a latency floor.",
+      k: "When the requirement has a number, check the tool's floor against it before weighing familiarity." },
+  ]},
+
+  { title: "Concurrency and correctness", note: "Seven scenarios where two things happen at once. The wrong answer is usually a real mechanism applied to the wrong failure.", qs: [
+    { d: 4, lvl: 2, t: "Preventing duplicate payment charges",
+      s: "A user taps “Pay $499”, the request seems stuck, and they tap twice more. Three near-identical requests reach the payments API within four seconds, and more than one succeeds.",
+      o: ["A unique constraint on <code>(order_id, amount)</code>", "Require an <code>Idempotency-Key</code> and replay the original result", "A distributed Redis lock on <code>order_id</code>", "A <code>SERIALIZABLE</code> transaction around the charge and the write"], c: 1,
+      a: "The client generates a key before the first attempt and reuses it on every retry. The server executes once, stores the status and body, and replays them for repeats.",
+      w: "A unique constraint stops a duplicate row but can't undo an external charge: request two may succeed at the provider and only then fail the insert. A lock prevents simultaneous execution, not a repeat after the lock expires. A transaction doesn't contain the HTTP call to the payment provider.",
+      k: "Locks prevent concurrency; transactions protect local state. Only idempotency protects an external side effect from a retry." },
+    { d: 6, lvl: 3, t: "Safe distributed locks for cron jobs",
+      s: "Three instances run the same scheduler. <code>SET job:daily-report locked NX EX 300</code> picks a winner, until a process pauses, the TTL expires, another instance takes the lock, and the first wakes up still believing it owns it.",
+      o: ["A lock with a monotonically increasing fencing token that downstream systems check", "Redlock across five Redis nodes", "A database lock held for the job's duration", "Let all three run and reject duplicates with a unique key"], c: 0,
+      a: "Each acquisition gets a token. The protected resource remembers the highest token it has accepted and rejects writes with an older one, so ownership is verified by the resource instead of trusted from the caller.",
+      w: "Redlock sounds sophisticated and addresses the availability of the lock service, not the stale-owner problem: a paused process still thinks it holds the lock, however many nodes agreed. Uniqueness works only when the whole job is one idempotent write, and this job has external side effects before the final insert.",
+      k: "A lock decides who may start. Only a fencing token stops an expired owner from finishing." },
+    { d: 10, lvl: 3, t: "Distributed transactions across services",
+      s: "Order #4471 crosses four services: the order is created, payment is charged, inventory reservation fails, and shipping never starts. The customer has paid, there is no stock, and four databases can't roll back in one transaction.",
+      o: ["A choreography saga: services publish events and trigger compensating events", "An orchestration saga: a central workflow drives the steps and compensations", "Two-phase commit", "An outbox with eventual consistency"], c: 1,
+      a: "Checkout has a clear sequence and specific rollbacks. An orchestrator tracks the workflow durably, and which step failed and which compensation ran becomes a query.",
+      w: "Choreography looks more decoupled on the diagram. As steps and failure paths multiply, the process is spread across every participant with no owner and no way to ask where an order is. 2PC needs every participant to support it, and the payment and shipping providers don't. An outbox guarantees publishing but defines no compensation.",
+      k: "Ordered steps with explicit rollbacks want a coordinator." },
+    { d: 37, lvl: 3, t: "Multi-writer conflicts in collaborative editing",
+      s: "Two users edit the same document at 9:03 with no locking. Their updates arrive 300 ms apart and the second overwrites the first, with no warning. The first user's work is gone.",
+      o: ["Last-write-wins", "Vector clocks", "CRDTs", "Operational transformation"], c: 2,
+      a: "Data types whose merge is commutative, associative and idempotent converge whatever the arrival order, with no central coordinator and without discarding either user's edits.",
+      w: "Vector clocks are the subtle trap: they correctly detect that two writes were concurrent, but detection isn't resolution, and you still have to ask a person each time. Operational transformation works but needs a central server ordering operations and transformation functions that are hard to get right.",
+      k: "Detecting a conflict and resolving one are different problems. Ask which the product needs." },
+    { d: 39, lvl: 2, t: "Stopping double spending on one wallet",
+      s: "A wallet holds $200. Two requests each want to spend $150. Both read $200, both decide there's enough, both write, and the balance ends at −$100.",
+      o: ["Pessimistic locking with <code>SELECT ... FOR UPDATE</code>", "Optimistic locking with a version column and a retry", "Rely on MVCC snapshots", "<code>SERIALIZABLE</code> isolation"], c: 1,
+      a: "<code>UPDATE ... WHERE version = :seen AND balance &gt;= :amount</code>. Zero rows affected means someone else won, so retry or fail. Nothing blocks, and the loser finds out immediately.",
+      w: "Pessimistic locking is unambiguously correct and the answer most people give. It serialises every writer on the hot row, which queues connections under exactly the high contention you'd reach for it in. MVCC under read committed is the cause: it's why both saw $200.",
+      k: "Under low contention, detect conflicts at write time; under high contention on one row, lock. Either way, the check and the change must be one statement." },
+    { d: 44, lvl: 3, t: "Syncing offline changes without losing work",
+      s: "400 field technicians, offline about 40 minutes at a time, with roughly three conflicts a day on the same eight assets. A completed repair gets overwritten by a colleague's online edit from twelve minutes earlier, and a separate app crashes on an IndexedDB schema-version mismatch.",
+      o: ["localStorage with JSON diffing", "IndexedDB with vector clocks and manual resolution", "Versioned IndexedDB with last-write-wins on <code>updated_at</code> and <code>device_id</code>", "A CRDT sync engine"], c: 3,
+      a: "The hard part is merging changes from devices that couldn't see each other. CRDTs merge deterministically regardless of order, so no technician's work is discarded.",
+      w: "Versioned IndexedDB with last-write-wins fixes the visible crash, and versioned migrations really are part of the answer. Then it resolves conflicts with last-write-wins, the exact mechanism that lost the repair. It fixes the bug you can reproduce and keeps the one you can't.",
+      k: "Fix the failure that loses data, not just the one that throws an exception. The crash is louder; the silent overwrite is worse." },
+    { d: 59, lvl: 2, t: "Who creates the idempotency key?",
+      s: "A customer was charged twice. The client sent one request, your server timed out, and the client couldn't tell “failed” from “succeeded but the response was lost”, so it retried. The payment provider call may already have succeeded.",
+      o: ["A client-generated idempotency key", "A server-generated key from a payment-intent call", "A deterministic hash of customer, order, amount and currency", "Outbox plus idempotent consumers"], c: 0,
+      a: "The client generates a UUID before the first attempt and reuses it for every retry. The server stores key → result and returns the stored response.",
+      w: "Server-generated intents are real and widely used, but they add a round trip that can itself fail, and then the client doesn't know whether it has a key: the original problem one level up. A business hash makes two legitimate, identical payments indistinguishable.",
+      k: "The key must be created by whoever retries, before the first attempt, and must identify the intent rather than the values." },
+  ]},
+
+  { title: "Reliability and isolation", note: "Five scenarios on limiting damage. The recurring trap reduces the symptom and leaves the blast radius unchanged.", qs: [
+    { d: 3, lvl: 1, t: "Rate limiting without boundary bursts",
+      s: "A SaaS API allows 100 requests a minute per key, and the limiter resets on the minute boundary. 90 requests at 12:59:58, a reset at 13:00:00, 90 more at 13:00:02: 180 requests in four seconds, and the database is overwhelmed.",
+      o: ["Fixed window", "Sliding window log, with a timestamp per request", "Token bucket: 100 tokens refilling at about 1.66 a second", "Leaky bucket: queue and drain at a constant rate"], c: 2,
+      a: "Tokens refill continuously, so there's no reset to exploit: four seconds after a 90-request burst only about seven tokens are back. State is O(1) per key and distributes easily.",
+      w: "The sliding log is more accurate, by storing a timestamp for every request, which at scale is a lot of Redis memory, and precision was never the requirement. A leaky bucket holds customers' requests instead of telling them to retry.",
+      k: "Choose the algorithm whose state cost fits your key count. Boundary behaviour matters more than exactness." },
+    { d: 14, lvl: 2, t: "Rolling out a risky payment change",
+      s: "A change to the payment path, deployed to ECS tasks. A mistake would be expensive and visible to customers.",
+      o: ["Blue/green", "Canary: 1% of traffic for 30 minutes, then ramp", "Rolling update", "Feature flag: deploy everywhere disabled, enable for staff, then 1%, 10%, 100%"], c: 3,
+      a: "Deploy and release become separate steps. Enable it for your own staff first, target by user or tenant, switch it off in seconds without a deploy, and keep the old payment path live in the same process.",
+      w: "Canary is the textbook safe rollout and genuinely good, but it can't target specific users, and rolling back is a deployment with a deployment's latency. For payments you want staff first and a rollback measured in seconds.",
+      k: "For a risky behaviour, control the behaviour. Deployment strategies only move traffic between builds." },
+    { d: 16, lvl: 2, t: "Taming a hot partition key",
+      s: "In DynamoDB, one partition-key value takes sustained traffic far above the others. That key throttles while the table's overall capacity looks healthy.",
+      o: ["Write sharding: <code>tenant#0</code> … <code>tenant#9</code>", "Producer-side jitter of 0–500 ms", "Raise table capacity and let the partition split", "Time-bucket the key per hour"], c: 0,
+      a: "Split the hot value into several physical keys so the load spreads across partitions, and fan the reads back in.",
+      w: "Buying capacity is the reflex for a managed service, but one key's traffic still lands on one partition however big the table is. Jitter smooths half a second of arrivals and does nothing to a sustained rate.",
+      k: "Capacity addresses total load. A hot key is a distribution problem, and only changing the key distributes it." },
+    { d: 20, lvl: 2, t: "Containing a failing dependency",
+      s: "A fraud-scoring API starts timing out. Checkout requests wait ten seconds, fail and retry. Within a minute the worker pool is full of requests waiting on it, and unrelated endpoints time out too.",
+      o: ["Cut the timeout to 2 s and add three retries with exponential backoff", "A circuit breaker", "A bulkhead: a separate pool for fraud calls", "Both a circuit breaker and a bulkhead"], c: 3,
+      a: "They solve different halves. The breaker stops calling a service that's confirmed down; the bulkhead stops fraud calls consuming resources other endpoints need, including in the window before the breaker trips.",
+      w: "Shorter timeouts plus retries is the natural first move and actively harmful: 2 s &times; 4 attempts is 8 s of occupancy per request, and three retries triple the load on a service that's already failing.",
+      k: "Retries are for transient failures. A persistent failure has to be stopped and contained, not retried faster." },
+    { d: 51, lvl: 3, t: "Protecting SaaS customers from noisy neighbours",
+      s: "A B2B platform with 50 customers: some on a free plan, others paying about $50,000 a year and expecting SLA-grade performance. Everyone shares one database and schema, with <code>tenant_id</code> on every table.",
+      o: ["Shared database with row-level security and per-tenant query limits", "A schema per tenant on the same instance", "A database per tenant for enterprise customers, pooled for the rest", "A tenant-aware routing layer with a registry sending each tenant to a shared or dedicated database"], c: 3,
+      a: "The hybrid, with routing. The long tail shares; the biggest customers get dedicated resources; a registry decides per request, so a growing tenant can be promoted without re-architecting.",
+      w: "Dedicated databases for enterprise customers without the routing layer is the near miss: the isolation is right, but placement is hard-coded, so promoting a growing customer becomes a migration project instead of a registry update.",
+      k: "When customers differ wildly in value, isolation is a per-tenant decision. Build the indirection that lets it change." },
+  ]},
+
+  { title: "Architecture and scale", note: "Six structural decisions. In four of them, the trap is the better long-term architecture arriving too early.", qs: [
+    { d: 23, lvl: 2, t: "Feed fanout for celebrity accounts",
+      s: "A social feed precomputes every follower's timeline, and it works well until an account with millions of followers posts, turning one write into millions.",
+      o: ["Fanout on write for everyone", "Fanout on read for everyone", "Hybrid: fanout on write for normal accounts, on read for celebrities, merged at read time", "A materialised feed table updated asynchronously from an event stream"], c: 2,
+      a: "Precompute for the overwhelming majority, and pull the few high-fanout accounts in at read time. Ordinary feeds stay fast, and one popular account can't trigger millions of writes.",
+      w: "Fanout on write is correct for most accounts, which is what makes it dangerous: it works beautifully in testing, where nobody has ten million followers. Fanout on read for everyone overcorrects and makes every ordinary read expensive.",
+      k: "When the distribution has a heavy tail, use one strategy for the body and another for the tail." },
+    { d: 30, lvl: 1, t: "Choosing a file storage backend",
+      s: "A cloud file service used by several applications, with unpredictable growth and no appetite for capacity planning.",
+      o: ["Amazon S3", "Amazon EBS", "Amazon EFS", "Self-hosted MinIO on EC2"], c: 0,
+      a: "Managed object storage: effectively unlimited, durable across zones, priced per GB and per request, with no storage servers to run.",
+      w: "EFS feels right because several applications need the same files, and a shared filesystem can be mounted by many instances. But it brings POSIX semantics at a cost and latency that object storage avoids, for whole-file access over HTTP that never needed a filesystem.",
+      k: "Choose storage by access pattern and operational responsibility. Shared doesn't imply filesystem." },
+    { d: 31, lvl: 3, t: "Cutting cross-region latency",
+      s: "2 M daily users, 70% in the US and 30% in Europe. European round trips to us-east-1 take about 380 ms and support tickets are up 40%; the target is under 80 ms. A database rewrite isn't affordable, and Black Friday is six weeks away.",
+      o: ["Active–active multi-region with a distributed database", "Active–passive with regional read replicas", "CDN and edge caching only", "Active–active with eventual consistency and asynchronous sync"], c: 1,
+      a: "Most European complaints are read-heavy: browsing, accounts, order history. A read replica in eu-west-1 is days of work, serves those reads locally, and doubles as a disaster-recovery target. Writes still cross the ocean, which users tolerate far better.",
+      w: "Active–active is probably the better long-term architecture, and it's a migration onto a distributed database with new consistency semantics, which in the six weeks before peak trading is a risk decision dressed as architecture. The CDN deserves partial credit for static content and does nothing for checkout.",
+      k: "A deadline is an architectural input. The right answer this quarter and in two years can differ, and saying so is the strong response." },
+    { d: 32, lvl: 2, t: "Managing secrets for a first audit",
+      s: "A first SOC 2 audit. Secrets live in <code>.env</code> files committed 18 months ago, in Lambda environment variables, and in an old Slack message. Six services, four environments, no rotation, no audit trail. The stack is AWS-native, and it must be fixed without downtime.",
+      o: ["AWS Secrets Manager", "HashiCorp Vault", "Inject environment variables through CI/CD", "Encrypt with KMS and store in your own database"], c: 0,
+      a: "The platform is already AWS-native, so IAM scoping, KMS encryption, CloudTrail auditing and native RDS rotation come without new infrastructure.",
+      w: "Vault is the more capable tool (dynamic credentials, fine-grained policy, multi-cloud) and it's a highly available system you now operate, on every service's boot path, adopted during an audit. CI injection leaves secrets long-lived with no rotation or runtime audit.",
+      k: "Fit to the existing platform usually beats capability, especially when the requirement is compliance." },
+    { d: 47, lvl: 2, t: "Breaking up a monolith without a rewrite",
+      s: "A six-year-old, 500,000-line monolith releasing every few weeks, where one bad migration can take everything down. Leadership proposes a rewrite; you want to replace it piece by piece.",
+      o: ["Strangler fig: a façade in front, routing capabilities to new services one at a time", "Branch by abstraction", "Big-bang rewrite", "Database first: move the tables out, then build the service"], c: 0,
+      a: "A façade routes traffic, and capabilities move one at a time, each independently verifiable and reversible, until the old system has nothing left to do.",
+      w: "Branch by abstraction is a good technique, but it's a refactoring pattern inside one deployable: it often prepares a capability for extraction and doesn't get code out on its own. Database first starts with the hardest part and fixes the boundary before you know where it is.",
+      k: "Extraction and refactoring are different moves. The strangler fig needs the façade first." },
+    { d: 60, lvl: 2, t: "Architecture for a new SaaS product",
+      s: "A blank repository, a new multi-tenant product, three months to launch. It's expected eventually to handle about 50,000 requests a second.",
+      o: ["Microservices from the start", "A modular monolith: one deployable with strict internal modules, extract later", "Serverless: Lambda, DynamoDB, SQS", "Event-driven with Kafka at the centre"], c: 1,
+      a: "You don't know the boundaries yet. A boundary drawn wrong between services costs a data migration and a distributed transaction to move; inside a monolith it costs a refactor. You keep real transactions, local calls and one thing to deploy.",
+      w: "The traffic number seems to justify microservices, but it's a future requirement and the deadline is a present one. Building for it now pays with distributed debugging and sagas during the three months you have.",
+      k: "Separate the requirement that binds now from the one that binds later. The modular monolith keeps both futures open." },
+  ]},
+
+  { title: "AI systems", note: "Twelve scenarios on systems that contain a model. Read drills 29 and 55 together: similar questions, opposite answers.", qs: [
+    { d: 27, lvl: 1, t: "Keeping an LLM's answers up to date",
+      s: "A support assistant answers from product documentation that changes constantly, and it confidently describes things that are no longer true.",
+      o: ["Retrieval-augmented generation", "Fine-tune the model on the documentation", "Fine-tune for tone plus RAG for facts", "Prompt engineering only"], c: 0,
+      a: "Retrieve the current passages at request time and leave the model unchanged. Fix a document and the next answer is right.",
+      w: "Fine-tuning sounds deeper, but it teaches behaviour, and every fact baked in is frozen at training time, so staying current becomes a retraining schedule nobody keeps up.",
+      k: "Fine-tune for behaviour; retrieve for facts." },
+    { d: 28, lvl: 2, t: "Choosing a vector store",
+      s: "Millions of vectors, high concurrent query volume, and per-tenant filtering on every query.",
+      o: ["pgvector in the existing Postgres", "Pinecone", "Weaviate on Kubernetes", "Qdrant"], c: 3,
+      a: "At this size, with filtering on every query, a purpose-built store with integrated payload filtering gives the best balance of performance, control and cost, and running the same engine self-hosted or managed keeps the migration path open.",
+      w: "pgvector is the right answer one size down, and the wiki recommends starting with it: one system, real joins, one backup. The scenario's numbers are what tip it over.",
+      k: "Choosing a vector store is a question of size and filtering. Know what you'd pick below the threshold." },
+    { d: 29, lvl: 2, t: "Coordinating a multi-agent workflow",
+      s: "An agent workflow with parallel steps, strict dependencies between some of them, per-step retries, and per-step failures that must be visible.",
+      o: ["A central orchestrator calling agents in sequence", "Choreography through an event bus", "DAG-based execution", "A supervisor meta-agent watching the others"], c: 2,
+      a: "The relationships described are a graph, so model them as one: independent steps run together, dependent ones wait, retries are part of the workflow, and every run is visible.",
+      w: "A sequential orchestrator is close but throws away the parallelism. An event bus removes the one thing this workflow needs most: a place where the state of the run is known.",
+      k: "When dependencies are known in advance, declare them." },
+    { d: 34, lvl: 1, t: "Improving LLM classification accuracy",
+      s: "A ticket classifier demoed perfectly and degraded three weeks after launch, with no change to model or code. Real users write shorter, messier tickets, often about more than one issue. About 50,000 tickets a week.",
+      o: ["Improve the zero-shot system prompt", "Add few-shot examples", "Chain-of-thought prompting", "Self-consistency: sample several times and take the majority"], c: 1,
+      a: "Real, labelled, messy examples show the decision boundary in a way prose can't, anchor the output format, and are cheap to update.",
+      w: "Rewriting the prompt is what everyone does first, but the failures are boundary cases, and prose doesn't draw boundaries; examples do. Self-consistency multiplies cost on 50,000 tickets a week for a last-resort gain.",
+      k: "Show, don't describe, and build the evaluation set before changing anything." },
+    { d: 38, lvl: 1, t: "Documents larger than the context window",
+      s: "A 128 K-token context window and a 150,000-word document. Users expect answers about any part of it.",
+      o: ["Chunking plus RAG", "A sliding window over overlapping sections", "Progressive summarisation", "Truncation"], c: 0,
+      a: "Split, embed, and retrieve only the passages a question needs. Cost scales with the question rather than the document.",
+      w: "Progressive summarisation is the right tool for “summarise the whole thing”, and it loses exactly the specific detail a targeted question needs.",
+      k: "Match the strategy to the question: retrieval for targeted questions, hierarchical summaries for whole-document synthesis." },
+    { d: 42, lvl: 2, t: "Building reliable memory for an agent",
+      s: "An agent remembers the user's name but forgets, three steps later, which task it was doing. By step three it sends about 8,000 tokens of raw history and still behaves as if the conversation just began.",
+      o: ["Keep the full conversation in context", "A vector memory store retrieving similar past messages", "Episodic memory with summarisation: recent turns verbatim, older actions summarised, task state as structure", "Redis session state with explicit task data"], c: 2,
+      a: "Raw history isn't memory: everything is present and nothing stands out. Keep recent turns verbatim, compress the middle, and carry the task state as structured data.",
+      w: "Structured session state is part of the answer, since the goal and plan belong in structure, but alone it loses the conversational context. Similarity retrieval is the wrong axis: what was lost is the current goal, not a similar past discussion.",
+      k: "Curate context rather than accumulating it." },
+    { d: 46, lvl: 1, t: "Making LLM output safe for production APIs",
+      s: "An agent sends <code>{\"action\": \"refund\", \"amount\": \"fifty dollars\", \"order_id\": null}</code> to an order service. Every field is wrong in a different way.",
+      o: ["Stronger prompting: “return only valid JSON with these fields”", "Structured outputs or function calling with a schema", "Validate and retry with the error message", "A judge model that checks validity"], c: 1,
+      a: "Constrain generation with a schema so the response conforms by construction: enums for closed sets, integers for money in minor units, required fields. Then validate the meaning anyway, since a well-formed <code>order_id</code> may belong to another customer.",
+      w: "Validate-and-retry is a sensible backstop, but as the main mechanism it pays a retry on every failure and never removes the failure class. Stronger prompting lowers the rate without eliminating it.",
+      k: "Constrain at generation time; validate business meaning afterwards. Model output is untrusted input." },
+    { d: 48, lvl: 1, t: "How an agent picks a tool",
+      s: "A user says “book me a flight to Dubai next Friday”. The agent has twelve tools, and nothing in the request names one.",
+      o: ["A ReAct loop: decide a step, call a tool, read the result, decide again", "Parallel tool calling", "A forced function schema", "Planner-executor"], c: 0,
+      a: "Each step depends on the last (search flights, read results, check the calendar, book), so reason, act, observe and repeat, correcting course when a tool returns an error.",
+      w: "Parallel tool calls are real and valuable for independent calls; here the steps are sequential, so there's nothing to parallelise. Past a couple of dozen tools, selection accuracy drops, which is what deferred tool loading exists for.",
+      k: "Sequential dependency selects the loop; independence selects parallelism." },
+    { d: 50, lvl: 2, t: "More inference throughput without more GPUs",
+      s: "A model at 94% accuracy in the notebook. In production: about 3,000 requests a second, a P99 of 4.2 s, and GPUs that look busy but sit mostly idle between kernel launches.",
+      o: ["Dynamic batching", "INT8 quantisation", "Tensor parallelism across GPUs", "An async queue with workers"], c: 0,
+      a: "GPU inference is throughput-bound on matrix maths, and a batch of one wastes most of the device. Hold requests for a few milliseconds and run them as one batch.",
+      w: "Quantisation does speed things up, by trading away accuracy on a model whose accuracy was just celebrated, to fix a utilisation problem that can be solved for free. Tensor parallelism is for a model that doesn't fit, not an idle device.",
+      k: "Find the underused resource before optimising the model." },
+    { d: 54, lvl: 3, t: "Keeping a RAG index fresh",
+      s: "A RAG pipeline that worked at launch is worse six months later. Nobody touched the retrieval code; the documentation changed, features were added, pages went stale, and the vector index barely moved.",
+      o: ["Weekly full rebuild", "Incremental upserts with soft deletes", "An embedding version registry with hot swap: track which model made each vector and shift traffic to a new index gradually", "Staleness monitoring, rebuilding on drift"], c: 2,
+      a: "There are two independent freshness problems: the documents change, and the embedding model changes. The registry and alias swap is what makes the second one safe.",
+      w: "Incremental upserts are correct and incomplete: they keep documents current, which is most of what went wrong here, and have no answer for the day you change embedding models, when vectors from two models share one index and can't be compared.",
+      k: "Version whatever produced your data. An index built by two models isn't one index." },
+    { d: 55, lvl: 3, t: "Coordinating agents without losing control",
+      s: "Five agents now run in parallel, share information, hand work to each other, and may spawn more agents. The first real workload brings duplicated work, unbounded spawning, no record of what completed, and a mysterious token bill.",
+      o: ["A central orchestrator holding shared state, deciding what runs, collecting results and handling retries", "Peer-to-peer handoff", "A shared blackboard", "Hierarchical orchestration with sub-orchestrators"], c: 0,
+      a: "Every failure listed is a distributed-systems failure (duplicate work, unbounded concurrency, no durable state, no cost visibility), and all of them need one place where the run's state is known and the budget is enforced.",
+      w: "Compare drill 29: there the shape was known, so a DAG fit. Here agents spawn agents and the shape is decided at runtime, so a DAG can't be drawn and the need is control. Hierarchical orchestration is the right answer one scale up.",
+      k: "When the shape is known, model the graph. When it's discovered at runtime, centralise control." },
+    { d: 58, lvl: 2, t: "Making agent runs debuggable",
+      s: "2 a.m. The support agent is failing in production. Every log line says HTTP 200, infrastructure is green, answers are wrong, responses are slow, and token costs have tripled.",
+      o: ["End-to-end tracing: trace ids across every model, retrieval and tool call, with tokens, cost, latency and model name", "A production evaluation pipeline sampling real traffic", "Cost dashboards and alerts", "Logging middleware storing every prompt and response"], c: 0,
+      a: "The unit of work is a run, not a request. A trace per run with a span per step turns “the agent is bad” into “step four retrieved zero chunks because the tenant filter was wrong”.",
+      w: "An evaluation pipeline is essential for quality over time, but it tells you the system got worse, not which step did. Logging every prompt without run ids and spans is a pile of text you can't follow across a multi-step run.",
+      k: "Instrument the unit the failure happens in. For agents, that's the run." },
+  ]},
+];
+
+/* ---------- state ---------- */
+const STORE = "system-design-drill-v1";
+const LEVEL = { 1: "Foundation", 2: "Intermediate", 3: "Advanced" };
+const read = () => { try { return JSON.parse(localStorage.getItem(STORE)) || {}; } catch (e) { return {}; } };
+const saved = read();
+const answers = new Map(Object.entries(saved.answers || {}));   // key -> "ok" | "no" | option index
+let filter = ["all", "1", "2", "3"].includes(saved.filter) ? saved.filter : "all";
+const persist = () => {
+  try { localStorage.setItem(STORE, JSON.stringify({ answers: Object.fromEntries(answers), filter })); } catch (e) {}
+};
+function keyOf(s) { let h = 5381; for (const ch of s) h = ((h << 5) + h + ch.codePointAt(0)) | 0; return (h >>> 0).toString(36); }
+const plain = (html) => { const d = document.createElement("div"); d.innerHTML = html; return d.textContent.trim(); };
+const pips = (n) => `<span class="lvl l${n}"><i>${[1, 2, 3].map(i => `<s${i <= n ? ' class="on"' : ""}></s>`).join("")}</i>${LEVEL[n]}</span>`;
+const LETTERS = "ABCD";
+
+const quiz = document.getElementById("quiz");
+const cards = [];
+const acts = [];
+let n = 0;
+
+function resultOf(c) {
+  const v = answers.get(c.key);
+  if (v === undefined) return "";
+  if (c.kind === "mc") return Number(v) === c.item.c ? "ok" : "no";
+  return v;
+}
+
+ACTS.forEach((act, ai) => {
+  const h = document.createElement("h2");
+  h.innerHTML = `${act.title} <em>Act ${ai + 1}</em>`;
+  const note = document.createElement("p");
+  note.className = "act-note";
+  note.textContent = act.note;
+  quiz.append(h, note);
+  const actCards = [];
+
+  act.qs.forEach(item => {
+    n += 1;
+    const kind = item.o ? "mc" : "open";
+    const key = keyOf(kind === "mc" ? `d${item.d}:${item.t}` : item.q);
+    const el = document.createElement("section");
+    el.className = "q";
+    el.dataset.id = n;
+    const meta = `<div class="meta">${pips(item.lvl)}${kind === "mc" ? `<span class="src">Wiki drill ${item.d}</span>` : ""}${item.tag ? `<span class="tag">${item.tag}</span>` : ""}</div>`;
+
+    if (kind === "mc") {
+      el.innerHTML = `
+        <div class="qhead">
+          <span class="num">${String(n).padStart(2, "0")}</span>
+          <div class="body">
+            ${meta}
+            <p class="title">${item.t}</p>
+            <p class="prompt">${item.s}</p>
+            <div class="opts">${item.o.map((o, i) => `<button class="opt" type="button" data-i="${i}"><b>${LETTERS[i]}</b><span>${o}</span></button>`).join("")}</div>
+            <div class="a" hidden>
+              <p class="verdict-line"></p>
+              <p><b>Answer: (${LETTERS[item.c]}).</b> ${item.a}</p>
+              <p><b>Why the trap is tempting.</b> ${item.w}</p>
+              <span class="why">${item.k}</span>
+            </div>
+            <div class="actions"><button class="ghost again" type="button" hidden>Clear and try again</button></div>
+          </div>
+        </div>`;
+    } else {
+      el.innerHTML = `
+        <div class="qhead">
+          <span class="num">${String(n).padStart(2, "0")}</span>
+          <div class="body">
+            ${meta}
+            <p class="prompt">${item.q}</p>
+            <div class="a" hidden>${item.a}${item.why ? `<span class="why">${item.why}</span>` : ""}</div>
+            <div class="actions">
+              <button class="reveal" type="button">Show answer</button>
+              <button class="mark yes" type="button" aria-pressed="false" hidden>Got it</button>
+              <button class="mark nope" type="button" aria-pressed="false" hidden>Missed</button>
+            </div>
+          </div>
+        </div>`;
+    }
+    quiz.appendChild(el);
+    const c = { id: n, key, kind, item, lvl: String(item.lvl), el, text: kind === "mc" ? item.t : plain(item.q) };
+    cards.push(c);
+    actCards.push(c);
+
+    if (kind === "mc") {
+      el.querySelectorAll(".opt").forEach(b => b.addEventListener("click", () => {
+        if (answers.has(c.key)) return;
+        answers.set(c.key, Number(b.dataset.i));
+        paint(c);
+        persist();
+        score();
+      }));
+      el.querySelector(".again").addEventListener("click", () => {
+        answers.delete(c.key);
+        paint(c);
+        persist();
+        score();
+      });
+    } else {
+      const ans = el.querySelector(".a");
+      const reveal = el.querySelector(".reveal");
+      const yes = el.querySelector(".mark.yes");
+      const nope = el.querySelector(".mark.nope");
+      reveal.addEventListener("click", () => {
+        const open = !ans.hidden;
+        ans.hidden = open;
+        reveal.textContent = open ? "Show answer" : "Hide answer";
+        yes.hidden = nope.hidden = open;
+      });
+      const mark = (v) => {
+        if (answers.get(c.key) === v) answers.delete(c.key); else answers.set(c.key, v);
+        paint(c);
+        persist();
+        score();
+      };
+      yes.addEventListener("click", () => mark("ok"));
+      nope.addEventListener("click", () => mark("no"));
+    }
+    paint(c);
+  });
+  acts.push({ h, note, cards: actCards });
+});
+
+function paint(c) {
+  const res = resultOf(c);
+  c.el.dataset.state = res;
+  if (c.kind === "mc") {
+    const v = answers.get(c.key);
+    const picked = v === undefined ? null : Number(v);
+    c.el.querySelectorAll(".opt").forEach(b => {
+      const i = Number(b.dataset.i);
+      b.disabled = picked !== null;
+      b.classList.toggle("right", picked !== null && i === c.item.c);
+      b.classList.toggle("picked-wrong", picked !== null && i === picked && i !== c.item.c);
+      b.classList.toggle("dim", picked !== null && i !== picked && i !== c.item.c);
+      b.setAttribute("aria-pressed", String(picked === i));
+    });
+    const panel = c.el.querySelector(".a");
+    panel.hidden = picked === null;
+    const line = c.el.querySelector(".verdict-line");
+    line.className = "verdict-line " + res;
+    line.textContent = picked === null ? "" : res === "ok"
+      ? `Correct: you chose ${LETTERS[picked]}`
+      : `You chose ${LETTERS[picked]}; the answer is ${LETTERS[c.item.c]}`;
+    c.el.querySelector(".again").hidden = picked === null;
+  } else {
+    c.el.querySelector(".mark.yes").setAttribute("aria-pressed", String(res === "ok"));
+    c.el.querySelector(".mark.nope").setAttribute("aria-pressed", String(res === "no"));
+  }
+}
+
+/* ---------- counts, filter, score ---------- */
+const COUNTS = { all: cards.length };
+["1", "2", "3"].forEach(l => { COUNTS[l] = cards.filter(c => c.lvl === l).length; });
+document.querySelectorAll("[data-count]").forEach(el => { el.textContent = COUNTS[el.dataset.count]; });
+
+const segButtons = document.querySelectorAll(".seg button");
+function applyFilter() {
+  cards.forEach(c => { c.el.hidden = !(filter === "all" || filter === c.lvl); });
+  acts.forEach(a => { const empty = a.cards.every(c => c.el.hidden); a.h.hidden = empty; a.note.hidden = empty; });
+  segButtons.forEach(b => b.setAttribute("aria-pressed", String(b.dataset.filter === filter)));
+  score();
+}
+segButtons.forEach(b => b.addEventListener("click", () => { filter = b.dataset.filter; persist(); applyFilter(); }));
+
+const elDone = document.getElementById("done");
+const elRight = document.getElementById("right");
+const elWrong = document.getElementById("wrong");
+const fill = document.getElementById("fill");
+const verdict = document.getElementById("verdict");
+const levels = document.getElementById("levels");
+const missedList = document.getElementById("missed");
+
+function tallyOf(list) {
+  let ok = 0, no = 0;
+  list.forEach(c => { const r = resultOf(c); if (r === "ok") ok++; else if (r === "no") no++; });
+  return { ok, no, done: ok + no, total: list.length };
+}
+
+function score() {
+  const visible = cards.filter(c => !c.el.hidden);
+  const t = tallyOf(visible);
+  elDone.textContent = t.done;
+  elRight.textContent = t.ok;
+  elWrong.textContent = t.no;
+  fill.style.width = `${t.total ? (t.done / t.total) * 100 : 0}%`;
+
+  const scope = filter === "all" ? "" : ` ${LEVEL[filter].toLowerCase()}`;
+  if (!t.done) {
+    verdict.textContent = filter === "all" ? "Nothing answered yet." : `No${scope} questions answered yet.`;
+  } else {
+    const pct = Math.round((t.ok / t.done) * 100);
+    verdict.innerHTML = t.done === t.total
+      ? `All ${t.total}${scope} questions answered: <b>${t.ok} right, ${t.no} missed (${pct}%)</b>.`
+      : `<b>${t.done} of ${t.total}</b>${scope} questions answered: ${t.ok} right, ${t.no} missed (${pct}%).`;
+  }
+
+  const parts = ["1", "2", "3"].map(l => {
+    const s = tallyOf(cards.filter(c => c.lvl === l));
+    return `${LEVEL[l]}: <b>${s.ok} of ${s.done}</b> right (${s.total} in total)`;
+  });
+  levels.hidden = !tallyOf(cards).done;
+  levels.innerHTML = parts.join(" &middot; ");
+
+  missedList.innerHTML = "";
+  const misses = visible.filter(c => resultOf(c) === "no");
+  missedList.hidden = !misses.length;
+  misses.forEach(c => {
+    const li = document.createElement("li");
+    li.textContent = `${String(c.id).padStart(2, "0")} (${LEVEL[c.lvl].toLowerCase()}${c.kind === "mc" ? `, wiki drill ${c.item.d}` : ""}): ${c.text}`;
+    li.addEventListener("click", () => c.el.scrollIntoView({ behavior: "smooth", block: "center" }));
+    missedList.appendChild(li);
+  });
+}
+
+/* Reset takes two clicks, because answers persist and one stray click would lose them. */
+const resetBtn = document.getElementById("reset");
+let armed = null;
+function disarm() { clearTimeout(armed); armed = null; resetBtn.textContent = "Reset"; resetBtn.classList.remove("armed"); }
+resetBtn.addEventListener("click", () => {
+  if (!armed) {
+    resetBtn.textContent = "Click again to clear all answers";
+    resetBtn.classList.add("armed");
+    armed = setTimeout(disarm, 4000);
+    return;
+  }
+  disarm();
+  answers.clear();
+  cards.forEach(c => {
+    if (c.kind === "open") {
+      c.el.querySelector(".a").hidden = true;
+      c.el.querySelector(".reveal").textContent = "Show answer";
+      c.el.querySelector(".mark.yes").hidden = c.el.querySelector(".mark.nope").hidden = true;
+    }
+    paint(c);
+  });
+  persist();
+  score();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+applyFilter();
+</script>
+
+
+</body>
+</html>

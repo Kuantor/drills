@@ -1,0 +1,698 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta property="og:title" content="Full-Stack Python Interview Drill" />
+<meta property="og:description" content="Interactive self-test: 118 full-stack Python interview questions, 40 of them senior." />
+<meta property="og:image" content="https://kuantor.github.io/drills/background.jpg" />
+<meta property="og:url" content="https://kuantor.github.io/drills/full-stack-python-interview.html" />
+<meta property="og:type" content="website" />
+<style>
+  :root{
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  body{margin:0}
+  img{max-width:100%}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+<title>Full-Stack Python Drill</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column of question cards in fifteen acts, a sticky
+   scoreboard with a Core / Senior filter. Palette and type are the Ship It Live
+   drill series: roasted brown ground, brass accents. Deliberately single-theme. */
+:root{
+  --ground:#1A150E;
+  --surface:#262014;
+  --card:#312918;
+  --edge:#4A3D22;
+  --cream:#F1EADA;
+  --tan:#AC9F84;
+  --gold:#C8A24B;
+  --gold-lt:#E8CD86;
+  --teal:#6FB0A6;
+  --terra:#D0845A;
+  --sage:#8BA678;
+  --serif:"Source Serif 4",Cambria,Georgia,serif;
+  --sans:"Public Sans",Calibri,-apple-system,system-ui,sans-serif;
+  --mono:"IBM Plex Mono",Consolas,ui-monospace,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  background:var(--ground);
+  color:var(--cream);
+  font-family:var(--sans);
+  font-size:16px;
+  line-height:1.55;
+  margin:0;
+}
+.wrap{max-width:780px;margin:0 auto;padding-inline:16px;padding-block:40px 64px}
+
+header h1{
+  font-family:var(--serif);font-weight:700;color:var(--gold);
+  font-size:clamp(2rem,7vw,3rem);line-height:1.05;margin:0 0 .3em;
+  text-wrap:balance;
+}
+.kicker{
+  font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--tan);margin:0 0 1.6rem;
+}
+.lede{color:var(--tan);font-size:1.05rem;margin:0 0 1.2rem;max-width:62ch}
+.lede strong{color:var(--cream);font-weight:600}
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;margin:0 0 2rem;color:var(--tan);font-size:.85rem;align-items:center}
+.legend span{display:inline-flex;align-items:center;gap:.4rem}
+.legend .tag{margin-left:0}
+
+/* scoreboard */
+.board{
+  position:sticky;top:env(safe-area-inset-top,0px);z-index:10;
+  background:var(--surface);border:1px solid var(--edge);border-radius:10px;
+  padding:14px 16px;margin-bottom:2.4rem;
+  display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;
+}
+.tally{display:flex;gap:18px;flex:1 1 auto;min-width:0}
+.stat{display:flex;flex-direction:column;line-height:1.15}
+.stat b{
+  font-family:var(--mono);font-size:1.25rem;font-weight:500;
+  font-variant-numeric:tabular-nums;color:var(--gold-lt);
+}
+.stat span{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--tan)}
+.stat.ok b{color:var(--sage)}
+.stat.no b{color:var(--terra)}
+.bar{flex:1 1 100%;height:4px;background:var(--edge);border-radius:2px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--gold);transition:width .3s ease}
+button{font-family:var(--sans);font-size:.85rem;cursor:pointer;border-radius:7px;transition:background .15s,border-color .15s,color .15s}
+button:focus-visible{outline:2px solid var(--gold-lt);outline-offset:2px}
+.ghost{
+  background:transparent;border:1px solid var(--edge);color:var(--tan);
+  padding:7px 13px;
+}
+.ghost:hover{border-color:var(--gold);color:var(--gold-lt)}
+.ghost.armed{border-color:var(--terra);color:var(--terra)}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{background:transparent;border:1px solid var(--edge);color:var(--tan);padding:7px 12px}
+.seg button:hover{border-color:var(--gold);color:var(--gold-lt)}
+.seg button[aria-pressed="true"]{border-color:var(--gold);color:var(--gold-lt);background:color-mix(in srgb,var(--gold) 14%,transparent)}
+.seg button b{font-family:var(--mono);font-weight:500;font-variant-numeric:tabular-nums;margin-left:.4em}
+
+h2{
+  font-family:var(--serif);font-size:1.45rem;font-weight:600;color:var(--gold);
+  margin:2.8rem 0 .2rem;display:flex;align-items:baseline;gap:.6rem;text-wrap:balance;
+}
+h2 em{
+  font-family:var(--mono);font-style:normal;font-size:.7rem;color:var(--tan);
+  letter-spacing:.1em;flex:0 0 auto;
+}
+.act-note{color:var(--tan);font-size:.9rem;margin:0 0 1.4rem}
+
+.q{
+  background:var(--card);border:1px solid var(--edge);border-radius:10px;
+  padding:18px 20px;margin-bottom:14px;
+}
+.q[data-state="ok"]{border-color:color-mix(in srgb,var(--sage) 55%,var(--edge))}
+.q[data-state="no"]{border-color:color-mix(in srgb,var(--terra) 55%,var(--edge))}
+.qhead{display:flex;gap:12px;align-items:flex-start}
+.num{
+  font-family:var(--mono);font-size:.78rem;color:var(--gold);
+  flex:0 0 auto;padding-top:.2em;font-variant-numeric:tabular-nums;
+  min-width:2.4em;
+}
+.q.senior .num{
+  background:var(--gold);color:var(--ground);font-weight:500;
+  border-radius:4px;padding:.12em .4em;margin-top:.1em;text-align:center;
+}
+.prompt{margin:0;flex:1 1 auto;min-width:0;font-size:1rem}
+.prompt code,.a code{
+  font-family:var(--mono);font-size:.86em;background:var(--ground);
+  border:1px solid var(--edge);border-radius:4px;padding:.08em .35em;color:var(--gold-lt);
+  overflow-wrap:anywhere;
+}
+.tag{
+  display:inline-block;font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;
+  text-transform:uppercase;padding:.2em .5em;border-radius:4px;margin-left:.5rem;
+  vertical-align:.12em;border:1px solid;
+}
+.tag.num-tag{color:var(--gold-lt);border-color:color-mix(in srgb,var(--gold) 45%,transparent)}
+.tag.trap{color:var(--terra);border-color:color-mix(in srgb,var(--terra) 45%,transparent)}
+.tag.apply{color:var(--teal);border-color:color-mix(in srgb,var(--teal) 45%,transparent)}
+.tag.senior{background:var(--gold-lt);color:var(--ground);border-color:var(--gold-lt);font-weight:500}
+
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;padding-left:calc(2.4em * .78 + 12px)}
+.reveal{background:transparent;border:1px solid var(--gold);color:var(--gold-lt);padding:7px 15px}
+.reveal:hover{background:color-mix(in srgb,var(--gold) 14%,transparent)}
+.mark{border:1px solid var(--edge);background:transparent;padding:7px 15px}
+.mark.yes{color:var(--sage)}
+.mark.yes:hover,.mark.yes[aria-pressed="true"]{background:color-mix(in srgb,var(--sage) 18%,transparent);border-color:var(--sage)}
+.mark.nope{color:var(--terra)}
+.mark.nope:hover,.mark.nope[aria-pressed="true"]{background:color-mix(in srgb,var(--terra) 18%,transparent);border-color:var(--terra)}
+
+.a{
+  margin:14px 0 0;padding:14px 16px;background:var(--ground);
+  border-left:3px solid var(--gold);border-radius:0 7px 7px 0;
+  font-size:.96rem;
+}
+.a p{margin:0 0 .7em}
+.a p:last-child{margin-bottom:0}
+.a b{color:var(--gold-lt);font-weight:600}
+.a .why{color:var(--tan);font-size:.9rem;display:block;margin-top:.7em;padding-top:.7em;border-top:1px solid var(--edge)}
+
+/* reference table */
+details.ref{margin-top:3rem;border:1px solid var(--edge);border-radius:10px;background:var(--surface)}
+details.ref summary{
+  cursor:pointer;padding:14px 18px;font-family:var(--mono);font-size:.78rem;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--gold);
+}
+details.ref summary:focus-visible{outline:2px solid var(--gold-lt);outline-offset:-2px}
+.tablewrap{overflow-x:auto;padding:0 18px 18px}
+table{border-collapse:collapse;width:100%;min-width:420px;font-size:.92rem}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--edge)}
+thead th{color:var(--tan);font-weight:500;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase}
+td.v{font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--gold-lt);white-space:nowrap}
+td.where{color:var(--tan)}
+.refnote{padding:0 18px 18px;margin:0;color:var(--tan);font-size:.85rem}
+
+footer{margin-top:3rem;padding-top:1.6rem;border-top:1px solid var(--edge);color:var(--tan);font-size:.88rem}
+footer b{color:var(--gold-lt)}
+#levels{margin:.4rem 0 0}
+#missed{margin:.8rem 0 0;padding-left:1.1rem}
+#missed li{margin-bottom:.3rem;cursor:pointer}
+#missed li:hover{color:var(--cream)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media (max-width:480px){.actions{padding-left:0}}
+</style>
+
+<div class="wrap">
+<header>
+  <p class="kicker">Interview prep &middot; self-test</p>
+  <h1>Full-Stack Python Drill</h1>
+  <p class="lede"><strong><span data-count="all">118</span> questions</strong> across fifteen acts, covering the stack that the 34 tracked full-stack Python postings ask for, weighted by how often they ask. <strong><span data-count="senior">40</span> are senior questions</strong>, the ones that separate a senior hire from a middle one. Answer out loud before revealing, then mark yourself honestly. Your marks are kept in this browser.</p>
+  <div class="legend">
+    <span><span class="tag senior">Senior</span> senior-level</span>
+    <span><span class="tag trap">trap</span> common wrong answer</span>
+    <span><span class="tag num-tag">numbers</span> quote the figure</span>
+    <span><span class="tag apply">apply</span> judgement call</span>
+  </div>
+</header>
+
+<div class="board">
+  <div class="tally">
+    <div class="stat"><b id="done">0</b><span>answered</span></div>
+    <div class="stat ok"><b id="right">0</b><span>got it</span></div>
+    <div class="stat no"><b id="wrong">0</b><span>missed</span></div>
+  </div>
+  <div class="seg" role="group" aria-label="Show questions">
+    <button type="button" id="f-all" data-filter="all" aria-pressed="true">All<b data-count="all">118</b></button>
+    <button type="button" id="f-core" data-filter="core" aria-pressed="false">Core<b data-count="core">78</b></button>
+    <button type="button" id="f-senior" data-filter="senior" aria-pressed="false">Senior<b data-count="senior">40</b></button>
+  </div>
+  <button class="ghost" id="reset" type="button">Reset</button>
+  <div class="bar"><i id="fill"></i></div>
+</div>
+
+<main id="quiz"></main>
+
+<details class="ref">
+  <summary>Reference — numbers worth quoting exactly</summary>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Figure</th><th>Value</th><th>Act</th></tr></thead>
+    <tbody>
+      <tr><td>Four threads, CPU-bound work</td><td class="v">0.96&times; (slower)</td><td class="where">Concurrency</td></tr>
+      <tr><td>Four threads, I/O-bound work</td><td class="v">3.99&times;</td><td class="where">Concurrency</td></tr>
+      <tr><td>Four processes, CPU-bound work</td><td class="v">2.1&times;</td><td class="where">Concurrency</td></tr>
+      <tr><td>N+1 queries, 100 articles by 10 authors</td><td class="v">11, not 101</td><td class="where">ORMs and migrations</td></tr>
+      <tr><td>Postgres default <code>max_connections</code></td><td class="v">100</td><td class="where">Concurrency</td></tr>
+      <tr><td>SQLAlchemy default pool</td><td class="v">5 + 10 overflow</td><td class="where">Concurrency</td></tr>
+      <tr><td>CPython cached small integers</td><td class="v">&minus;5 to 256</td><td class="where">Python, the language</td></tr>
+      <tr><td>all-MiniLM-L6-v2 embedding size</td><td class="v">384</td><td class="where">Databases and SQL</td></tr>
+      <tr><td>Current MCP spec revision</td><td class="v">2026-07-28</td><td class="where">AI in the product</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="refnote">The first three come from <code>gil_bench.py</code> (Python 3.14, eight cores) and the N+1 count from the ORM talk's benchmark. Re-run them before quoting them anywhere that matters.</p>
+</details>
+
+<footer>
+  <p id="verdict">Nothing answered yet.</p>
+  <p id="levels" hidden></p>
+  <ul id="missed" hidden></ul>
+</footer>
+</div>
+
+<script>
+const ACTS = [
+  { title: "Python, the language", note: "The questions that open most Python interviews. Precision beats breadth.", qs: [
+    { q: "What does this print, and why? <code>def add(x, items=[]): items.append(x); return items</code>, called as <code>add(1)</code> then <code>add(2)</code>.", tag: "trap",
+      a: "<p><b>[1], then [1, 2].</b> Default values are evaluated <b>once, when the def statement runs</b>, not on each call, so every call without an argument shares the same list.</p><p>Fix: default to <code>None</code> and create the list inside: <code>items = [] if items is None else items</code>.</p>" },
+    { q: "<code>is</code> versus <code>==</code>: what does each compare, and when is <code>is</code> the right choice?", tag: "trap",
+      a: "<p><code>==</code> compares <b>values</b> (it calls <code>__eq__</code>). <code>is</code> compares <b>identity</b>: whether both names point at the same object.</p><p>Use <code>is</code> only for singletons: <code>None</code>, <code>True</code>, <code>False</code>, sentinel objects. That <code>x is 256</code> can be true is a CPython detail (small integers from &minus;5 to 256 are cached), not something to rely on.</p>" },
+    { q: "List, tuple, set, dict: when do you reach for each, and what does <i>hashable</i> have to do with it?",
+      a: "<p><b>List</b>: ordered, mutable sequence. <b>Tuple</b>: ordered and immutable, a fixed record that can be a dict key. <b>Set</b>: unique items, O(1) average membership test. <b>Dict</b>: key to value, O(1) average lookup, insertion-ordered since 3.7.</p><p>Set members and dict keys must be <b>hashable</b>, meaning their hash never changes. That is why a list can't be a key but a tuple of immutable values can.</p>" },
+    { q: "What is a generator, and why use one instead of returning a list?",
+      a: "<p>A function containing <code>yield</code>. Calling it returns an iterator that produces values <b>lazily</b>, one per <code>next()</code>, keeping its local state between them.</p><p>Use it when the data is large or unbounded, such as a 10 GB file read line by line or rows streamed from a query: memory stays constant instead of holding everything at once. <code>(x*x for x in xs)</code> is the one-line form.</p>" },
+    { q: "What is a decorator, and why does <code>functools.wraps</code> matter?",
+      a: "<p>A callable that <b>takes a function and returns a replacement</b>, usually a wrapper that adds behaviour around the original: logging, timing, auth checks, caching. <code>@decorator</code> above a def is shorthand for <code>f = decorator(f)</code>.</p><p>Without <code>@functools.wraps(f)</code> on the wrapper, the decorated function loses its name, docstring and signature. That breaks debugging and any framework that reads signatures, FastAPI included.</p>" },
+    { q: "What does a <code>with</code> block guarantee, and how do you write your own context manager?",
+      a: "<p>That cleanup runs <b>even if the block raises</b>: files close, locks release, transactions commit or roll back. <code>__enter__</code> runs on entry and <code>__exit__</code> on exit, receiving any exception.</p><p>The short way is <code>@contextlib.contextmanager</code> on a generator: code before <code>yield</code> is setup, and code after it, inside a <code>finally</code>, is teardown.</p>" },
+    { q: "Type hints are ignored at runtime. So how does FastAPI or Pydantic validate a request body against them?", tag: "trap",
+      a: "<p>They are ignored by the <b>interpreter</b>, not erased. They are stored on the function or class as <code>__annotations__</code>, and Pydantic <b>reads them at runtime</b> to build a validator. FastAPI does the same with endpoint signatures.</p><p>So a hint is enforced only when a library chooses to enforce it. A plain function called with the wrong type runs anyway.</p>" },
+    { q: "How does CPython manage memory, and how do you still get a leak in a garbage-collected language?", senior: true,
+      a: "<p><b>Reference counting</b> frees an object the moment its count reaches zero. A <b>cyclic garbage collector</b> runs periodically to reclaim reference cycles that counting can't.</p><p>Real leaks are objects that stay <b>reachable</b>: an unbounded module-level cache, listeners never unregistered, a global list that only grows, closures holding large objects. <code>tracemalloc</code> shows where the memory was allocated.</p>" },
+    { q: "<code>class C(A, B)</code>, where <code>A</code> and <code>B</code> both inherit from <code>Base</code> and every class calls <code>super().__init__()</code>. What does <code>super()</code> inside <code>A</code> actually call?", senior: true, tag: "trap",
+      a: "<p>The <b>next class in the method resolution order</b>, not the parent. C3 linearisation gives <code>C, A, B, Base, object</code>, so <code>A</code>'s <code>super()</code> calls <b><code>B</code></b>, a class <code>A</code> never mentions.</p><p>That is what makes cooperative multiple inheritance work, and why every class in the chain must call <code>super()</code> and pass on <code>**kwargs</code> it doesn't use. <code>C.__mro__</code> shows the order.</p>" },
+    { q: "You define <code>__eq__</code> on a class and nothing else. What breaks?", senior: true, tag: "trap",
+      a: "<p>Instances become <b>unhashable</b>. Defining <code>__eq__</code> without <code>__hash__</code> sets <code>__hash__</code> to <code>None</code>, so they can't go in a set or be dict keys.</p><p>It is deliberate: equal objects must have equal hashes, and the default identity-based hash would break that. Define <code>__hash__</code> from the same fields, and only for objects you treat as immutable. <code>@dataclass(frozen=True)</code> does both for you.</p>" },
+  ]},
+  { title: "Concurrency", note: "Asked in some form at nearly every Python interview. The measured figures come from the GIL talk.", qs: [
+    { q: "What is the GIL, and which Python has one?",
+      a: "<p>A mutex in <b>CPython</b>, the reference implementation, that a thread must hold to execute Python bytecode. There is one per process, so only one thread runs Python code at a time, however many cores you have.</p><p>It isn't part of the language: Jython and IronPython have none. It exists mainly so reference counting can't race.</p>" },
+    { q: "Four threads on CPU-bound work, then on I/O-bound work. What happens to each, with the measured factors?", tag: "num-tag",
+      a: "<p><b>CPU-bound: slower, 0.96&times;.</b> The threads take turns on the lock and each hand-over costs something. <b>I/O-bound: 3.99&times;.</b> CPython releases the GIL while a thread waits, so the four waits overlap.</p><p>Four processes on the CPU work gave <b>2.1&times;</b>: each has its own interpreter and GIL, minus the cost of starting processes and copying data.</p>",
+      why: "The sentence to say: threads give you concurrency while waiting, not parallelism while computing." },
+    { q: "Threading versus asyncio: what is the mechanical difference, and what does asyncio buy you?",
+      a: "<p>Threads are scheduled by the OS and <b>pre-emptive</b>: a switch can happen between any two bytecodes, so shared state needs locks. Asyncio is one thread and <b>cooperative</b>: it switches only at an <code>await</code>, which you can see in the source.</p><p>What it buys is <b>scale</b>. A coroutine costs a few hundred bytes; a thread reserves a megabyte or more of stack. Thousands of concurrent connections fit in asyncio where threads would run out of memory.</p>" },
+    { q: "An <code>async def</code> endpoint calls <code>requests.get()</code> or a synchronous database driver. What happens under load?", tag: "trap",
+      a: "<p>The call <b>blocks the event loop</b>. Nothing else on that worker runs, not other requests and not timers, until it returns. A 300 ms call limits the whole worker to about three requests a second.</p><p>Fixes: an async client (<code>httpx.AsyncClient</code>, <code>asyncpg</code>); <code>await asyncio.to_thread(...)</code> for the blocking call; or, in FastAPI, a plain <code>def</code> endpoint so it runs in the threadpool.</p>",
+      why: "It is worse than the same call in a synchronous framework. There, the OS would switch to another thread. In asyncio nothing pre-empts you." },
+    { q: "<code>await a(); await b()</code> versus <code>await asyncio.gather(a(), b())</code>: what's the difference?",
+      a: "<p>The first runs them <b>one after the other</b>, so the total time is the sum. <code>gather</code> schedules both and waits for all of them, so the waits overlap and the total is roughly the longest one.</p><p>Writing <code>async</code> makes nothing concurrent by itself. You have to give the loop more than one thing to do.</p>" },
+    { q: "<code>gather</code> versus <code>asyncio.TaskGroup</code>: what happens to the other tasks when one fails?", senior: true,
+      a: "<p>With <code>gather</code>'s defaults, the first exception reaches the caller but the <b>other tasks keep running</b>, unobserved. <code>TaskGroup</code> (Python 3.11+) <b>cancels the siblings</b> and raises every failure together as an <code>ExceptionGroup</code>.</p><p>That is structured concurrency: no task outlives the block that started it. Prefer it in new code.</p>" },
+    { q: "Eight Gunicorn workers, each with a SQLAlchemy pool of 10, against Postgres with <code>max_connections = 100</code>. What happens?", senior: true, tag: "num-tag",
+      a: "<p>Each worker is a separate process with its <b>own</b> pool, so the baseline is <b>80 connections</b>, not 10. SQLAlchemy's default <code>max_overflow</code> of 10 lets each pool burst to 20, so peaks can reach <b>160</b>, and Postgres starts refusing with <i>too many clients</i>. A second instance or a migration job makes it happen sooner.</p><p>Fixes: size pools from the budget (connections divided by workers and instances), cap overflow, and put <b>PgBouncer</b> in front to multiplex.</p>" },
+    { q: "Free-threaded Python: what is it, and should you rely on it in production today?", senior: true,
+      a: "<p>A CPython build without the GIL. <b>PEP 703</b> made it an experimental build in <b>3.13</b>; <b>PEP 779</b> made it officially supported in <b>3.14</b>. It is a separate build, <b>not the default</b>.</p><p>Not yet, for most production: single-threaded code pays for the finer-grained locking, and C extensions need updating. Know it exists, and design around the GIL as it is today.</p>" },
+  ]},
+  { title: "Packaging and environments", note: "Rarely a whole question on its own, but it surfaces in every take-home task.", qs: [
+    { q: "What does activating a virtual environment actually do?",
+      a: "<p>It puts the venv's <code>Scripts</code> (Windows) or <code>bin</code> directory <b>first on your PATH</b>, and that is all. The <code>python</code> found there reads <code>pyvenv.cfg</code> and uses the venv's own <code>site-packages</code>.</p><p>So activating is optional (<code>.venv/bin/python app.py</code> works the same), and the venv is disposable: delete it and rebuild, and never commit it.</p>" },
+    { q: "A dependency specifier and a lockfile: what is each for, and do you commit both?",
+      a: "<p>The <b>specifier</b> (<code>fastapi&gt;=0.115</code> in <code>pyproject.toml</code>) says what you are compatible with. The <b>lockfile</b> (<code>uv.lock</code>, <code>poetry.lock</code>) records the exact versions and hashes that were actually resolved.</p><p><b>Commit both.</b> Without a lockfile, the image you build today and the one you build next month contain different code. Without specifiers, every upgrade is guesswork.</p>" },
+    { q: "<code>pip install</code> fails with pages of C compiler errors. What is actually going on?", tag: "trap",
+      a: "<p>There is <b>no wheel</b>, no prebuilt binary, for your Python version and platform, so pip fell back to the source distribution and is trying to compile it.</p><p>Check the wheel tags on PyPI. The fix is usually a different interpreter version, not installing a compiler. <code>cp310-abi3</code> in a filename means 3.10 <i>and every later version</i>, through the stable ABI.</p>" },
+    { q: "How do you make a Python service's build reproducible, from interpreter to container?", senior: true,
+      a: "<p>Pin the <b>interpreter</b> (<code>requires-python</code> and a base image such as <code>python:3.13-slim</code> pinned by digest). Resolve dependencies into a <b>lockfile with hashes</b> and install only from it (<code>uv sync --frozen</code> or equivalent), never a fresh resolve in CI.</p><p>Build the image once and promote <b>the same image</b> through every environment. Rebuild on a schedule, so security patches arrive deliberately rather than by accident.</p>" },
+  ]},
+  { title: "HTTP and the request cycle", note: "The layer under every framework. Mixing up what runs where is the classic mistake.", qs: [
+    { q: "You type a URL and press Enter. What happens, step by step, until the page appears?",
+      a: "<p><b>DNS</b> resolves the name to an IP address. A <b>TCP</b> connection opens (for HTTP/3, QUIC over UDP instead), then a <b>TLS</b> handshake. The browser sends an <b>HTTP request</b>; a reverse proxy such as Nginx passes it to the app server, which calls your application. The response comes back, and the browser parses the HTML, fetches CSS, JavaScript and images, builds the DOM and renders.</p>",
+      why: "Interviewers use this to find where your knowledge runs out. Go one level deeper on the part you know best." },
+    { q: "What does WSGI specify, and where does it sit in that chain?", tag: "trap",
+      a: "<p>A calling convention between a Python <b>web server</b> (Gunicorn, uWSGI) and a Python <b>application</b> (Flask, Django). The app is a callable that takes <code>environ</code> and <code>start_response</code> and returns an iterable of bytes, as defined in PEP 3333.</p><p>It is <b>entirely server-side</b>. The browser speaks HTTP to the server; WSGI is how the server hands that request to your code. It never crosses the network.</p>" },
+    { q: "WSGI versus ASGI: why did ASGI need to exist?",
+      a: "<p>WSGI is <b>synchronous, one request in and one response out</b>, with no <code>await</code> and no long-lived connections. ASGI makes the application an <b>async callable that exchanges events</b>, which supports WebSockets, server-sent events, streaming responses, and startup and shutdown hooks.</p><p>FastAPI and Starlette are ASGI, served by Uvicorn or Hypercorn. Django supports both.</p>" },
+    { q: "HTTP/1.1, HTTP/2, HTTP/3: one sentence each on what changed.",
+      a: "<p><b>1.1</b>: text protocol and persistent connections, but one request at a time per connection. <b>2</b>: binary framing and <b>multiplexing</b>, so many requests share one connection. <b>3</b>: the same semantics over <b>QUIC on UDP</b>, so one lost packet no longer holds up every stream behind it.</p>" },
+    { q: "Why put Nginx in front of Gunicorn at all?", senior: true, tag: "apply",
+      a: "<p>Nginx does the jobs a Python app server shouldn't: <b>TLS termination</b>, serving static files, <b>buffering slow clients</b> so a worker isn't tied up by someone on a bad connection, request size limits, compression, and load-balancing across instances.</p><p>Gunicorn's workers are scarce, a few per core, and Nginx protects them.</p>" },
+  ]},
+  { title: "Web frameworks", note: "Django leads the tracked postings on count, FastAPI on momentum. Know one deeply and the trade-offs of all three.", qs: [
+    { q: "Flask calls itself a microframework. What does <i>micro</i> mean, and what is the trade?",
+      a: "<p>The core does <b>routing, requests and responses, templating and sessions</b>, and nothing else: no ORM, no form validation, no auth, no admin. You choose extensions such as Flask-SQLAlchemy and Flask-Login.</p><p>The trade: freedom and a small surface, against making and maintaining decisions Django makes for you.</p>" },
+    { q: "How can Flask's <code>request</code> be imported like a global and still be correct with fifty concurrent requests?", tag: "trap",
+      a: "<p>It isn't a real global. It is a <b>context-local proxy</b>: each request runs inside its own request context, and <code>request</code> resolves to the object for the current thread or task, using <code>contextvars</code>.</p><p>The consequence: using <code>request</code> outside a request, in a background thread or at import time, raises <i>working outside of request context</i>.</p>" },
+    { q: "Flask's default session is a signed cookie. What does the signature protect against, and what doesn't it?", tag: "trap",
+      a: "<p>The HMAC signature, made with <code>SECRET_KEY</code>, stops the client <b>changing</b> the session: any tampering invalidates it. It does <b>not</b> hide it. The contents are only base64-encoded JSON, readable by anyone who has the cookie.</p><p>So store identifiers, never secrets, and keep <code>SECRET_KEY</code> secret: whoever has it can forge any session.</p>" },
+    { q: "What is the application factory pattern, and why adopt it early?",
+      a: "<p>A <code>create_app(config)</code> function that builds and returns the app, instead of a module-level <code>app = Flask(__name__)</code>.</p><p>Tests can create apps with different configs, circular imports around a global app go away, and extensions initialise per app with <code>init_app</code>. Adding it later means touching every import.</p>" },
+    { q: "FastAPI: what does <code>Depends</code> give you, and what does a dependency that uses <code>yield</code> do?",
+      a: "<p>Dependency injection. FastAPI calls the dependency, passes its result into the endpoint, reuses it within the same request, and lets tests replace it through <code>app.dependency_overrides</code>.</p><p>With <code>yield</code>, the code before it is setup and the code after it is <b>teardown that runs once the request is done</b>. It is the standard way to open a database session per request and always close it.</p>" },
+    { q: "In FastAPI, when should an endpoint be <code>def</code> and when <code>async def</code>?", tag: "trap",
+      a: "<p><code>async def</code> runs <b>on the event loop</b>, which is right when everything it calls is async. Plain <code>def</code> runs <b>in a threadpool</b>, which is right when it calls blocking code such as a synchronous database driver.</p><p>The mistake is <code>async def</code> around blocking calls. That stalls the loop and is worse than choosing <code>def</code>.</p>" },
+    { q: "FastAPI or Django for a new product: how do you decide?", tag: "apply",
+      a: "<p><b>Django</b> for data-heavy CRUD with users: ORM, migrations, admin, auth and forms come built in and fit together, and the admin alone saves weeks. <b>FastAPI</b> for an API-first service with typed contracts, automatic OpenAPI docs and async I/O, which is typical of AI and integration-heavy backends.</p><p>The senior part of the answer is the team: what they already know, and what they will maintain.</p>" },
+    { q: "Django: <code>select_related</code> versus <code>prefetch_related</code>.",
+      a: "<p><code>select_related</code> follows <b>foreign keys and one-to-one</b> relations with a SQL <b>JOIN</b>, in one query. <code>prefetch_related</code> handles <b>many-to-many and reverse foreign keys</b> with a <b>second query</b> and joins the results in Python.</p><p>Both fix the N+1 problem. A JOIN on a collection would multiply the rows.</p>" },
+    { q: "How do you structure a large backend so the framework doesn't own your business logic?", senior: true,
+      a: "<p>Layers whose dependencies point <b>inward</b>: thin HTTP handlers that parse, validate, call and serialise; <b>services</b> that hold the business rules; <b>repositories</b> for persistence. Domain code imports neither the framework nor the ORM.</p><p>The payoff: business rules test without a server or a database, and swapping Flask for FastAPI touches only the outer layer. The cost is indirection, which pays off once the codebase outgrows one person.</p>" },
+  ]},
+  { title: "Databases and SQL", note: "A relational database appears in 27 of 34 tracked postings. The answers lean towards Postgres.", qs: [
+    { q: "What is an index, what does it cost, and why might Postgres ignore one?",
+      a: "<p>A separate structure, usually a <b>B-tree</b>, that finds rows without scanning the whole table. It costs <b>disk space and write speed</b>, because every insert and update has to maintain it.</p><p>Postgres skips it when the filter matches a large share of rows (a sequential scan is cheaper), when the query wraps the column in a function (<code>lower(email)</code> with no expression index), for a leading wildcard such as <code>LIKE '%term'</code>, on a type mismatch, or when statistics are stale.</p>" },
+    { q: "INNER JOIN versus LEFT JOIN, and WHERE versus HAVING.",
+      a: "<p><b>INNER</b> keeps only rows that match on both sides. <b>LEFT</b> keeps every row from the left side and fills NULLs where nothing matches, so <i>customers with no orders</i> is a LEFT JOIN plus <code>WHERE o.id IS NULL</code>.</p><p><b>WHERE</b> filters rows before grouping. <b>HAVING</b> filters groups after aggregation: <code>HAVING count(*) &gt; 5</code>.</p>" },
+    { q: "What does ACID mean, and what can still go wrong at Postgres's default isolation level?",
+      a: "<p><b>Atomic</b>: all or nothing. <b>Consistent</b>: constraints hold. <b>Isolated</b>: concurrent transactions don't see each other's partial work. <b>Durable</b>: committed data survives a crash.</p><p>Postgres defaults to <b>Read Committed</b>: each statement sees data committed before it started, so two reads in one transaction can differ, and a read-then-write in application code can lose an update. <b>Repeatable Read</b> and <b>Serializable</b> close those gaps, at the cost of retrying failed transactions.</p>" },
+    { q: "Two requests read a balance of 100, each subtracts 30, and each writes back 70. How do you prevent this?", senior: true, tag: "apply",
+      a: "<p>It is a <b>lost update</b>. Options: do it in one statement, <code>UPDATE accounts SET balance = balance - 30 WHERE id = 1</code>; <b>pessimistic</b> locking with <code>SELECT ... FOR UPDATE</code> inside the transaction; or <b>optimistic</b> locking with a version column, <code>UPDATE ... WHERE id = 1 AND version = 7</code>, retrying when no row changed.</p><p>Optimistic suits low contention. Pessimistic suits hot rows, where retries would pile up.</p>" },
+    { q: "A query is slow. How do you see what Postgres is doing?", senior: true,
+      a: "<p><code>EXPLAIN ANALYZE</code> runs the query and shows the real plan: <b>sequential versus index scans</b>, the join algorithms, the time spent in each node, and <b>estimated versus actual rows</b>.</p><p>A large gap between estimated and actual rows means stale or thin statistics (run <code>ANALYZE</code>). A sequential scan on a selective filter means a missing or unusable index. Find the node where the time goes before changing anything.</p>" },
+    { q: "What is a composite index, why does column order matter, and what is a covering index?", senior: true,
+      a: "<p>An index on <code>(tenant_id, created_at)</code> serves queries that filter on <code>tenant_id</code>, or on <code>tenant_id</code> plus a range of <code>created_at</code>, but <b>not</b> on <code>created_at</code> alone, because the B-tree is sorted by the first column first. Put equality-filtered columns first and range or sort columns last.</p><p>A <b>covering</b> index adds extra columns with <code>INCLUDE</code> so the query can be answered from the index without reading the table: an index-only scan.</p>" },
+    { q: "SQL or NoSQL: how do you choose?", tag: "apply",
+      a: "<p>Default to <b>relational</b>: relationships, constraints, transactions, and the ad-hoc queries you haven't thought of yet. Postgres's JSONB covers most flexible-schema needs.</p><p>Choose a document store such as MongoDB when data naturally comes as self-contained documents read whole, schemas vary widely, and transactions across documents are rare. Choose a key-value store such as Redis for caching and short-lived state.</p>" },
+    { q: "Semantic search in Postgres: what do you need, and which operator and index?", tag: "apply",
+      a: "<p>The <b>pgvector</b> extension, a <code>vector(384)</code> column holding embeddings, and a nearest-neighbour query ordered by distance: <code>ORDER BY embedding &lt;=&gt; :query LIMIT 10</code>, where <code>&lt;=&gt;</code> is cosine distance.</p><p>For speed, an approximate index: <b>HNSW</b> (better speed and recall, slower to build) or IVFFlat. Approximate means it can occasionally miss a true neighbour, which is a deliberate trade.</p>" },
+  ]},
+  { title: "ORMs and migrations", note: "From the ORM talk. The real N+1 count separates people who have profiled from people who have read.", qs: [
+    { q: "What problem does an ORM solve, and what does it cost?",
+      a: "<p>It maps <b>tables to classes, rows to objects and foreign keys to attributes</b>, so you work in Python instead of assembling SQL strings, and you get parameterised queries and a unit of work for free.</p><p>The cost is that it hides the SQL. Code that looks like attribute access can run a query per line, which is where N+1 comes from.</p>" },
+    { q: "<code>for a in session.scalars(select(Article)): print(a.author.name)</code>. What is wrong, and how many queries does it run for 100 articles?", tag: "num-tag",
+      a: "<p>The <b>N+1 problem</b>: one query for the articles, then a lazy load for each article's author. The textbook answer is 101.</p><p>The real count is <b>1 + the number of distinct authors</b>: the identity map already holds an author once loaded, so repeat authors cost nothing. 100 articles by 10 authors measured <b>11</b> queries. Still wrong, and it grows with the data.</p>" },
+    { q: "<code>joinedload</code> or <code>selectinload</code>: which for <code>article.author</code>, and which for <code>author.articles</code>?",
+      a: "<p><b><code>joinedload</code> for many-to-one</b> (<code>article.author</code>): one JOIN adds one author per row. <b><code>selectinload</code> for collections</b> (<code>author.articles</code>): a second query with <code>WHERE author_id IN (...)</code>.</p><p>A JOIN on a collection repeats every author row once per article, and the row count multiplies with each extra collection.</p>" },
+    { q: "What is SQLAlchemy's identity map? Name one helpful and one surprising consequence.",
+      a: "<p>Within a Session, each database row maps to <b>exactly one Python object</b>, keyed by primary key.</p><p>Helpful: repeat lookups need no SQL, and two references to the same row are the same object. Surprising: a query returns the <b>already-loaded object, not fresh data</b>, so changes made elsewhere aren't seen until the object is expired or refreshed.</p>" },
+    { q: "You get <code>DetachedInstanceError</code> in production. What happened, and what are three fixes?", tag: "trap",
+      a: "<p>An object was used after its <b>Session closed</b>, and reading an unloaded attribute tried to lazy-load it with no session to do so. It typically happens in a template or serializer after the request's session has ended.</p><p>Fixes: <b>eager-load</b> what you'll need (<code>selectinload</code>); set <code>expire_on_commit=False</code> so committed objects keep their values; or keep the session open for the whole unit of work that uses the objects.</p>" },
+    { q: "What does Alembic's autogenerate get wrong?", tag: "trap",
+      a: "<p>It compares your models with the database, so it sees what changed but not <b>what you meant</b>. A <b>rename</b> appears as a drop plus an add, which deletes the column's data if run as generated. Some changes, such as server defaults and certain constraint or enum changes, aren't detected by default.</p><p>Treat every generated migration as a draft: read it, correct it, and test it against a copy of real data.</p>" },
+    { q: "Rename a column with zero downtime. Walk through it.", senior: true,
+      a: "<p><b>Expand and contract</b>, across several deploys. <b>1.</b> Add the new column. <b>2.</b> Deploy code that writes to both. <b>3.</b> Backfill old rows in batches. <b>4.</b> Switch reads to the new column. <b>5.</b> Stop writing the old one. <b>6.</b> Drop it.</p><p>After every step the running code and the schema stay compatible, so old and new versions can serve traffic side by side during a rolling deploy.</p>" },
+    { q: "Why shouldn't migrations run automatically when the application starts?", senior: true, tag: "trap",
+      a: "<p>With several instances, <b>every one races to migrate</b> at boot. A long migration makes health checks fail, which triggers restarts halfway through. And a failed migration takes the app down instead of just blocking a release.</p><p>Run them <b>once, as a separate step</b> in the pipeline, before the new code rolls out. That only works if every migration is compatible with the old code that is still running.</p>" },
+  ]},
+  { title: "API design", note: "REST design is named in 26 of 34 postings. The newer ones ask about resilience, not only URLs.", qs: [
+    { q: "Design URLs for articles and their comments. Why are <code>/getArticle</code> and <code>/articles/delete/5</code> wrong?",
+      a: "<p>Resources are <b>nouns</b> and the HTTP method is the verb: <code>GET /articles</code>, <code>POST /articles</code>, <code>GET /articles/5</code>, <code>PATCH /articles/5</code>, <code>DELETE /articles/5</code>, <code>GET /articles/5/comments</code>.</p><p>Verbs in paths duplicate the method, break the caching and idempotency rules clients rely on, and make the API harder to guess.</p>" },
+    { q: "401 versus 403, and when do you return 404 instead?", tag: "trap",
+      a: "<p><b>401</b>: not authenticated, meaning missing or invalid credentials. <b>403</b>: authenticated, but not allowed.</p><p>Return <b>404</b> when admitting the resource <i>exists</i> would itself leak information. Another tenant's invoice should look missing, not forbidden.</p>" },
+    { q: "Match the status code to its meaning: 201, 204, 409, 422, 429, 503.",
+      a: "<p><b>201</b> Created, with a <code>Location</code> header. <b>204</b> No Content: success with an empty body. <b>409</b> Conflict with the current state, such as a duplicate or a version mismatch. <b>422</b> well-formed but invalid, which is what FastAPI returns for validation errors. <b>429</b> rate limited; send <code>Retry-After</code>. <b>503</b> temporarily unavailable.</p>" },
+    { q: "PUT versus PATCH, and which methods are idempotent?",
+      a: "<p><b>PUT</b> replaces the whole resource; <b>PATCH</b> applies a partial change. Idempotent means repeating a request leaves the same state: <b>GET, PUT and DELETE</b> are, <b>POST</b> is not, and PATCH isn't guaranteed to be.</p><p>For PATCH, decide how a missing field differs from an explicit <code>null</code>. Pydantic's <code>model_dump(exclude_unset=True)</code> is the usual tool.</p>" },
+    { q: "A client POSTs an order, the request times out, and the client retries. How do you make sure only one order exists?", tag: "apply",
+      a: "<p>An <b>idempotency key</b>. The client sends a unique <code>Idempotency-Key</code> header. The server stores the key and the result in the same transaction as the order, and a repeated request gets the stored result instead of a new order.</p><p>A unique constraint on the key keeps it safe even when retries arrive concurrently.</p>" },
+    { q: "Offset or cursor pagination?",
+      a: "<p><b>Offset</b> (<code>?page=40</code>) is simple, but the database still walks every skipped row, and new inserts shift the pages so items repeat or vanish. <b>Cursor</b> (<code>?after=&lt;last id&gt;</code>) seeks with an index: constant speed at any depth and stable under writes, but no jumping straight to page 40.</p><p>It is hard to change later, because clients are built against it.</p>" },
+    { q: "How do you evolve an API without breaking existing clients?", senior: true,
+      a: "<p>Prefer <b>additive</b> changes: new optional fields and new endpoints. Never rename, remove or change the meaning of a field in place. When a break is unavoidable, version it (<code>/v2/</code> or a header), run both, announce a deprecation date, and measure who still calls the old version.</p><p><b>Contract tests</b> against the OpenAPI schema catch accidental breaks in CI.</p>" },
+    { q: "A third-party API your service depends on is slow and sometimes fails. What do you build in?", senior: true,
+      a: "<p><b>Timeouts</b> on every call, never the library default of none. <b>Retries with exponential backoff and jitter</b>, only for idempotent operations. A <b>circuit breaker</b> that stops calling a failing dependency so you fail fast. A <b>fallback</b> or cached result where one makes sense.</p><p>And a queue for work that doesn't need to be synchronous, so their outage becomes your backlog instead of your outage.</p>" },
+    { q: "REST, GraphQL, WebSockets, server-sent events: when do you reach for each?", senior: true,
+      a: "<p><b>REST</b> by default: cacheable, simple, universally understood. <b>GraphQL</b> when many clients need different shapes of deeply related data, at the cost of controlling query cost and N+1 in resolvers (DataLoader). <b>WebSockets</b> for two-way real-time. <b>Server-sent events</b> for one-way streams from server to browser over plain HTTP, such as progress updates and streamed LLM output.</p>" },
+  ]},
+  { title: "Security and auth", note: "Rarely a whole round, but a wrong answer here ends interviews. Expect any of these cold.", qs: [
+    { q: "How do you store passwords?",
+      a: "<p>Hash them with a <b>slow, salted, purpose-built</b> algorithm, <b>Argon2id</b> or <b>bcrypt</b>, and check them with the library's verify function.</p><p>Never store them plain or encrypted (encryption is reversible), and never use a fast hash like SHA-256: it is built for speed, which makes it built for brute force. The per-password salt defeats precomputed tables.</p>" },
+    { q: "Server-side sessions or JWTs for a web app's logins? Give the trade-off.", tag: "trap",
+      a: "<p>A <b>server-side session</b> keeps the state on the server and puts an opaque ID in a cookie: <b>easy to revoke</b>, at the cost of one lookup per request. A <b>JWT</b> is self-contained and signed: no lookup, and other services can verify it independently, but it <b>can't be revoked before it expires</b> without a denylist, which brings the lookup back.</p><p>For a browser app on one backend, sessions are usually the better default.</p>" },
+    { q: "What do <code>HttpOnly</code>, <code>Secure</code> and <code>SameSite</code> on a cookie each protect against?",
+      a: "<p><b>HttpOnly</b>: JavaScript can't read the cookie, which limits what an XSS attack can steal. <b>Secure</b>: the cookie is sent over HTTPS only. <b>SameSite</b> (<code>Lax</code> or <code>Strict</code>): the cookie isn't sent on cross-site requests, the main modern defence against CSRF.</p>" },
+    { q: "What is CSRF, and why is an API that takes a bearer token in the <code>Authorization</code> header not vulnerable to it?",
+      a: "<p>Cross-site request forgery: another site makes the victim's browser send a request to yours, and the browser <b>attaches your cookies automatically</b>, so the request runs as the victim.</p><p>A bearer token in a header isn't attached automatically, and the attacking page can't read it, so there is nothing to forge. Apps that authenticate with cookies need SameSite cookies, a CSRF token, or both.</p>" },
+    { q: "The browser blocks your React app's call to your API with a CORS error. What is happening, and where do you fix it?", tag: "trap",
+      a: "<p>The browser enforces the <b>same-origin policy</b>. Your API didn't send <code>Access-Control-Allow-Origin</code> for the frontend's origin, or, for non-simple requests, didn't answer the <code>OPTIONS</code> preflight.</p><p>Fix it on the <b>server</b> and allow exactly the frontend's origin, never <code>*</code> together with credentials. CORS protects users' browsers; it isn't access control for your API, and curl ignores it completely.</p>" },
+    { q: "SQL injection and XSS: the cause of each, and the fix.",
+      a: "<p>Both come from treating <b>data as code</b>. SQL injection: user input concatenated into SQL. Fix it with <b>parameterised queries</b>, which every ORM uses unless you bypass it. XSS: user input inserted into HTML unescaped. Fix it with <b>auto-escaping templates</b> and frameworks like React that escape by default, and be very careful with <code>dangerouslySetInnerHTML</code> and <code>|safe</code>.</p>" },
+    { q: "The OAuth 2.0 authorization code flow: the steps, and what PKCE adds.", senior: true,
+      a: "<p>The app redirects the user to the <b>authorization server</b>. The user logs in and consents, and is redirected back with a short-lived <b>code</b>. The app's backend exchanges the code for tokens.</p><p>With <b>PKCE</b> the app sends a hash of a random secret at the start and the secret itself during the exchange, so an intercepted code is useless. It is required for public clients such as SPAs and mobile apps, and OAuth 2.1 recommends it for all clients.</p>" },
+    { q: "Where do secrets live in a containerised deployment, and why never in the image?", senior: true, tag: "trap",
+      a: "<p>In the platform's <b>secret manager</b> (AWS Secrets Manager, GCP Secret Manager, Kubernetes Secrets backed by one), injected at runtime as environment variables or mounted files, and rotated.</p><p>Never in the image: every layer is kept, so a secret added in one layer and deleted in a later one is still there for anyone who pulls the image. Use BuildKit secret mounts for secrets needed at build time.</p>" },
+    { q: "Authentication versus authorization. How would you implement <i>editors can edit articles in their own organisation</i>?", senior: true,
+      a: "<p><b>Authentication</b> is who you are; <b>authorization</b> is what you may do.</p><p>That rule combines a <b>role</b> (editor) with <b>ownership</b> (same organisation): RBAC plus a resource check. Enforce it in one place, a policy function or the service layer, not scattered across handlers, and scope every query by organisation so one missed check can't leak another tenant's rows.</p>" },
+  ]},
+  { title: "Front end", note: "React is in 28 of 34 postings and TypeScript in 22. These are the questions a backend-leaning candidate is most likely to miss.", qs: [
+    { q: "What does this log? <code>setTimeout(() =&gt; log('A'), 0); Promise.resolve().then(() =&gt; log('B')); log('C')</code>", tag: "trap",
+      a: "<p><b>C, B, A.</b> Synchronous code runs first. Then the <b>microtask</b> queue, which holds promise callbacks, drains completely before the next <b>macrotask</b>, the timer, even with a zero delay.</p>" },
+    { q: "<code>var</code>, <code>let</code> and <code>const</code>: what's the difference? And what is a closure?",
+      a: "<p><code>var</code> is function-scoped and hoisted. <code>let</code> and <code>const</code> are block-scoped, and a <code>const</code> can't be reassigned, although the object it holds can still change.</p><p>A <b>closure</b> is a function that keeps access to the variables of the scope it was created in, even after that scope has returned. Callbacks, hooks and private state all rely on it.</p>" },
+    { q: "What is <code>this</code> in JavaScript, and how do arrow functions change it?",
+      a: "<p><code>this</code> is set by <b>how a function is called</b>: the object before the dot, <code>undefined</code> for a plain call in strict mode, or whatever <code>bind</code> or <code>call</code> set. Arrow functions have no <code>this</code> of their own; they take it from the <b>surrounding scope</b>, which is why they are used for callbacks.</p>" },
+    { q: "Props versus state in React, and what triggers a re-render?",
+      a: "<p><b>Props</b> are inputs from the parent and are read-only. <b>State</b> is data a component owns and changes through its setter.</p><p>A component re-renders when <b>its state changes, its parent re-renders</b>, or a context it reads changes. Mutating state in place, such as <code>items.push(x)</code>, doesn't trigger a render; set a new array or object instead.</p>" },
+    { q: "A list renders wrongly after items are reordered or deleted. What is the likeliest cause?", tag: "trap",
+      a: "<p><b>Using the array index as the <code>key</code>.</b> React matches elements between renders by key. After a reorder, index keys point at different items, so component state and input values attach to the wrong rows.</p><p>Use a stable ID from the data.</p>" },
+    { q: "What is <code>useEffect</code> for, what does its dependency array do, and why return a function from it?",
+      a: "<p>It runs side effects <b>after rendering</b>: fetching, subscriptions, timers. The dependency array controls <b>when it runs again</b>: an empty array means once after mount, and listed values mean whenever they change.</p><p>The returned function is <b>cleanup</b>, run before the next effect and on unmount: unsubscribe, clear timers, abort fetches. Missing dependencies leave the effect using stale values.</p>" },
+    { q: "<code>const user: User = await res.json()</code>. What is the risk, and how do you remove it?", tag: "trap",
+      a: "<p>TypeScript types are <b>erased at build time</b>, so the annotation checks nothing at runtime. If the API returns a different shape, the code carries on with a wrong <code>User</code> and fails somewhere unrelated.</p><p>Validate at the boundary with a runtime schema such as <b>zod</b>, or generate the types from the API's OpenAPI schema. Ideally both.</p>" },
+    { q: "Server state versus client state: why use different tools for each?",
+      a: "<p><b>Server state</b>, data the backend owns, needs caching, refetching, invalidation and loading and error states: that's a job for <b>TanStack Query</b> or SWR. <b>Client state</b>, UI state such as the selected tab or a form draft, needs none of that: <code>useState</code>, context, or Zustand or Redux when it is genuinely shared.</p><p>Putting server data into Redux means writing a cache by hand, badly.</p>" },
+    { q: "Flexbox or Grid?",
+      a: "<p><b>Flexbox</b> lays items out along <b>one axis</b>: a toolbar, a row of buttons, centring something. <b>Grid</b> lays them out in <b>two dimensions</b>: page layouts, card galleries with aligned rows and columns.</p><p>They combine well: Grid for the page, Flexbox inside components.</p>" },
+    { q: "CSR, SSR, SSG, and what do React Server Components change?", senior: true,
+      a: "<p><b>CSR</b>: the browser downloads JavaScript and renders, so the first paint is slow and SEO suffers. <b>SSR</b>: HTML is rendered per request, then hydrated. <b>SSG</b>: HTML is rendered at build time, the fastest option for content that rarely changes.</p><p><b>Server Components</b> in the Next.js App Router render on the server and send <b>no component JavaScript</b> to the browser; only components marked <code>&quot;use client&quot;</code> hydrate. Data fetching moves to the server, next to the database.</p>" },
+    { q: "A React page with a large, frequently updated list feels sluggish. What do you check?", senior: true,
+      a: "<p><b>Measure first</b> with the React DevTools profiler. Then stop re-rendering the whole list on every change (<code>React.memo</code> on rows, stable callbacks with <code>useCallback</code>, state moved down to where it's used), <b>virtualise</b> the list so only visible rows are mounted, debounce input, and split the code so the page loads less JavaScript.</p><p>Memoising everything by default has its own cost. Target what the profiler shows.</p>" },
+  ]},
+  { title: "Testing and quality", note: "Named outright by 12 postings and assumed by the rest.", qs: [
+    { q: "Unit, integration and end-to-end tests: what does each catch, and why the pyramid shape?",
+      a: "<p><b>Unit</b>: one function or class in isolation; fast, with precise failures. <b>Integration</b>: pieces working together with real dependencies such as the database and the framework. <b>End-to-end</b>: the whole system through the UI or API; realistic, but slow and brittle.</p><p>Many fast tests at the bottom and few slow ones at the top, because feedback speed decides whether people actually run them.</p>" },
+    { q: "pytest fixtures: what are they, and what does scope control?",
+      a: "<p>Functions that provide setup, such as a client, a database session or test data, and are injected into tests <b>by parameter name</b>. Code after <code>yield</code> is teardown.</p><p><b>Scope</b> (<code>function</code>, <code>module</code>, <code>session</code>) controls how often a fixture is created: an engine once per session, a transaction per test. <code>@pytest.mark.parametrize</code> runs one test over many inputs.</p>" },
+    { q: "You patch <code>requests.get</code>, but the real network call still happens. Why?", tag: "trap",
+      a: "<p>If the module under test did <code>from requests import get</code>, it holds <b>its own reference</b>. <b>Patch where the name is looked up</b>, not where it is defined: <code>patch(&quot;myapp.client.get&quot;)</code>.</p><p>And mock at the boundaries (HTTP, time, randomness), not your own internals, or the tests break on every refactor.</p>" },
+    { q: "How do you test code that uses the database without tests interfering with each other?",
+      a: "<p>Use a <b>real database</b> of the same engine, in Docker or through testcontainers; SQLite hides Postgres behaviour. Wrap each test in a <b>transaction that is rolled back</b> at teardown, so every test starts clean and runs fast.</p><p>Run the migrations once per session so the test schema is the real one.</p>" },
+    { q: "Your suite has flaky tests. What causes them, and what is your policy?", senior: true,
+      a: "<p>The usual causes: shared state and test-order dependence, real clocks and time zones, async work nobody awaited, randomness, network calls, and <code>sleep</code> used to wait for something.</p><p>Policy: a flaky test is a bug. Quarantine it so it stops blocking everyone, fix the cause (inject clocks, wait on conditions, isolate data), and never fix it by retrying until it passes.</p>" },
+    { q: "You inherit untested legacy code that needs changing. Where do you start?", senior: true,
+      a: "<p><b>Characterisation tests</b>: record what the code does <i>now</i>, bugs included, by capturing its outputs for representative inputs. Refactor in small steps under that safety net, and only then change behaviour.</p><p>Look for seams where dependencies can be substituted. Don't start with a rewrite.</p>" },
+  ]},
+  { title: "Delivery and operations", note: "CI/CD appears in 19 of 34 postings and Docker in 17. The senior questions are about safety, not syntax.", qs: [
+    { q: "Merge or rebase? And after a bad rebase you've lost a commit. How do you get it back?",
+      a: "<p><b>Rebase</b> replays your branch onto the latest main for a linear history. It is fine on your own branch and <b>never on a shared one</b>. <b>Merge</b> keeps the history as it happened.</p><p>To recover: <code>git reflog</code> lists every position HEAD has been at, and <code>git reset --hard &lt;sha&gt;</code> or a new branch from that SHA brings the commit back.</p>" },
+    { q: "Your Docker image rebuilds everything after a one-line code change. What is wrong with the Dockerfile?", tag: "trap",
+      a: "<p>The source is copied <b>before</b> the dependencies are installed, so any code change invalidates the cache for the install step.</p><p>Copy the dependency files first (<code>pyproject.toml</code> and the lockfile), install, <b>then</b> copy the source. Layers are reused from the top down until the first one that changed.</p>" },
+    { q: "Container versus virtual machine, and what does a multi-stage build buy you?",
+      a: "<p>A <b>VM</b> virtualises hardware and runs a whole guest operating system. A <b>container</b> is an isolated process sharing the host's kernel: lighter and faster to start, with weaker isolation.</p><p>A <b>multi-stage build</b> compiles in a full image with the build tools, then copies only the result into a slim runtime image. It is smaller, faster to pull, and has less attack surface.</p>" },
+    { q: "What are liveness and readiness probes, and what breaks if you mix them up?", tag: "trap",
+      a: "<p><b>Readiness</b>: can this instance take traffic right now? Failing removes it from the load balancer. <b>Liveness</b>: is it stuck? Failing <b>restarts</b> it.</p><p>If liveness checks the database, a database outage restarts every pod in a loop and slows the recovery. Liveness should check only the process; dependencies belong in readiness.</p>" },
+    { q: "Describe the CI/CD pipeline you would set up for a Python web service.", tag: "apply",
+      a: "<p>On every push: lint and type-check, unit tests, integration tests against a real database, a security scan, and <b>one image build</b>. On merge to main: push the image, run migrations as their own step, deploy to staging, run smoke tests, then promote <b>the same image</b> to production, with or without a manual gate.</p><p>Fail fast first, keep everything reproducible, and never build anything twice.</p>" },
+    { q: "What does twelve-factor's <i>config in the environment</i> mean, and why?",
+      a: "<p>Everything that differs between deploys, such as database URLs, credentials and feature flags, comes from <b>environment variables</b>, not from code or committed files. The same image then runs in dev, staging and production, and no secret sits in the repository. <code>pydantic-settings</code> reads it and validates it into typed settings.</p>" },
+    { q: "Kubernetes in two minutes: pods, deployments, services.",
+      a: "<p>A <b>pod</b> is the smallest unit: one or more containers scheduled together. A <b>deployment</b> keeps N replicas of a pod running and handles rolling updates. A <b>service</b> gives those pods a stable name and load-balances between them, since pod IPs change.</p><p>Set resource <b>requests and limits</b>, or one noisy pod can starve its neighbours.</p>" },
+    { q: "Rolling, blue-green and canary deployments: how do they differ, and when would you choose each?", senior: true,
+      a: "<p><b>Rolling</b>: replace instances a few at a time. It is the cheap default, but old and new versions run side by side. <b>Blue-green</b>: bring up the whole new environment, switch all traffic at once, and switch back instantly to roll back. It needs double capacity. <b>Canary</b>: send a small share of traffic to the new version, watch the error rates, then widen it.</p><p>Canary for risky changes on high-traffic systems. Every strategy needs backward-compatible migrations.</p>" },
+    { q: "Why infrastructure as code, and what is Terraform state?", senior: true,
+      a: "<p>Infrastructure defined in reviewed, versioned files is reproducible, auditable and diffable. Clicking through a console is none of those.</p><p><b>State</b> maps the resources in your configuration to the real resources in the cloud. Keep it remote with locking, because two people applying at once corrupt it. Always run <code>terraform plan</code> before <code>apply</code>, and watch for <b>drift</b>: manual changes the state doesn't know about.</p>" },
+  ]},
+  { title: "Architecture, scale and reliability", note: "Mostly senior territory. Interviewers want the trade-off, not the definition.", qs: [
+    { q: "Explain cache-aside, and the hardest part of it.",
+      a: "<p>Reading: check the cache; on a miss, read the database and store the result with a <b>TTL</b>. Writing: update the database, then <b>invalidate</b> the key.</p><p>The hard part is <b>invalidation</b>: stale data after writes, and a <b>stampede</b> when a hot key expires and a thousand requests hit the database at once. A lock or an early refresh prevents the stampede.</p>" },
+    { q: "Why move work into a background job, and what property must every task have?",
+      a: "<p>Anything slow or unreliable that the user needn't wait for, such as email, image processing, third-party calls and report generation, goes onto a queue (Celery with Redis or RabbitMQ). Requests stay fast and failures can retry.</p><p>Tasks must be <b>idempotent</b>. When a task is acknowledged only after it finishes, a worker crash means it is delivered again, so running it twice must be harmless.</p>" },
+    { q: "Logs, metrics and traces: what does each answer, and what is a correlation ID?",
+      a: "<p><b>Metrics</b> tell you something is wrong: rates, latencies, error counts, cheap to keep. <b>Logs</b> tell you what happened at one point: structured JSON, not free text. <b>Traces</b> show where one request's time went across services.</p><p>A <b>correlation ID</b> is generated at the edge and passed through every call and log line, so one request's story can be pulled out of millions of lines.</p>" },
+    { q: "Kafka or RabbitMQ?", senior: true,
+      a: "<p><b>RabbitMQ</b> is a message <b>broker</b>: flexible routing, acknowledgement per message, messages removed once consumed. It suits task queues. <b>Kafka</b> is a distributed <b>log</b>: messages are retained and <b>replayable</b>, consumer groups read from their own offsets, ordering holds within a partition, and throughput is very high. It suits event streams with several independent consumers.</p>" },
+    { q: "You must write to your database and publish an event, both or neither. How?", senior: true,
+      a: "<p>The <b>transactional outbox</b>. In the same database transaction as the business change, insert the event into an <code>outbox</code> table. A separate relay reads the outbox, publishes, and marks the rows as sent.</p><p>The transaction guarantees both or neither; the relay delivers at least once, so consumers must be idempotent. Publishing straight after the commit loses the event if the process dies between the two.</p>" },
+    { q: "When should a system <i>not</i> be split into microservices?", senior: true,
+      a: "<p>When the team is small, the domain boundaries aren't clear yet, or the services would share one database. That last case is a distributed monolith: every network failure mode and none of the independence.</p><p>Start with a <b>modular monolith</b> with clear internal boundaries. Extract a service when a boundary is stable and there is a concrete reason: independent scaling, independent deploys, or separate team ownership.</p>" },
+    { q: "Three ways to isolate tenants in a multi-tenant SaaS, and the trade-offs.", senior: true,
+      a: "<p><b>A shared schema with a <code>tenant_id</code> column</b>: the cheapest and easiest to run, but one missing filter leaks data, so add Postgres <b>row-level security</b> and scoped query helpers. <b>A schema per tenant</b>: stronger isolation, but every migration runs once per tenant. <b>A database per tenant</b>: the strongest isolation plus per-tenant backups and scaling, at the highest cost and operational load.</p><p>Most SaaS products start shared and move large or regulated tenants out later.</p>" },
+    { q: "Define SLI, SLO and error budget. What is the error budget <i>for</i>?", senior: true,
+      a: "<p><b>SLI</b>: a measured indicator, such as the share of requests served in under 300 ms. <b>SLO</b>: the target, such as 99.5% over 30 days. <b>Error budget</b>: the failure that target allows, here 0.5%.</p><p>It turns reliability into a decision rule. With budget left, ship features faster; with it spent, prioritise reliability work. The argument between moving fast and staying stable gets settled by a number.</p>" },
+    { q: "A page is slow. Walk me through finding out why, in order.", senior: true,
+      a: "<p><b>Reproduce and measure</b> before guessing. The browser's network tab tells you whether it's the backend or the frontend. Then the backend <b>trace</b> or timings show which part dominates: the database, an external call, or Python code.</p><p>For the database, <code>EXPLAIN ANALYZE</code> and a query count (N+1?). For Python, a profiler. Fix the biggest contributor, measure again, and add a metric or alert so it's caught next time.</p>" },
+    { q: "How would you rate-limit an API?", senior: true,
+      a: "<p>A <b>token bucket</b> per client, keyed by API key or user and falling back to IP. Tokens refill at a fixed rate and each request spends one, which allows bursts up to the bucket size. Keep the counters in <b>Redis</b> so every instance shares them, and enforce the limit in the gateway or middleware.</p><p>Return <b>429</b> with <code>Retry-After</code>, and set separate limits for expensive endpoints.</p>" },
+  ]},
+  { title: "AI in the product and in the workflow", note: "LLM features: 20 of 34 postings. AI coding tools as a requirement: 17. Agents and MCP are the fastest-rising items.", qs: [
+    { q: "What are tokens and a context window, and why does a model hallucinate?",
+      a: "<p>A <b>token</b> is a word-piece, the unit models read, write and bill by. The <b>context window</b> is the maximum number of tokens of input and output the model can attend to at once.</p><p>A model always produces the statistically likely next token, with no built-in fact check, so an invented API method comes out as fluently as a real one. What you put in the context is your main lever over accuracy.</p>" },
+    { q: "Explain RAG step by step. When is it the wrong tool?",
+      a: "<p><b>Retrieval-augmented generation</b>: split documents into chunks, embed them and store the vectors. At query time, embed the question, retrieve the nearest chunks, put them in the prompt, and have the model answer <b>from them</b>, ideally with citations.</p><p>It is the wrong tool when the answer needs <b>computation or an exact lookup</b> (use SQL or a tool call), when all the data fits in the context anyway, or when the goal is style or behaviour (a prompt change or fine-tuning).</p>" },
+    { q: "What is prompt injection, and why can't you filter it out completely?", tag: "trap",
+      a: "<p>Instructions hidden in content the model reads, such as a web page, an email or a tool result, which the model then follows as if they came from you. It can't be fully filtered because, to the model, <b>instructions and data are the same kind of text</b>.</p><p>So limit the damage: tools with least privilege, a person confirming consequential actions, and model output treated as untrusted input.</p>" },
+    { q: "What is MCP, and what are its three server primitives?",
+      a: "<p>The <b>Model Context Protocol</b>, an open standard for connecting LLM applications to tools and data. A <b>host</b> (Claude Code, an IDE) runs one <b>client</b> per <b>server</b>, and they exchange JSON-RPC over stdio for local servers or Streamable HTTP for remote ones.</p><p><b>Tools</b> are called by the model, <b>resources</b> are data the application attaches, and <b>prompts</b> are templates the user picks. The 2026-07-28 revision made the protocol stateless: no <code>initialize</code> handshake and no sessions.</p>" },
+    { q: "Describe your workflow with AI coding tools: what you delegate, what you review, and what you never delegate.", tag: "apply",
+      a: "<p><b>Delegate</b>: boilerplate, tests from a clear spec, refactors with a test suite behind them, first drafts, and exploring an unfamiliar codebase. <b>Review</b>: every diff, as you would a colleague's, for correctness, edge cases, security, and fit with the codebase's patterns. <b>Never delegate</b>: deciding what to build, security-sensitive logic without careful review, and understanding. If you can't explain a change, it doesn't merge.</p>",
+      why: "Specifics beat enthusiasm here: name the tool, a real task, and one time it was confidently wrong and how your process caught it." },
+    { q: "How do you know an LLM feature works, and keeps working?", senior: true,
+      a: "<p>An <b>evaluation set</b>: real inputs with expected outputs or grading criteria, scored automatically (exact checks where possible, an LLM judge with a rubric where not), and run on every change to the prompt, the model or the retrieval, like a regression suite.</p><p>In production: log inputs and outputs, collect user feedback, sample conversations for human review, and track cost and latency per request.</p>" },
+    { q: "An LLM feature is too slow and too expensive. What levers do you have?", senior: true,
+      a: "<p><b>Stream</b> the output so users see text immediately. <b>Route</b> easy requests to a smaller, cheaper model. <b>Cache</b> repeated prompts and use prompt caching for long shared prefixes. Trim the context by retrieving fewer, better chunks. Cap output length. Batch work that isn't interactive.</p><p>Measure cost and latency per request first; the right fix depends on where the tokens go.</p>" },
+    { q: "Workflow or agent? And what does a durable agent framework give you?", senior: true,
+      a: "<p>A <b>workflow</b> follows fixed code paths through model calls; an <b>agent</b> lets the model choose the next step in a loop. Most production systems should be workflows: predictable, testable and cheaper.</p><p>A durable framework such as LangGraph (or Temporal, without the LLM framing) adds <b>checkpoints</b> so a run resumes after a crash, <b>human-in-the-loop</b> pauses for approval, and retries: the same problems as background jobs. A LangGraph gotcha: a node resumed after <code>interrupt()</code> <b>runs again from its first line</b>, so any side effect before the pause happens twice.</p>" },
+  ]},
+  { title: "Beyond the code", note: "Senior interviews give this a whole round. There are no model answers here, only good structures.", qs: [
+    { q: "Tell me about a production incident you handled.", senior: true,
+      a: "<p>Structure it: <b>what broke and the impact</b>, how it was <b>detected</b>, how you <b>mitigated</b> first (roll back before hunting the root cause), how you found the <b>root cause</b>, and what you <b>changed</b> so it can't recur: a test, an alert, a runbook.</p><p>Keep it blameless and specific, with numbers: how long it lasted and how many users it affected.</p>" },
+    { q: "You disagree with a senior colleague's technical design. What do you do?", senior: true,
+      a: "<p>Raise it early, one to one or in the design review, with evidence rather than preference: a benchmark, a failure scenario, a cost. Propose an alternative and say what it gives up.</p><p>If the decision goes the other way, <b>disagree and commit</b>, and record the decision and its reasons in an ADR so it can be revisited on facts later.</p>" },
+    { q: "How do you estimate a feature you've never built before?", senior: true,
+      a: "<p>Break it down until the pieces are recognisable, and estimate those. Name the <b>unknowns</b> explicitly and time-box a <b>spike</b> on the biggest one. Give a <b>range</b>, not a single number, and say what would move it. Re-estimate once the unknowns are resolved.</p>" },
+    { q: "How do you help a junior developer grow?", senior: true,
+      a: "<p>Give them real ownership of something small but visible. <b>Pair</b> on the hard parts rather than taking them over. Use code review to <b>teach</b>: explain the why, and ask questions instead of dictating. Make it safe to ask for help, and check progress against their goals, not only their tasks.</p>" },
+  ]},
+];
+
+/* ---------- rendering ---------- */
+const STORE = "full-stack-python-drill-v1";
+const read = () => { try { return JSON.parse(localStorage.getItem(STORE)) || {}; } catch (e) { return {}; } };
+const saved = read();
+const marks = new Map(Object.entries(saved.marks || {}));
+let filter = ["all", "core", "senior"].includes(saved.filter) ? saved.filter : "all";
+const persist = () => {
+  try { localStorage.setItem(STORE, JSON.stringify({ marks: Object.fromEntries(marks), filter })); } catch (e) {}
+};
+// Marks are keyed by a hash of the question text, so reordering questions keeps them.
+function keyOf(s) { let h = 5381; for (const c of s) h = ((h << 5) + h + c.codePointAt(0)) | 0; return (h >>> 0).toString(36); }
+const plain = (html) => { const d = document.createElement("div"); d.innerHTML = html; return d.textContent.trim(); };
+
+const quiz = document.getElementById("quiz");
+const cards = [];
+const acts = [];
+let n = 0;
+const TAG_LABEL = { "num-tag": "numbers", trap: "trap", apply: "apply" };
+
+ACTS.forEach((act, ai) => {
+  const h = document.createElement("h2");
+  h.innerHTML = `${act.title} <em>Act ${ai + 1}</em>`;
+  const note = document.createElement("p");
+  note.className = "act-note";
+  note.textContent = act.note;
+  quiz.append(h, note);
+  const actCards = [];
+
+  act.qs.forEach(item => {
+    n += 1;
+    const id = n;
+    const level = item.senior ? "senior" : "core";
+    const key = keyOf(item.q);
+    const card = document.createElement("section");
+    card.className = "q" + (item.senior ? " senior" : "");
+    card.dataset.id = id;
+    const badges = (item.senior ? `<span class="tag senior">Senior</span>` : "")
+      + (item.tag ? `<span class="tag ${item.tag}">${TAG_LABEL[item.tag]}</span>` : "");
+    card.innerHTML = `
+      <div class="qhead">
+        <span class="num">${String(id).padStart(2, "0")}</span>
+        <p class="prompt">${item.q}${badges}</p>
+      </div>
+      <div class="a" hidden>
+        ${item.a}${item.why ? `<span class="why">${item.why}</span>` : ""}
+      </div>
+      <div class="actions">
+        <button class="reveal" type="button">Show answer</button>
+        <button class="mark yes" type="button" aria-pressed="false" hidden>Got it</button>
+        <button class="mark nope" type="button" aria-pressed="false" hidden>Missed</button>
+      </div>`;
+    quiz.appendChild(card);
+
+    const ans = card.querySelector(".a");
+    const reveal = card.querySelector(".reveal");
+    const yes = card.querySelector(".mark.yes");
+    const nope = card.querySelector(".mark.nope");
+    const entry = { id, key, level, el: card, text: plain(item.q), yes, nope };
+    cards.push(entry);
+    actCards.push(entry);
+
+    reveal.addEventListener("click", () => {
+      const open = !ans.hidden;
+      ans.hidden = open;
+      reveal.textContent = open ? "Show answer" : "Hide answer";
+      yes.hidden = nope.hidden = open;
+    });
+    const mark = (v) => {
+      if (marks.get(key) === v) marks.delete(key); else marks.set(key, v);
+      paint(entry);
+      persist();
+      score();
+    };
+    yes.addEventListener("click", () => mark("ok"));
+    nope.addEventListener("click", () => mark("no"));
+    paint(entry);
+  });
+  acts.push({ h, note, cards: actCards });
+});
+
+function paint(c) {
+  const cur = marks.get(c.key) || "";
+  c.el.dataset.state = cur;
+  c.yes.setAttribute("aria-pressed", String(cur === "ok"));
+  c.nope.setAttribute("aria-pressed", String(cur === "no"));
+}
+
+/* ---------- counts, filter, score ---------- */
+const COUNTS = { all: cards.length, core: cards.filter(c => c.level === "core").length, senior: cards.filter(c => c.level === "senior").length };
+document.querySelectorAll("[data-count]").forEach(el => { el.textContent = COUNTS[el.dataset.count]; });
+
+const segButtons = document.querySelectorAll(".seg button");
+function applyFilter() {
+  cards.forEach(c => { c.el.hidden = !(filter === "all" || filter === c.level); });
+  acts.forEach(a => { const empty = a.cards.every(c => c.el.hidden); a.h.hidden = empty; a.note.hidden = empty; });
+  segButtons.forEach(b => b.setAttribute("aria-pressed", String(b.dataset.filter === filter)));
+  score();
+}
+segButtons.forEach(b => b.addEventListener("click", () => { filter = b.dataset.filter; persist(); applyFilter(); }));
+
+const elDone = document.getElementById("done");
+const elRight = document.getElementById("right");
+const elWrong = document.getElementById("wrong");
+const fill = document.getElementById("fill");
+const verdict = document.getElementById("verdict");
+const levels = document.getElementById("levels");
+const missedList = document.getElementById("missed");
+
+function tallyOf(list) {
+  let ok = 0, no = 0;
+  list.forEach(c => { const v = marks.get(c.key); if (v === "ok") ok++; else if (v === "no") no++; });
+  return { ok, no, done: ok + no, total: list.length };
+}
+
+function score() {
+  const visible = cards.filter(c => !c.el.hidden);
+  const t = tallyOf(visible);
+  elDone.textContent = t.done;
+  elRight.textContent = t.ok;
+  elWrong.textContent = t.no;
+  fill.style.width = `${t.total ? (t.done / t.total) * 100 : 0}%`;
+
+  const scope = filter === "all" ? "" : ` ${filter}`;
+  if (!t.done) {
+    verdict.textContent = filter === "all" ? "Nothing answered yet." : `No${scope} questions answered yet.`;
+  } else {
+    const pct = Math.round((t.ok / t.done) * 100);
+    verdict.innerHTML = t.done === t.total
+      ? `All ${t.total}${scope} questions answered: <b>${t.ok} right, ${t.no} missed (${pct}%)</b>.`
+      : `<b>${t.done} of ${t.total}</b>${scope} questions answered: ${t.ok} right, ${t.no} missed (${pct}%).`;
+  }
+
+  const core = tallyOf(cards.filter(c => c.level === "core"));
+  const senior = tallyOf(cards.filter(c => c.level === "senior"));
+  levels.hidden = !(core.done + senior.done);
+  levels.innerHTML = `Core: <b>${core.ok} of ${core.done}</b> answered right (${core.total} in total) &middot; Senior: <b>${senior.ok} of ${senior.done}</b> answered right (${senior.total} in total).`;
+
+  missedList.innerHTML = "";
+  const misses = visible.filter(c => marks.get(c.key) === "no");
+  missedList.hidden = !misses.length;
+  misses.forEach(c => {
+    const li = document.createElement("li");
+    li.textContent = `${String(c.id).padStart(2, "0")}${c.level === "senior" ? " (senior)" : ""}: ${c.text}`;
+    li.addEventListener("click", () => c.el.scrollIntoView({ behavior: "smooth", block: "center" }));
+    missedList.appendChild(li);
+  });
+}
+
+/* Reset takes two clicks, since marks persist and one stray click would lose them. */
+const resetBtn = document.getElementById("reset");
+let armed = null;
+function disarm() { clearTimeout(armed); armed = null; resetBtn.textContent = "Reset"; resetBtn.classList.remove("armed"); }
+resetBtn.addEventListener("click", () => {
+  if (!armed) {
+    resetBtn.textContent = "Click again to clear all marks";
+    resetBtn.classList.add("armed");
+    armed = setTimeout(disarm, 4000);
+    return;
+  }
+  disarm();
+  marks.clear();
+  cards.forEach(c => {
+    paint(c);
+    c.el.querySelector(".a").hidden = true;
+    c.el.querySelector(".reveal").textContent = "Show answer";
+    c.yes.hidden = c.nope.hidden = true;
+  });
+  persist();
+  score();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+applyFilter();
+</script>
+
+
+</body>
+</html>
