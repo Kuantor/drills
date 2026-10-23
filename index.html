@@ -10,7 +10,14 @@
   <meta property="og:image" content="https://kuantor.github.io/drills/background.jpg" />
   <meta property="og:type" content="website" />
   <link rel="stylesheet" href="https://kuantor.github.io/style.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=Public+Sans:wght@400;500;600&display=swap">
   <style>
+    /* Readable type for the menu: the same two fonts the drill pages use. The site's
+       Tempus Sans and the glow stay for the homepage; here they are overridden. */
+    body, .button, footer { font-family: "Public Sans", Arial, sans-serif; }
+    h1, h2, h3 { font-family: "Source Serif 4", Georgia, serif; }
+    .button { font-size: 1em; font-weight: 600; text-shadow: none; letter-spacing: 0.01em; }
+    h2, h3, h4, .intro { text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8); }
     body {
       background: #0e1a17 url("background.jpg") center / cover fixed no-repeat;
       min-height: 100vh;
@@ -19,9 +26,10 @@
     }
     main { flex: 1; }
     footer { background: none; }
-    h3 { margin: 28px 0 8px; font-weight: 400; }
-    h4 { margin: 18px 0 4px; font-weight: 400; opacity: 0.85; }
-    .intro { max-width: 640px; margin: 0 auto 8px; padding: 0 16px; line-height: 1.5; }
+    h3 { margin: 28px 0 8px; font-weight: 600; }
+    h4 { margin: 18px 0 4px; font-weight: 500; opacity: 0.9; text-transform: uppercase;
+         letter-spacing: 0.08em; font-size: 0.8em; }
+    .intro { max-width: 640px; margin: 0 auto 8px; padding: 0 16px; line-height: 1.55; }
     .grid .button { width: 200px; margin: 8px 0; }
     .grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 0 16px; }
     .back { margin-top: 24px; }
