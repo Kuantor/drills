@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta property="og:title" content="Full Stack Drill — Ship It Live!" />
+<meta property="og:description" content="Interactive self-test: Full Stack Development with Python." />
+<meta property="og:image" content="https://kuantor.github.io/drills/background.jpg" />
+<meta property="og:url" content="https://kuantor.github.io/drills/python-full-stack.html" />
+<meta property="og:type" content="website" />
+<style>
+  :root{
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  body{margin:0}
+  img{max-width:100%}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+<title>Full Stack Drill</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a single reading column of question cards, grouped into seven acts
+   that follow the talk. Palette lifted from the Ship It Live deck builder so
+   this reads as part of the series: roasted brown ground, brass accents. */
+:root{
+  --ground:#1A150E;
+  --surface:#262014;
+  --card:#312918;
+  --edge:#4A3D22;
+  --cream:#F1EADA;
+  --tan:#AC9F84;
+  --gold:#C8A24B;
+  --gold-lt:#E8CD86;
+  --teal:#6FB0A6;
+  --terra:#D0845A;
+  --sage:#8BA678;
+  --serif:"Source Serif 4",Cambria,Georgia,serif;
+  --sans:"Public Sans",Calibri,-apple-system,system-ui,sans-serif;
+  --mono:"IBM Plex Mono",Consolas,ui-monospace,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  background:var(--ground);color:var(--cream);font-family:var(--sans);
+  font-size:16px;line-height:1.55;margin:0;
+}
+.wrap{max-width:780px;margin:0 auto;padding-inline:16px;padding-block:40px 64px}
+
+header h1{
+  font-family:var(--serif);font-weight:700;color:var(--gold);
+  font-size:clamp(2rem,7vw,3rem);line-height:1.05;margin:0 0 .3em;text-wrap:balance;
+}
+.kicker{
+  font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--tan);margin:0 0 1.6rem;
+}
+.lede{color:var(--tan);font-size:1.05rem;margin:0 0 2rem;max-width:62ch}
+.lede strong{color:var(--cream);font-weight:600}
+
+.board{
+  position:sticky;top:env(safe-area-inset-top,0px);z-index:10;
+  background:var(--surface);border:1px solid var(--edge);border-radius:10px;
+  padding:14px 16px;margin-bottom:2.4rem;
+  display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;
+}
+.tally{display:flex;gap:18px;flex:1 1 auto;min-width:0}
+.stat{display:flex;flex-direction:column;line-height:1.15}
+.stat b{
+  font-family:var(--mono);font-size:1.25rem;font-weight:500;
+  font-variant-numeric:tabular-nums;color:var(--gold-lt);
+}
+.stat span{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--tan)}
+.stat.ok b{color:var(--sage)}
+.stat.no b{color:var(--terra)}
+.bar{flex:1 1 100%;height:4px;background:var(--edge);border-radius:2px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--gold);transition:width .3s ease}
+button{font-family:var(--sans);font-size:.85rem;cursor:pointer;border-radius:7px;transition:background .15s,border-color .15s,color .15s}
+button:focus-visible{outline:2px solid var(--gold-lt);outline-offset:2px}
+.ghost{background:transparent;border:1px solid var(--edge);color:var(--tan);padding:7px 13px}
+.ghost:hover{border-color:var(--gold);color:var(--gold-lt)}
+
+h2{
+  font-family:var(--serif);font-size:1.45rem;font-weight:600;color:var(--gold);
+  margin:2.8rem 0 .2rem;display:flex;align-items:baseline;gap:.6rem;text-wrap:balance;
+}
+h2 em{
+  font-family:var(--mono);font-style:normal;font-size:.7rem;color:var(--tan);
+  letter-spacing:.1em;flex:0 0 auto;
+}
+.act-note{color:var(--tan);font-size:.9rem;margin:0 0 1.4rem}
+
+.q{background:var(--card);border:1px solid var(--edge);border-radius:10px;padding:18px 20px;margin-bottom:14px}
+.q[data-state="ok"]{border-color:color-mix(in srgb,var(--sage) 55%,var(--edge))}
+.q[data-state="no"]{border-color:color-mix(in srgb,var(--terra) 55%,var(--edge))}
+.qhead{display:flex;gap:12px;align-items:flex-start}
+.num{
+  font-family:var(--mono);font-size:.78rem;color:var(--gold);
+  flex:0 0 auto;padding-top:.2em;font-variant-numeric:tabular-nums;
+}
+.prompt{margin:0;flex:1 1 auto;min-width:0;font-size:1rem}
+.prompt code,.a code{
+  font-family:var(--mono);font-size:.86em;background:var(--ground);
+  border:1px solid var(--edge);border-radius:4px;padding:.08em .35em;color:var(--gold-lt);
+}
+.tag{
+  display:inline-block;font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;
+  text-transform:uppercase;padding:.2em .5em;border-radius:4px;margin-left:.5rem;
+  vertical-align:.12em;border:1px solid;
+}
+.tag.numbers{color:var(--gold-lt);border-color:color-mix(in srgb,var(--gold) 45%,transparent)}
+.tag.trap{color:var(--terra);border-color:color-mix(in srgb,var(--terra) 45%,transparent)}
+.tag.apply{color:var(--teal);border-color:color-mix(in srgb,var(--teal) 45%,transparent)}
+
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;padding-left:calc(.78rem + 12px)}
+.reveal{background:transparent;border:1px solid var(--gold);color:var(--gold-lt);padding:7px 15px}
+.reveal:hover{background:color-mix(in srgb,var(--gold) 14%,transparent)}
+.mark{border:1px solid var(--edge);background:transparent;padding:7px 15px}
+.mark.yes{color:var(--sage)}
+.mark.yes:hover,.mark.yes[aria-pressed="true"]{background:color-mix(in srgb,var(--sage) 18%,transparent);border-color:var(--sage)}
+.mark.nope{color:var(--terra)}
+.mark.nope:hover,.mark.nope[aria-pressed="true"]{background:color-mix(in srgb,var(--terra) 18%,transparent);border-color:var(--terra)}
+
+.a{
+  margin:14px 0 0;padding:14px 16px;background:var(--ground);
+  border-left:3px solid var(--gold);border-radius:0 7px 7px 0;font-size:.96rem;
+}
+.a p{margin:0 0 .7em}
+.a p:last-child{margin-bottom:0}
+.a b{color:var(--gold-lt);font-weight:600}
+.a .why{color:var(--tan);font-size:.9rem;display:block;margin-top:.7em;padding-top:.7em;border-top:1px solid var(--edge)}
+
+details.ref{margin-top:3rem;border:1px solid var(--edge);border-radius:10px;background:var(--surface)}
+details.ref summary{
+  cursor:pointer;padding:14px 18px;font-family:var(--mono);font-size:.78rem;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--gold);
+}
+details.ref summary:focus-visible{outline:2px solid var(--gold-lt);outline-offset:-2px}
+.tablewrap{overflow-x:auto;padding:0 18px 18px}
+table{border-collapse:collapse;width:100%;min-width:460px;font-size:.92rem}
+th,td{text-align:right;padding:8px 10px;border-bottom:1px solid var(--edge)}
+th:first-child,td:first-child{text-align:left}
+thead th{color:var(--tan);font-weight:500;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase}
+tbody td{font-family:var(--mono);font-variant-numeric:tabular-nums}
+tbody td:first-child{font-family:var(--sans)}
+.win{color:var(--sage)}
+.lose{color:var(--terra)}
+.refnote{padding:0 18px 18px;margin:0;color:var(--tan);font-size:.85rem}
+
+footer{margin-top:3rem;padding-top:1.6rem;border-top:1px solid var(--edge);color:var(--tan);font-size:.88rem}
+footer b{color:var(--gold-lt)}
+#missed{margin:.8rem 0 0;padding-left:1.1rem}
+#missed li{margin-bottom:.3rem}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+<header>
+  <p class="kicker">Ship It Live! &middot; self-test</p>
+  <h1>Full Stack Drill</h1>
+  <p class="lede">Thirty-eight questions on <strong>Full Stack Development with Python</strong> &mdash; slides 1&ndash;13 and the close; the GlobalLogic block (14&ndash;18) was skipped in the recording. Answer out loud before revealing, then mark yourself honestly. The hinge is <strong>competent across the stack, not an expert in fifteen tools</strong> &mdash; and every result stated as a number.</p>
+</header>
+
+<div class="board">
+  <div class="tally">
+    <div class="stat"><b id="done">0</b><span>answered</span></div>
+    <div class="stat ok"><b id="right">0</b><span>got it</span></div>
+    <div class="stat no"><b id="wrong">0</b><span>missed</span></div>
+  </div>
+  <button class="ghost" id="reset">Reset</button>
+  <div class="bar"><i id="fill"></i></div>
+</div>
+
+<main id="quiz"></main>
+
+<details class="ref">
+  <summary>Reference &mdash; every number in the talk</summary>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Claim</th><th>Figure</th></tr></thead>
+    <tbody>
+      <tr><td>React's share, per the deck (no source named)</td><td class="lose">~45% of projects</td></tr>
+      <tr><td>AI-tool productivity, per the deck (an estimate)</td><td class="lose">2&ndash;3&times;</td></tr>
+      <tr><td>METR, July 2025: experienced developers with AI tools</td><td>19% slower</td></tr>
+      <tr><td>Solar Blaze: energy-estimation accuracy</td><td>99.5%</td></tr>
+      <tr><td>Find My Profession: daily visitors</td><td class="win">150 &rarr; 3,000 (20&times;)</td></tr>
+      <tr><td>Serverless shift: infrastructure cost, per year</td><td>&minus;50%+ (projected)</td></tr>
+      <tr><td>Engineers hired</td><td>5+</td></tr>
+      <tr><td>AdTech: mobile events</td><td>millions a day</td></tr>
+      <tr><td>Roadmap: duration / pace / phases</td><td>6&ndash;9 months / 2&ndash;4 h a day / 6</td></tr>
+      <tr><td>Deployed projects that beat a certificate</td><td>3&ndash;5</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>Slides 14&ndash;18 &mdash; the GlobalLogic Digital Health block (MUI, Webpack, DynamoDB, Terraform, observability, HL7/FHIR) &mdash; were skipped in the recording and are not drilled here.</p>
+</details>
+
+<footer>
+  <p id="verdict">Nothing answered yet.</p>
+  <ul id="missed" hidden></ul>
+</footer>
+</div>
+
+<script>
+const ACTS = [
+  { title: "The role, and the language", note: "Slides 1–3. What full stack means, and why Python.", qs: [
+    { q: "Define a full stack developer — and say what it does not mean.",
+      a: "<p>One engineer across the whole lifecycle — <b>design, development, deployment, maintenance</b> — working on both sides of a web application.</p><p><b>Not an expert in everything:</b> competent across the stack, able to ship complete features and make sound architectural decisions.</p>" },
+    { q: "Name the four layers — the four floors of the building — with a technology on each.",
+      a: "<p><b>Presentation</b> — HTML, CSS, JavaScript, React. <b>Application</b> — Python, Django, FastAPI. <b>Data</b> — PostgreSQL, MongoDB, Redis. <b>Infrastructure</b> — AWS, Docker, CI/CD.</p><p>The application floor is where Python works.</p>" },
+    { q: "The engineers' saying about breadth?",
+      a: "<p>“<b>Know enough to be dangerous, recognise your limits, and learn quickly.</b>”</p>" },
+    { q: "Four reasons for Python on the back end?",
+      a: "<p><b>One language, many domains</b> — web, automation, data, ML. <b>Readable and fast to write</b> — faster reviews, easier onboarding. <b>A mature web ecosystem</b> — Django and FastAPI. <b>The language of AI</b> — PyTorch, LangChain.</p>" },
+    { q: "Which of the four “matters more every year”, and why is it a career strategy?",
+      a: "<p><b>AI.</b> As AI features become a standard part of web applications, the Python developer is standing exactly where the industry is heading.</p>" },
+  ]},
+  { title: "Front end and back end", note: "Slides 4–5. The browser trio, and Django versus FastAPI.", qs: [
+    { q: "Why does a Python developer still need JavaScript? Name the trio and the framework.",
+      a: "<p>Because <b>the browser speaks JavaScript</b>. HTML gives structure, CSS appearance (usually with Tailwind), JavaScript behaviour. On top: <b>React</b>, usually with Next.js.</p>" },
+    { q: "The deck says React is in “~45% of projects worldwide”. How firm is that?", tag: "trap",
+      a: "<p><b>A rough figure, with no source named.</b> Surveys count developers who use a framework, not projects. Say “React is the market default” and you are on safe ground; quote 45% and expect “according to whom?”</p>" },
+    { q: "The Python-friendly shortcut for the front end — and its limit?",
+      a: "<p><b>Django templates + HTMX</b> cover many interfaces without a heavy JavaScript framework. <b>React remains the standard for rich interfaces.</b></p><p>The talk's approach: know both.</p>" },
+    { q: "Django in one phrase: what is built in, its philosophy, and what it is best for?",
+      a: "<p><b>“Batteries included.”</b> ORM, admin panel, authentication, forms. <b>Convention over configuration</b> — it makes the standard decisions so you ship fast. Best for full products, content sites, internal tools.</p>" },
+    { q: "FastAPI's superpower?",
+      a: "<p><b>Type hints.</b> Declare the models once and you get <b>validation and interactive API docs</b> for free — Pydantic and OpenAPI. Async and fast; best for REST APIs, microservices and AI back ends.</p>" },
+    { q: "“Django or FastAPI?” Answer as the talk recommends.", tag: "apply",
+      a: "<p><b>Learn one deeply, understand the other</b>, and say when you'd pick each: Django for a full product that needs admin and auth fast; FastAPI for an API, a microservice or an AI back end.</p>" },
+    { q: "Three more tools “worth knowing” on the Django/FastAPI slide?",
+      a: "<p><b>Flask</b> (the minimal classic), <b>SQLAlchemy</b> (the universal Python ORM), <b>Celery</b> (background tasks).</p>" },
+  ]},
+  { title: "APIs, security and data", note: "Slides 6–7. The contract, the shield, and where the data lives.", qs: [
+    { q: "REST in one sentence, with its four verbs.",
+      a: "<p><b>Resources addressed by URLs, intentions expressed by HTTP verbs</b>: GET reads, POST creates, PUT updates, DELETE removes. Plus status codes, versioning and pagination.</p>" },
+    { q: "The authentication toolkit the slide names?",
+      a: "<p><b>Password hashing</b> (bcrypt or argon2), <b>JWT tokens</b>, <b>OAuth 2.0</b> (“Sign in with Google”), <b>role-based access control</b>.</p>" },
+    { q: "Five core defences, and the golden rule?",
+      a: "<p>Against <b>SQL injection</b> — the ORM or parameterised queries. <b>Escape output</b> against XSS. <b>CSRF protection.</b> <b>HTTPS everywhere.</b></p><p>Golden rule: <b>never trust input from the client.</b></p>" },
+    { q: "Beyond REST: two options, and what each is for?",
+      a: "<p><b>GraphQL</b> — the client specifies the query. <b>WebSockets</b> — real-time chat and live dashboards.</p>" },
+    { q: "Choose by data shape: when PostgreSQL, MongoDB, Redis — and what MySQL is good at?",
+      a: "<p><b>PostgreSQL</b> when relations and integrity matter (ACID, plus JSON). <b>MongoDB</b> for fluid, evolving schemas. <b>Redis</b> for speed — cache, sessions, queues.</p><p><b>MySQL</b>: the classic workhorse; stored procedures and triggers can aggregate millions of rows in-database.</p>" },
+    { q: "The AI-era addition to the database list?",
+      a: "<p><b>Vector databases</b> — pgvector, Pinecone — for similarity search and RAG.</p>" },
+    { q: "“Why did you choose PostgreSQL?” What makes the answer interview-winning?", tag: "apply",
+      a: "<p><b>The why, not the list.</b> Name the data's shape and what it needs — relations and integrity — then the trade-off you accepted. Memorising every database is not the skill; explaining the choice is.</p>" },
+  ]},
+  { title: "Shipping, and AI", note: "Slides 8–9. Getting to production, and AI as tool and feature.", qs: [
+    { q: "The six tools on the DevOps slide, and the one goal they share?",
+      a: "<p><b>Git + GitHub, AWS, serverless, CI/CD, Docker, monitoring.</b> One goal: <b>reliable, repeatable delivery.</b></p><p>“It works on my laptop” does not pay salaries.</p>" },
+    { q: "Serverless, in one line?",
+      a: "<p><b>Functions on demand</b> — the cloud scales them automatically and you <b>pay per run</b> (AWS Lambda).</p>" },
+    { q: "“The serverless shift cut infrastructure costs by 50%.” What is the exact claim?", tag: "trap",
+      a: "<p><b>Projected:</b> a serverless shift was <b>projected</b> to cut infrastructure costs by <b>more than 50% per year</b>. A projection, not a measured saving — say it that way.</p>" },
+    { q: "AI enters the work from two directions. Name them, with two examples each.",
+      a: "<p><b>AI as a tool</b> — assistants for production-quality code; faster debugging, tests and docs; <b>critically validate the output</b>, because the engineer stays responsible.</p><p><b>AI as a feature</b> — call LLM APIs and stream to the UI; <b>RAG</b> with embeddings in a vector database.</p>" },
+    { q: "“Developers who use AI tools well are 2–3× more productive.” Measured?", tag: "trap",
+      a: "<p><b>No — the slide says “estimated” and names no source.</b> A randomised study by METR (July 2025) found experienced open-source developers took <b>19% longer</b> with AI tools on their own repositories. The honest answer: it depends on the task and on checking the output.</p>" },
+    { q: "“AI made breadth cheap and depth expensive.” What does the talk conclude?",
+      a: "<p><b>Invest in depth</b>: system design, problem decomposition, judgement.</p>" },
+  ]},
+  { title: "Beyond code, and one engineer's path", note: "Slides 10–11. The lead skills, and the case studies.", qs: [
+    { q: "The five skills that move an engineer to lead?",
+      a: "<p><b>Problem decomposition, architectural judgement, code stewardship, hiring and mentoring, communication.</b></p>" },
+    { q: "Which one does the slide call the number-one skill of the AI era?",
+      a: "<p><b>Problem decomposition</b> — turning a vague business request into concrete technical pieces.</p>" },
+    { q: "Solar Blaze: what was it, and its figure?", tag: "numbers",
+      a: "<p>A SaaS for solar companies: <b>2D/3D roof visualisation</b> in JavaScript and Three.js, with CAD maths. <b>99.5%</b> energy-estimation accuracy.</p>" },
+    { q: "Find My Profession: the figures?", tag: "numbers",
+      a: "<p>Daily visitors <b>150 → 3,000 (20×)</b>; a serverless shift <b>projected</b> to cut infrastructure costs by <b>50%+</b>; <b>5+ engineers</b> hired; Software Engineer → <b>Lead Engineer</b>.</p>" },
+    { q: "The AdTech platform: stack and scale?", tag: "numbers",
+      a: "<p>Node.js, PHP with CakePHP, <b>MySQL stored procedures and triggers</b>, AWS Lambda — <b>millions of mobile events a day</b>, summarised into pivot reports.</p>" },
+    { q: "None of the case studies used Python. Why are they in a Python talk — and what do they show about presenting impact?",
+      a: "<p><b>The patterns are language-independent</b>: APIs, aggregation, serverless and leadership transfer directly to Python.</p><p>And <b>every achievement is a number</b> — 20×, 50%, five hires.</p>" },
+  ]},
+  { title: "The path, and the close", note: "Slides 12–13 and 19. What to build, how long, four takeaways.", qs: [
+    { q: "The three portfolio levels, with one project each?",
+      a: "<p><b>Foundations</b> — a to-do app: React + FastAPI + PostgreSQL. <b>Real apps</b> — a Django blog with auth and roles; an expense tracker; a WebSocket kanban. <b>Flagships</b> — e-commerce with Stripe; an analytics dashboard; RAG over your documents.</p>" },
+    { q: "Three rules for every project — and what beats any certificate?",
+      a: "<p><b>Deploy everything</b> (a live URL beats a screenshot), <b>write honest READMEs</b>, <b>quantify results</b>.</p><p><b>3–5 deployed projects</b> beat any certificate.</p>" },
+    { q: "Which flagship deliberately echoes a case study, and why is that useful?",
+      a: "<p>The <b>analytics dashboard</b> — event ingestion and pivot reports, the AdTech platform in miniature. A goldmine of interview stories.</p>" },
+    { q: "The roadmap: how long, at what pace — and which phase is its heart?", tag: "numbers",
+      a: "<p><b>6–9 months at 2–4 hours a day</b>, six phases. The heart is <b>months 4–6</b>: Django or FastAPI, PostgreSQL, authentication, and a deployed CRUD app.</p>" },
+    { q: "The roadmap's one rule, and the three free curricula it names?",
+      a: "<p><b>Milestones matter more than dates — ship something at every phase.</b></p><p>freeCodeCamp, The Odin Project, roadmap.sh (as a map, not a checklist).</p>" },
+    { q: "The four closing takeaways?",
+      a: "<p><b>Depth beats breadth</b> — one stack, Python + FastAPI/Django + React + PostgreSQL. <b>Build and deploy constantly</b>; quantify every result. <b>Fundamentals are permanent</b>: HTTP, SQL, Git, security. <b>AI fluency is the new baseline.</b></p>" },
+    { q: "“What is a full stack developer to you?” Answer in two sentences, as the talk closes.", tag: "apply",
+      a: "<p>“<b>Not someone who knows everything.</b> Someone who can take an idea all the way from a database schema to a polished interface — and keep learning along the way.”</p>" },
+  ]},
+];
+
+const quiz = document.getElementById("quiz");
+const state = new Map();
+let n = 0;
+const total = ACTS.reduce((s, a) => s + a.qs.length, 0);
+
+ACTS.forEach((act, ai) => {
+  const h = document.createElement("h2");
+  h.innerHTML = `${act.title} <em>Act ${ai + 1}</em>`;
+  quiz.appendChild(h);
+  const note = document.createElement("p");
+  note.className = "act-note";
+  note.textContent = act.note;
+  quiz.appendChild(note);
+
+  act.qs.forEach(item => {
+    n += 1;
+    const id = n;
+    const card = document.createElement("section");
+    card.className = "q";
+    card.dataset.id = id;
+    const tag = item.tag ? `<span class="tag ${item.tag}">${item.tag}</span>` : "";
+    card.innerHTML = `
+      <div class="qhead">
+        <span class="num">${String(id).padStart(2, "0")}</span>
+        <p class="prompt">${item.q}${tag}</p>
+      </div>
+      <div class="a" id="a${id}" hidden>
+        ${item.a}${item.why ? `<span class="why">${item.why}</span>` : ""}
+      </div>
+      <div class="actions">
+        <button class="reveal" type="button">Show answer</button>
+        <button class="mark yes" type="button" aria-pressed="false" hidden>Got it</button>
+        <button class="mark nope" type="button" aria-pressed="false" hidden>Missed</button>
+      </div>`;
+    quiz.appendChild(card);
+
+    const ans = card.querySelector(".a");
+    const reveal = card.querySelector(".reveal");
+    const yes = card.querySelector(".mark.yes");
+    const nope = card.querySelector(".mark.nope");
+
+    reveal.addEventListener("click", () => {
+      const open = !ans.hidden;
+      ans.hidden = open;
+      reveal.textContent = open ? "Show answer" : "Hide answer";
+      yes.hidden = nope.hidden = open;
+    });
+    const mark = (v) => {
+      state.set(id, state.get(id) === v ? null : v);
+      const cur = state.get(id);
+      card.dataset.state = cur || "";
+      yes.setAttribute("aria-pressed", String(cur === "ok"));
+      nope.setAttribute("aria-pressed", String(cur === "no"));
+      score();
+    };
+    yes.addEventListener("click", () => mark("ok"));
+    nope.addEventListener("click", () => mark("no"));
+  });
+});
+
+const elDone = document.getElementById("done");
+const elRight = document.getElementById("right");
+const elWrong = document.getElementById("wrong");
+const fill = document.getElementById("fill");
+const verdict = document.getElementById("verdict");
+const missedList = document.getElementById("missed");
+
+function score() {
+  let ok = 0, no = 0;
+  state.forEach(v => { if (v === "ok") ok++; else if (v === "no") no++; });
+  const done = ok + no;
+  elDone.textContent = done;
+  elRight.textContent = ok;
+  elWrong.textContent = no;
+  fill.style.width = `${(done / total) * 100}%`;
+
+  missedList.innerHTML = "";
+  if (!done) {
+    verdict.textContent = "Nothing answered yet.";
+    missedList.hidden = true;
+    return;
+  }
+  const pct = Math.round((ok / done) * 100);
+  verdict.innerHTML = done === total
+    ? `All ${total} answered — <b>${ok} right, ${no} missed (${pct}%)</b>.`
+    : `<b>${done} of ${total}</b> answered — ${ok} right, ${no} missed (${pct}%).`;
+
+  const misses = [];
+  state.forEach((v, id) => { if (v === "no") misses.push(id); });
+  if (misses.length) {
+    missedList.hidden = false;
+    misses.sort((a, b) => a - b).forEach(id => {
+      const li = document.createElement("li");
+      const p = document.querySelector(`.q[data-id="${id}"] .prompt`);
+      li.textContent = `${String(id).padStart(2, "0")} — ${p.textContent.replace(/\s*(numbers|trap|apply)\s*$/, "")}`;
+      li.style.cursor = "pointer";
+      li.addEventListener("click", () => {
+        document.querySelector(`.q[data-id="${id}"]`).scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+      missedList.appendChild(li);
+    });
+  } else {
+    missedList.hidden = true;
+  }
+}
+
+document.getElementById("reset").addEventListener("click", () => {
+  state.clear();
+  document.querySelectorAll(".q").forEach(c => {
+    c.dataset.state = "";
+    c.querySelector(".a").hidden = true;
+    c.querySelector(".reveal").textContent = "Show answer";
+    c.querySelector(".mark.yes").hidden = true;
+    c.querySelector(".mark.nope").hidden = true;
+    c.querySelectorAll(".mark").forEach(b => b.setAttribute("aria-pressed", "false"));
+  });
+  score();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+score();
+</script>
+
+</body>
+</html>

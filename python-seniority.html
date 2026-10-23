@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta property="og:title" content="Seniority Drill — Ship It Live!" />
+<meta property="og:description" content="Interactive self-test: Seniority in Full-Stack Python." />
+<meta property="og:image" content="https://kuantor.github.io/drills/background.jpg" />
+<meta property="og:url" content="https://kuantor.github.io/drills/python-seniority.html" />
+<meta property="og:type" content="website" />
+<style>
+  :root{
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  body{margin:0}
+  img{max-width:100%}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+<title>Seniority Drill</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a single reading column of question cards, grouped into seven acts
+   that follow the talk. Palette lifted from the Ship It Live deck builder so
+   this reads as part of the series: roasted brown ground, brass accents. */
+:root{
+  --ground:#1A150E;
+  --surface:#262014;
+  --card:#312918;
+  --edge:#4A3D22;
+  --cream:#F1EADA;
+  --tan:#AC9F84;
+  --gold:#C8A24B;
+  --gold-lt:#E8CD86;
+  --teal:#6FB0A6;
+  --terra:#D0845A;
+  --sage:#8BA678;
+  --serif:"Source Serif 4",Cambria,Georgia,serif;
+  --sans:"Public Sans",Calibri,-apple-system,system-ui,sans-serif;
+  --mono:"IBM Plex Mono",Consolas,ui-monospace,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  background:var(--ground);color:var(--cream);font-family:var(--sans);
+  font-size:16px;line-height:1.55;margin:0;
+}
+.wrap{max-width:780px;margin:0 auto;padding-inline:16px;padding-block:40px 64px}
+
+header h1{
+  font-family:var(--serif);font-weight:700;color:var(--gold);
+  font-size:clamp(2rem,7vw,3rem);line-height:1.05;margin:0 0 .3em;text-wrap:balance;
+}
+.kicker{
+  font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--tan);margin:0 0 1.6rem;
+}
+.lede{color:var(--tan);font-size:1.05rem;margin:0 0 2rem;max-width:62ch}
+.lede strong{color:var(--cream);font-weight:600}
+
+.board{
+  position:sticky;top:env(safe-area-inset-top,0px);z-index:10;
+  background:var(--surface);border:1px solid var(--edge);border-radius:10px;
+  padding:14px 16px;margin-bottom:2.4rem;
+  display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;
+}
+.tally{display:flex;gap:18px;flex:1 1 auto;min-width:0}
+.stat{display:flex;flex-direction:column;line-height:1.15}
+.stat b{
+  font-family:var(--mono);font-size:1.25rem;font-weight:500;
+  font-variant-numeric:tabular-nums;color:var(--gold-lt);
+}
+.stat span{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--tan)}
+.stat.ok b{color:var(--sage)}
+.stat.no b{color:var(--terra)}
+.bar{flex:1 1 100%;height:4px;background:var(--edge);border-radius:2px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--gold);transition:width .3s ease}
+button{font-family:var(--sans);font-size:.85rem;cursor:pointer;border-radius:7px;transition:background .15s,border-color .15s,color .15s}
+button:focus-visible{outline:2px solid var(--gold-lt);outline-offset:2px}
+.ghost{background:transparent;border:1px solid var(--edge);color:var(--tan);padding:7px 13px}
+.ghost:hover{border-color:var(--gold);color:var(--gold-lt)}
+
+h2{
+  font-family:var(--serif);font-size:1.45rem;font-weight:600;color:var(--gold);
+  margin:2.8rem 0 .2rem;display:flex;align-items:baseline;gap:.6rem;text-wrap:balance;
+}
+h2 em{
+  font-family:var(--mono);font-style:normal;font-size:.7rem;color:var(--tan);
+  letter-spacing:.1em;flex:0 0 auto;
+}
+.act-note{color:var(--tan);font-size:.9rem;margin:0 0 1.4rem}
+
+.q{background:var(--card);border:1px solid var(--edge);border-radius:10px;padding:18px 20px;margin-bottom:14px}
+.q[data-state="ok"]{border-color:color-mix(in srgb,var(--sage) 55%,var(--edge))}
+.q[data-state="no"]{border-color:color-mix(in srgb,var(--terra) 55%,var(--edge))}
+.qhead{display:flex;gap:12px;align-items:flex-start}
+.num{
+  font-family:var(--mono);font-size:.78rem;color:var(--gold);
+  flex:0 0 auto;padding-top:.2em;font-variant-numeric:tabular-nums;
+}
+.prompt{margin:0;flex:1 1 auto;min-width:0;font-size:1rem}
+.prompt code,.a code{
+  font-family:var(--mono);font-size:.86em;background:var(--ground);
+  border:1px solid var(--edge);border-radius:4px;padding:.08em .35em;color:var(--gold-lt);
+}
+.tag{
+  display:inline-block;font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;
+  text-transform:uppercase;padding:.2em .5em;border-radius:4px;margin-left:.5rem;
+  vertical-align:.12em;border:1px solid;
+}
+.tag.numbers{color:var(--gold-lt);border-color:color-mix(in srgb,var(--gold) 45%,transparent)}
+.tag.trap{color:var(--terra);border-color:color-mix(in srgb,var(--terra) 45%,transparent)}
+.tag.apply{color:var(--teal);border-color:color-mix(in srgb,var(--teal) 45%,transparent)}
+
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;padding-left:calc(.78rem + 12px)}
+.reveal{background:transparent;border:1px solid var(--gold);color:var(--gold-lt);padding:7px 15px}
+.reveal:hover{background:color-mix(in srgb,var(--gold) 14%,transparent)}
+.mark{border:1px solid var(--edge);background:transparent;padding:7px 15px}
+.mark.yes{color:var(--sage)}
+.mark.yes:hover,.mark.yes[aria-pressed="true"]{background:color-mix(in srgb,var(--sage) 18%,transparent);border-color:var(--sage)}
+.mark.nope{color:var(--terra)}
+.mark.nope:hover,.mark.nope[aria-pressed="true"]{background:color-mix(in srgb,var(--terra) 18%,transparent);border-color:var(--terra)}
+
+.a{
+  margin:14px 0 0;padding:14px 16px;background:var(--ground);
+  border-left:3px solid var(--gold);border-radius:0 7px 7px 0;font-size:.96rem;
+}
+.a p{margin:0 0 .7em}
+.a p:last-child{margin-bottom:0}
+.a b{color:var(--gold-lt);font-weight:600}
+.a .why{color:var(--tan);font-size:.9rem;display:block;margin-top:.7em;padding-top:.7em;border-top:1px solid var(--edge)}
+
+details.ref{margin-top:3rem;border:1px solid var(--edge);border-radius:10px;background:var(--surface)}
+details.ref summary{
+  cursor:pointer;padding:14px 18px;font-family:var(--mono);font-size:.78rem;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--gold);
+}
+details.ref summary:focus-visible{outline:2px solid var(--gold-lt);outline-offset:-2px}
+.tablewrap{overflow-x:auto;padding:0 18px 18px}
+table{border-collapse:collapse;width:100%;min-width:460px;font-size:.92rem}
+th,td{text-align:right;padding:8px 10px;border-bottom:1px solid var(--edge)}
+th:first-child,td:first-child{text-align:left}
+thead th{color:var(--tan);font-weight:500;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase}
+tbody td{font-family:var(--mono);font-variant-numeric:tabular-nums}
+tbody td:first-child{font-family:var(--sans)}
+.win{color:var(--sage)}
+.lose{color:var(--terra)}
+.refnote{padding:0 18px 18px;margin:0;color:var(--tan);font-size:.85rem}
+
+footer{margin-top:3rem;padding-top:1.6rem;border-top:1px solid var(--edge);color:var(--tan);font-size:.88rem}
+footer b{color:var(--gold-lt)}
+#missed{margin:.8rem 0 0;padding-left:1.1rem}
+#missed li{margin-bottom:.3rem}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+<header>
+  <p class="kicker">Ship It Live! &middot; self-test</p>
+  <h1>Seniority Drill</h1>
+  <p class="lede">Thirty-three questions on <strong>Seniority in Full-Stack Python &mdash; Essence Over Excess</strong>. Answer out loud before revealing, then mark yourself honestly. The hinge is <strong>one selector, not 143 new words</strong>: find the one thing that is actually wrong.</p>
+</header>
+
+<div class="board">
+  <div class="tally">
+    <div class="stat"><b id="done">0</b><span>answered</span></div>
+    <div class="stat ok"><b id="right">0</b><span>got it</span></div>
+    <div class="stat no"><b id="wrong">0</b><span>missed</span></div>
+  </div>
+  <button class="ghost" id="reset">Reset</button>
+  <div class="bar"><i id="fill"></i></div>
+</div>
+
+<main id="quiz"></main>
+
+<details class="ref">
+  <summary>Reference &mdash; every number in the talk</summary>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>KuantorFlow</th><th>Figure</th></tr></thead>
+    <tbody>
+      <tr><td>empty definitions, before / after one selector</td><td class="win">143 &rarr; 9 of 360</td></tr>
+      <tr><td>direct dependencies / modules / lines</td><td>11 / 16 / 16,100</td></tr>
+      <tr><td>app.py: before #418 / after / today</td><td>4,917 / 538 / 650</td></tr>
+      <tr><td>CLAUDE.md / design notes + deploy (words)</td><td>2,084 / 13,759 (13%)</td></tr>
+      <tr><td>weeks / merged PRs / per week</td><td>12.9 / 258 / 20.1</td></tr>
+      <tr><td>median lines changed per PR</td><td>115</td></tr>
+      <tr><td>issues: done / not planned or duplicate / open</td><td>219 / 11 / 71</td></tr>
+      <tr><td>#227 popup: asked / computed</td><td class="lose">560 / 420 px</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Market and sources</th><th>Figure</th></tr></thead>
+    <tbody>
+      <tr><td>Python / React / relational DB / REST / TypeScript / LLM features</td><td>34 / 28 / 27 / 26 / 22 / 20 of 34</td></tr>
+      <tr><td>CI/CD / FastAPI / architecture / AI tools / Docker / Django</td><td>19 / 18 / 18 / 17 / 17 / 15 of 34</td></tr>
+      <tr><td>AI tools required, as the sample grew</td><td>4/10 &rarr; 17/34</td></tr>
+      <tr><td>Stack Overflow 2025: Python / change</td><td>57.9% / +7 pts</td></tr>
+      <tr><td>Bezos 2016: decide at</td><td>~70%</td></tr>
+      <tr><td>Agile Manifesto principles</td><td>2001</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>From <code>seniority_numbers.py</code>, 7 October 2026, which reads KuantorFlow's history, <code>!Wiki</code>'s posting tally and <code>!SystemDesignWiki</code>'s drills.</p>
+</details>
+
+<footer>
+  <p id="verdict">Nothing answered yet.</p>
+  <ul id="missed" hidden></ul>
+</footer>
+</div>
+
+<script>
+const ACTS = [
+  { title: "Less, not more", note: "Slides 2–3. The observation, and the oldest version of it.", qs: [
+    { q: "What three things do senior people seem to need less of?",
+      a: "<p><b>Fewer words</b> (two sentences after the hour), <b>fewer tools</b> (a stable stack, gone deep) and <b>less time deciding</b> (a decision on fragmented data).</p><p>Not less work — less of the work that did not need doing.</p>" },
+    { q: "Where does “the art of maximizing the amount of work not done” come from?", tag: "trap",
+      a: "<p>The <b>Agile Manifesto's</b> principles, <b>2001</b>: “Simplicity — the art of maximizing the amount of work not done — is essential.”</p><p>The July essay credited it to “industry observers”. True, and older.</p>" },
+    { q: "Seeding the deck, 143 of 360 words had no Oxford definition. The obvious job, and the real fix?", tag: "numbers",
+      a: "<p>The obvious job: find <b>143 replacement words</b>. The real fix: <b>one character</b> — <code>.sense &gt; .def</code> became <code>.sense .def</code>.</p><p>Empty definitions went <b>143 → 9</b> of 360, none newly broken (#221, PR #222).</p>" },
+    { q: "Why did the direct-child selector miss them?",
+      a: "<p>Oxford sometimes wraps a definition in <code>span.sensetop</code>, making it a <b>grandchild</b> of <code>.sense</code>. Always on single-sense words, and on the first sense of many others.</p><p>So <i>hedge</i> had been defined only as a financial instrument.</p>" },
+    { q: "What were the nine words left over, and whose problem were they?", tag: "trap",
+      a: "<p><b>Spelling and lemma variants</b> — backpacking/backpack, wellbeing/well-being, memorise/memorize. Not absences, and not the parser: they belonged to the word list.</p>" },
+  ]},
+  { title: "What seniors do less of", note: "Slides 4–6. Tools, words, deliberation.", qs: [
+    { q: "How many direct dependencies does KuantorFlow have, and what does it not use?", tag: "numbers",
+      a: "<p><b>11</b>, across <b>16 modules</b> and about <b>16,100 lines</b>. <b>No ORM</b> (SQL by hand), <b>no Redis or Celery</b>, <b>no Docker</b> — not yet.</p>" },
+    { q: "Six dependencies were there on day one. What do the five added later have in common?",
+      a: "<p>Each sits under a <b>comment saying why it is there</b>: Markdown for /help, tzdata for the Kyiv recall day, Authlib for Google sign-in, anthropic and scikit-learn for Mykola.</p>" },
+    { q: "The three questions before adopting a new tool?", tag: "apply",
+      a: "<p>What <b>real problem</b> does it solve? Why is <b>what we have not enough</b>? What will it <b>cost to run and maintain over twelve months</b>?</p><p>Trending is not a reason; measurably better here is.</p>" },
+    { q: "“Engineering leaders increasingly gate new tools behind a 12-month review.” True?", tag: "trap",
+      a: "<p><b>Advice, not a trend.</b> The source is one article (Okoone) recommending you ask the 12-month cost. Nothing measured how often anyone does it.</p>" },
+    { q: "Give the shape for the two sentences after the hour.", tag: "apply",
+      a: "<p><b>What is wrong · what we will do · what it costs.</b></p><p>The skill is not saying little — it is hearing everything, then saying only what moves the work.</p>" },
+    { q: "How does PR #222 open, and why is that the right opening?",
+      a: "<p>“<b>Closes #221. One selector.</b>” — then the diff, then the measurement. The reader knows the size of the change before the first paragraph.</p>" },
+    { q: "KuantorFlow's always-loaded rules against the reasons behind them: how many words?", tag: "numbers",
+      a: "<p>CLAUDE.md <b>2,084</b>; design-notes.md + deploy.md <b>13,759</b>. The summary is <b>13%</b> of the whole — and the part everyone acts on.</p>" },
+    { q: "Quote Bezos on how much information a decision needs.", tag: "numbers",
+      a: "<p>“Most decisions should probably be made with somewhere around <b>70%</b> of the information you wish you had. If you wait for <b>90%</b>, in most cases, you're probably being slow.” — 2016 letter to shareholders.</p>" },
+    { q: "“Delay hurts more than a wrong decision.” Always?", tag: "trap",
+      a: "<p><b>Half true.</b> It holds for <b>two-way doors</b> — reversible decisions you can walk back through. One-way doors deserve slowness.</p><p>The senior skill is knowing which door you are at.</p>" },
+    { q: "Two one-way doors in KuantorFlow, and how each is handled?", tag: "apply",
+      a: "<p>A <b>schema change on live data</b>: dry-run <code>apply_schema.py</code>, read the plan, then run it. The <b>SECRET_KEY</b>: changing it signs everyone out at once.</p>" },
+  ]},
+  { title: "What seniors do more of", note: "Slides 7–10. Architecture, outcomes, focus, the two pillars.", qs: [
+    { q: "app.py before the split, after its last step, and today?", tag: "numbers",
+      a: "<p><b>4,917</b> lines before #418; <b>538</b> after the last step; <b>650</b> today. Six modules in one direction: web ← icons ← cards ← rounds ← chat ← app.</p>" },
+    { q: "What was the hard part of the split?",
+      a: "<p>Not moving code. <b>Deciding the one direction it may depend in</b> — nothing imports app.py — and writing a <b>test that fails if anything points back</b>.</p>" },
+    { q: "Six modules. Why not six services?", tag: "trap",
+      a: "<p>Because nothing needed to deploy or scale on its own. Still <b>one deployable</b>. Knowing when <b>not</b> to decompose is the senior signal.</p>" },
+    { q: "KuantorFlow's history in numbers, 9 July – 7 October 2026?", tag: "numbers",
+      a: "<p><b>12.9 weeks</b>, <b>258</b> merged PRs (<b>20.1 a week</b>), median PR <b>115 lines</b> changed. Issues: <b>219</b> done, <b>11</b> not planned or duplicate, <b>71</b> open.</p>" },
+    { q: "Two examples of motion, and two of outcome.",
+      a: "<p><b>Motion:</b> a meeting about the meeting; a refactor nobody needed; a dashboard nobody reads; a green suite that could not have failed.</p><p><b>Outcome:</b> a correct definition of <i>hedge</i>; a popup as wide as its rule says; a deploy with no second attempt.</p>" },
+    { q: "#227 asked for a wider popup. What did measuring show?", tag: "trap",
+      a: "<p>Its <b>560 px</b> had <b>never applied</b>: <code>.modal-dialog</code>, same specificity and 438 lines later, won at <b>420 px</b>. Raising the number would have changed nothing — the fix was the rule order.</p>" },
+    { q: "Name the two pillars.",
+      a: "<p><b>Ruthless prioritisation</b> — the one thing that matters now, and accepting the cost of what is left undone. <b>The ability to focus</b> — holding attention on it until it is finished.</p><p>Everything else is negotiable.</p>" },
+  ]},
+  { title: "What the market asks for", note: "Slides 11–13. 34 postings, counted.", qs: [
+    { q: "The six universal requirements across 34 postings, with counts?", tag: "numbers",
+      a: "<p>Python <b>34</b>, React <b>28</b>, a relational database <b>27</b>, REST/API design <b>26</b>, TypeScript <b>22</b>, LLM features in the product <b>20</b>.</p><p>A sample, not a market: one job board, about thirteen weeks.</p>" },
+    { q: "What does the largest single group of postings hire on? Give two examples.",
+      a: "<p><b>Judgement, not tools.</b> VCHASNO: “know Python, don't be sharpened to one framework”. SFox: “Python or a comparable server-side language”. PLANEKS: having watched a live SaaS outgrow its design. FlexMade: architecture, ownership, judgement.</p>" },
+    { q: "Do experience bars predict how long the requirement list is?", tag: "trap",
+      a: "<p><b>No.</b> They run from 1+ year to 7–9, and the lists do not grow with them. Read the work, not the years.</p>" },
+    { q: "AI coding tools as a requirement: how did the count move as the sample grew? And Python's survey figure?", tag: "numbers",
+      a: "<p><b>4 of 10 → 7 of 13 → 8 of 15 → 15 of 31 → 17 of 34.</b></p><p>Stack Overflow 2025: <b>57.9%</b> of developers use Python, <b>+7 points</b> in a year; FastAPI <b>+5</b>.</p>" },
+    { q: "“How do you use AI tools?” Give the senior answer.", tag: "apply",
+      a: "<p>“I draft tests and boilerplate with an agent, <b>review every diff</b> before commit, and <b>never delegate schema or auth decisions</b>.”</p><p>Which tool for which task, what you never delegate, how you check — not “I use Copilot”.</p>" },
+  ]},
+  { title: "The senior answer", note: "Slides 14–15. Interviews and trade-offs.", qs: [
+    { q: "EU round trip 380 ms, target under 80, no database rewrite, Black Friday in six weeks. The trap, and the answer?", tag: "trap",
+      a: "<p><b>Trap:</b> active–active multi-region — likely the better long-term design, and months of migration started before peak.</p><p><b>Answer:</b> a <b>read replica in Europe</b>: the complaints are reads, it takes days, and it doubles as a recovery target.</p>" },
+    { q: "What does that drill teach in one sentence?",
+      a: "<p><b>A deadline is an architectural input.</b> The right answer this quarter and in two years can differ — and saying so is the strong response.</p><p>In that set, four of six traps are the better design arriving too early.</p>" },
+    { q: "“Should we split our app into microservices?” Answer as a senior.", tag: "apply",
+      a: "<p>“<b>Not yet. What hurts today?</b> If it's one huge file, split it into modules. I'd say yes to services when parts must deploy or scale on their own — and here's how we'd know.”</p>" },
+    { q: "The four moves every senior answer makes?",
+      a: "<p>Starts with the <b>problem</b>; names the <b>cost</b>; picks the <b>smallest change that works</b>; says what <b>evidence would change the decision</b>.</p>" },
+  ]},
+  { title: "Checking, and practising", note: "Slides 16–17. The essay against its sources, and five habits.", qs: [
+    { q: "Of the essay's six claims, which rested on the weakest evidence?", tag: "trap",
+      a: "<p>The <b>12-month review “trend”</b> (one article's advice) and <b>“95% of the noise”</b> (no source — a figure of speech). Half true: the delay claim and “neither vacancy lists every framework” — GT Protocol named about thirty.</p>" },
+    { q: "Name the five habits to practise this week.", tag: "apply",
+      a: "<p>Write the <b>two sentences</b> before the PR. Ask <b>three questions</b> before a dependency. Label each decision a <b>one- or two-way door</b>. <b>Measure</b> before changing a number. <b>Quantify</b> one result per project.</p>" },
+  ]},
+];
+
+const quiz = document.getElementById("quiz");
+const state = new Map();
+let n = 0;
+const total = ACTS.reduce((s, a) => s + a.qs.length, 0);
+
+ACTS.forEach((act, ai) => {
+  const h = document.createElement("h2");
+  h.innerHTML = `${act.title} <em>Act ${ai + 1}</em>`;
+  quiz.appendChild(h);
+  const note = document.createElement("p");
+  note.className = "act-note";
+  note.textContent = act.note;
+  quiz.appendChild(note);
+
+  act.qs.forEach(item => {
+    n += 1;
+    const id = n;
+    const card = document.createElement("section");
+    card.className = "q";
+    card.dataset.id = id;
+    const tag = item.tag ? `<span class="tag ${item.tag}">${item.tag}</span>` : "";
+    card.innerHTML = `
+      <div class="qhead">
+        <span class="num">${String(id).padStart(2, "0")}</span>
+        <p class="prompt">${item.q}${tag}</p>
+      </div>
+      <div class="a" id="a${id}" hidden>
+        ${item.a}${item.why ? `<span class="why">${item.why}</span>` : ""}
+      </div>
+      <div class="actions">
+        <button class="reveal" type="button">Show answer</button>
+        <button class="mark yes" type="button" aria-pressed="false" hidden>Got it</button>
+        <button class="mark nope" type="button" aria-pressed="false" hidden>Missed</button>
+      </div>`;
+    quiz.appendChild(card);
+
+    const ans = card.querySelector(".a");
+    const reveal = card.querySelector(".reveal");
+    const yes = card.querySelector(".mark.yes");
+    const nope = card.querySelector(".mark.nope");
+
+    reveal.addEventListener("click", () => {
+      const open = !ans.hidden;
+      ans.hidden = open;
+      reveal.textContent = open ? "Show answer" : "Hide answer";
+      yes.hidden = nope.hidden = open;
+    });
+    const mark = (v) => {
+      state.set(id, state.get(id) === v ? null : v);
+      const cur = state.get(id);
+      card.dataset.state = cur || "";
+      yes.setAttribute("aria-pressed", String(cur === "ok"));
+      nope.setAttribute("aria-pressed", String(cur === "no"));
+      score();
+    };
+    yes.addEventListener("click", () => mark("ok"));
+    nope.addEventListener("click", () => mark("no"));
+  });
+});
+
+const elDone = document.getElementById("done");
+const elRight = document.getElementById("right");
+const elWrong = document.getElementById("wrong");
+const fill = document.getElementById("fill");
+const verdict = document.getElementById("verdict");
+const missedList = document.getElementById("missed");
+
+function score() {
+  let ok = 0, no = 0;
+  state.forEach(v => { if (v === "ok") ok++; else if (v === "no") no++; });
+  const done = ok + no;
+  elDone.textContent = done;
+  elRight.textContent = ok;
+  elWrong.textContent = no;
+  fill.style.width = `${(done / total) * 100}%`;
+
+  missedList.innerHTML = "";
+  if (!done) {
+    verdict.textContent = "Nothing answered yet.";
+    missedList.hidden = true;
+    return;
+  }
+  const pct = Math.round((ok / done) * 100);
+  verdict.innerHTML = done === total
+    ? `All ${total} answered — <b>${ok} right, ${no} missed (${pct}%)</b>.`
+    : `<b>${done} of ${total}</b> answered — ${ok} right, ${no} missed (${pct}%).`;
+
+  const misses = [];
+  state.forEach((v, id) => { if (v === "no") misses.push(id); });
+  if (misses.length) {
+    missedList.hidden = false;
+    misses.sort((a, b) => a - b).forEach(id => {
+      const li = document.createElement("li");
+      const p = document.querySelector(`.q[data-id="${id}"] .prompt`);
+      li.textContent = `${String(id).padStart(2, "0")} — ${p.textContent.replace(/\s*(numbers|trap|apply)\s*$/, "")}`;
+      li.style.cursor = "pointer";
+      li.addEventListener("click", () => {
+        document.querySelector(`.q[data-id="${id}"]`).scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+      missedList.appendChild(li);
+    });
+  } else {
+    missedList.hidden = true;
+  }
+}
+
+document.getElementById("reset").addEventListener("click", () => {
+  state.clear();
+  document.querySelectorAll(".q").forEach(c => {
+    c.dataset.state = "";
+    c.querySelector(".a").hidden = true;
+    c.querySelector(".reveal").textContent = "Show answer";
+    c.querySelector(".mark.yes").hidden = true;
+    c.querySelector(".mark.nope").hidden = true;
+    c.querySelectorAll(".mark").forEach(b => b.setAttribute("aria-pressed", "false"));
+  });
+  score();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+score();
+</script>
+
+</body>
+</html>
