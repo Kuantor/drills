@@ -160,7 +160,7 @@ footer b{color:var(--gold-lt)}
 <header>
   <p class="kicker">Ship It Live! &middot; self-test</p>
   <h1>Testing Drill</h1>
-  <p class="lede">Thirty questions on <strong>Testing That Catches Bugs &mdash; pytest, and Proving a Test Can Fail</strong>. Answer out loud before revealing, then mark yourself honestly. The hinge is <strong>100% coverage and 6 of 10</strong>: two suites that ran every line, and only one that noticed the bugs.</p>
+  <p class="lede">Thirty-seven questions on <strong>Testing That Catches Bugs &mdash; pytest, and Proving a Test Can Fail</strong>. Answer out loud before revealing, then mark yourself honestly. The hinge is <strong>100% coverage and 6 of 10</strong>: two suites that ran every line, and only one that noticed the bugs.</p>
 </header>
 
 <div class="board">
@@ -205,7 +205,18 @@ footer b{color:var(--gold-lt)}
     </tbody>
   </table>
   </div>
-  <p>pytest 9.1.1, coverage 7.16.2, SQLite 3.50.4, Python 3.14; medians of 8 runs from <code>test_bench.py</code>, 5 October 2026.</p>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Cited, not measured</th><th>Figure</th></tr></thead>
+    <tbody>
+      <tr><td>Google flaky tests, 2016: runs / tests / pass-to-fail</td><td>1.5% / ~16% / 84%</td></tr>
+      <tr><td>SQLite 3.42.0: test code vs library</td><td>~590&times; (92M vs 156K lines)</td></tr>
+      <tr><td>Ariane 5, 1996: overflow after ignition</td><td class="lose">37 s</td></tr>
+      <tr><td>the &ldquo;100&times;&rdquo; cost chart</td><td class="lose">no traceable study</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>pytest 9.1.1, coverage 7.16.2, SQLite 3.50.4, Python 3.14; medians of 8 runs from <code>test_bench.py</code>, 5 October 2026. Cited figures checked on 23 October 2026.</p>
 </details>
 
 <footer>
@@ -225,6 +236,10 @@ const ACTS = [
       a: "<p>It <b>rewrites the assert</b> to report both sides and the difference — measured: <code>['Tip', 'tip', 'hint'] == ['Tip', 'hint']</code>, <b>at index 1 diff</b>, <b>left contains one more item</b>.</p>" },
     { q: "What do -x, -k and --lf do?",
       a: "<p><b>-x</b> stop at the first failure · <b>-k</b> run tests whose names match · <b>--lf</b> re-run only last time's failures.</p>" },
+    { q: "\"A bug costs 100× more to fix in production\" — what is the source of that chart?", tag: "trap",
+      a: "<p>An <b>IBM study nobody can find</b>. Laurent Bossavit traced it to internal IBM course notes from <b>1981 or earlier</b>, with no project data. The direction may be true; the 100 is not evidence.</p>" },
+    { q: "Where was JUnit written, and how?",
+      a: "<p>On a <b>flight from Zurich to OOPSLA 1997 in Atlanta</b>, by Kent Beck and Erich Gamma — pair-programmed and <b>test-first</b>. Python's unittest was modelled on it.</p>" },
   ]},
   { title: "Proving a test can fail", note: "Slides 4–5.", qs: [
     { q: "Seven tests written after the fix. With the fix removed, how many still passed?", tag: "numbers",
@@ -243,6 +258,10 @@ const ACTS = [
       a: "<p><b>100% and 100%.</b> Same coverage, 6 against 10 bugs caught.</p>" },
     { q: "So what is coverage good for, and what should it never be?", tag: "trap",
       a: "<p>Good for finding code <b>no test reaches</b> — 0% is a certain gap. Never a <b>target</b>: the cheapest way to 100% is tests that run code without checking it.</p>" },
+    { q: "Name the law behind \"never make coverage a target\", in its best-known words.",
+      a: "<p><b>Goodhart's law</b>, in Marilyn Strathern's 1997 wording: <i>when a measure becomes a target, it ceases to be a good measure</i>.</p>" },
+    { q: "Can testing prove there are no bugs left?", tag: "trap",
+      a: "<p><b>No.</b> Dijkstra, around 1970: testing can show the <b>presence</b> of bugs, never their <b>absence</b>. Mutation testing measures how many planted bugs a suite would see.</p>" },
     { q: "Name two tools that do mutation testing automatically.",
       a: "<p><b>mutmut</b> and <b>cosmic-ray</b>.</p>" },
     { q: "A test asserts a literal list of six tables. What went wrong in #144, and the fix?", tag: "apply",
@@ -289,6 +308,12 @@ const ACTS = [
       a: "<p>The tests asserted the <b>markup</b>; the <b>browser</b> decided the behaviour — script timing, form.reset(), a listener on the wrong form. Users found them.</p>" },
     { q: "How big is KuantorFlow's suite?", tag: "numbers",
       a: "<p><b>2,861</b> tests in <b>167</b> files, <b>208</b> fixtures, parametrize <b>105</b> times; <b>16</b> files on real MySQL and <b>2</b> live, skipped by default.</p>" },
+    { q: "Google, 2016: how common were flaky tests?", tag: "numbers",
+      a: "<p>About <b>1.5%</b> of all test runs flaky; almost <b>16%</b> of tests with some flakiness; <b>84%</b> of pass-to-fail transitions involved a flaky test.</p>" },
+    { q: "Why was Ariane 5 destroyed in 1996, and what did its tests miss?", tag: "trap",
+      a: "<p>Software reused from Ariane 4 converted a <b>64-bit float to a 16-bit integer</b>; it overflowed <b>37 s</b> after ignition, in a function with no purpose after lift-off. The tests <b>never used Ariane 5's flight path</b>.</p>" },
+    { q: "SQLite: how much test code, and what coverage?", tag: "numbers",
+      a: "<p>About <b>590×</b> the library — <b>92 million</b> lines against <b>156,000</b> (2023) — with <b>100% branch coverage</b> of the core, and fuzzing on top.</p>" },
   ]},
 ];
 
