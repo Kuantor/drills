@@ -164,7 +164,7 @@ footer b{color:var(--gold-lt)}
 <header>
   <p class="kicker">Ship It Live! &middot; self-test</p>
   <h1>Flask Drill</h1>
-  <p class="lede">Thirty-six questions on <strong>Flask — From the WSGI Contract to a Working App</strong>. Answer out loud before revealing, then mark yourself honestly. The traps matter most here: this talk is mostly concepts, and the gotchas are what an interviewer probes.</p>
+  <p class="lede">Forty questions on <strong>Flask — From the WSGI Contract to a Working App</strong>. Answer out loud before revealing, then mark yourself honestly. The traps matter most here: this talk is mostly concepts, and the gotchas are what an interviewer probes.</p>
 </header>
 
 <div class="board">
@@ -211,7 +211,7 @@ const ACTS = [
     { q: "In one line, what is Flask — and what does &ldquo;a Flask app is a WSGI app&rdquo; mean in practice?",
       a: "<p>A <b>web application framework written in Python</b>, created by Armin Ronacher of the Pocoo group, maintained today by <b>Pallets</b>.</p><p>When you write <code>app = Flask(__name__)</code>, that object <b>already is the callable Gunicorn will call</b>. Flask does not replace WSGI; it sits on it — which is why the same file runs unchanged in production.</p>" },
     { q: "Tell the April Fools story.",
-      a: "<p>Ronacher published Flask on <b>1 April 2010</b> as a gag — a single-file framework, poking fun at how many Python web frameworks there already were. The joke got a serious reception, people asked where they could download it, so he made it real.</p><p>Fifteen years later it is one of the two frameworks every Python job advert mentions.</p>" },
+      a: "<p>Ronacher published Flask on <b>1 April 2010</b> as a gag — a single-file framework, poking fun at how many Python web frameworks there already were. The joke got a serious reception, people asked where they could download it, so he made it real.</p><p>Sixteen years later it is one of the three Python web frameworks that matter, next to Django and FastAPI — and developers use the three about equally.</p>" },
     { q: "What does &ldquo;microframework&rdquo; mean — and what does it <em>not</em> mean?", tag: "trap",
       a: "<p>It does <b>not</b> mean Flask is for small projects. It means <b>the core makes very few decisions on your behalf</b>.</p><p>Flask gives you routing, templating and a request object — and then it stops. No database layer, no form validation, no user model. You add those through extensions, if and when you need them.</p>" },
     { q: "State the upside and the downside of that trade.",
@@ -276,7 +276,7 @@ const ACTS = [
     { q: "Static files: which folder, how do you link to one, and who should serve them in production?", tag: "apply",
       a: "<p>A folder called <code>static</code>, served at the <code>/static</code> path. Link with <code>url_for('static', filename=…)</code> — writing the path by hand works right up until the app moves under a sub-path or onto a CDN, and then every link breaks at once.</p><p>In production the job belongs to <b>nginx or your hosting platform</b>. The front server handles TLS and static files because it is fast at exactly those things. <b>Letting a Python worker serve a logo is a waste of a worker.</b></p>" },
   ]},
-  { title: "Structure, the rest of the core, and the payoff", note: "Slides 15, 17–20.", qs: [
+  { title: "Structure, the rest of the core, and the payoff", note: "Slides 15, 17–25.", qs: [
     { q: "The three pieces of a Flask project on disk — and the two moves when it grows.",
       a: "<p><code>app.py</code>, a <code>templates</code> folder, a <code>static</code> folder (plus <code>requirements.txt</code>).</p><p>When it grows: split features into <b>blueprints</b> — sub-applications with their own routes and templates — and build the app inside a function, conventionally <b>create_app</b>, so tests can create their own instance with their own configuration.</p>",
       why: "One file is genuinely fine to start. For an app of that size, splitting it up would be ceremony, not engineering." },
@@ -295,6 +295,14 @@ const ACTS = [
       a: "<p><b>Nothing is hidden</b> — routes, templates and the request object are nearly the entire model. Very little magic: what you see is what runs.<br><b>It is still just WSGI</b> — everything runs unchanged on Gunicorn, Waitress, PythonAnywhere.<br><b>You choose the pieces</b> — no database or form layer is imposed.<br><b>It scales down honestly</b> — a six-line app really does stay six lines.</p><p>The close: <b>&ldquo;Learn WSGI once, and every Python web framework makes sense. Learn Flask, and you can build on it the same afternoon.&rdquo;</b></p>" },
     { q: "What is the point you leave the audience with about KuantorFlow?", tag: "apply",
       a: "<p>Not that the project is large. It is that <b>nothing new had to be learned to start it</b> — the six-line app and this real project <b>differ in quantity, not in kind</b>.</p>" },
+    { q: "What does a <code>create_app()</code> factory give you that a module-level <code>app</code> does not?", tag: "apply",
+      a: "<p><b>Config in, app out</b> — every test builds its own app, so two apps never share state.</p><p>It is also where blueprints are registered and extensions bound with <code>init_app(app)</code>, which keeps imports from going circular.</p>" },
+    { q: "A <code>before_request</code> hook returns a response. What happens to the view?", tag: "trap",
+      a: "<p>It is <b>skipped</b>: that response goes out instead, and <code>after_request</code> still runs on it. The example's maintenance switch returns a 503 this way.</p><p><code>teardown_appcontext</code> runs always, even after an exception — the place to close a database session.</p>" },
+    { q: "Can a user read Flask's session cookie? Can they change it?", tag: "trap",
+      a: "<p><b>Read: yes</b> — it is base64 JSON, no key needed.<br><b>Change: no</b> — the signature is made with <code>SECRET_KEY</code>; a forged cookie fails it and Flask silently drops the session. Signed means tamper-proof, not private.</p>" },
+    { q: "Is Flask the framework Python job adverts ask for most?", tag: "trap",
+      a: "<p><b>No — it is used as much as the others, but named about half as often.</b></p><p><b>Usage:</b> Stack Overflow 2025 — FastAPI 14.8%, Flask 14.4%, Django 12.6%. JetBrains and PSF Python Developers Survey 2024 — FastAPI 38%, Django 35%, Flask 34%.</p><p><b>Adverts:</b> 52 full-stack Python postings tracked on DOU, closed ones included — FastAPI 26, Django 19, Flask 8, and only one of the eight asks for Flask on its own. ITJobsWatch, UK permanent jobs, six months to 15 November 2026 — FastAPI 236, Django 203, Flask 104.</p><p>Which is why the talk teaches Flask as the clearest window onto what the other two are doing, not as the framework on the advert.</p>" },
   ]},
 ];
 
