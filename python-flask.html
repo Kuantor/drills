@@ -164,7 +164,7 @@ footer b{color:var(--gold-lt)}
 <header>
   <p class="kicker">Ship It Live! &middot; self-test</p>
   <h1>Flask Drill</h1>
-  <p class="lede">Thirty-six questions on <strong>Flask — From the WSGI Contract to a Working App</strong>. Answer out loud before revealing, then mark yourself honestly. The traps matter most here: this talk is mostly concepts, and the gotchas are what an interviewer probes.</p>
+  <p class="lede">Thirty-seven questions on <strong>Flask — From the WSGI Contract to a Working App</strong>. Answer out loud before revealing, then mark yourself honestly. The traps matter most here: this talk is mostly concepts, and the gotchas are what an interviewer probes.</p>
 </header>
 
 <div class="board">
@@ -211,7 +211,9 @@ const ACTS = [
     { q: "In one line, what is Flask — and what does &ldquo;a Flask app is a WSGI app&rdquo; mean in practice?",
       a: "<p>A <b>web application framework written in Python</b>, created by Armin Ronacher of the Pocoo group, maintained today by <b>Pallets</b>.</p><p>When you write <code>app = Flask(__name__)</code>, that object <b>already is the callable Gunicorn will call</b>. Flask does not replace WSGI; it sits on it — which is why the same file runs unchanged in production.</p>" },
     { q: "Tell the April Fools story.",
-      a: "<p>Ronacher published Flask on <b>1 April 2010</b> as a gag — a single-file framework, poking fun at how many Python web frameworks there already were. The joke got a serious reception, people asked where they could download it, so he made it real.</p><p>Fifteen years later it is one of the two frameworks every Python job advert mentions.</p>" },
+      a: "<p>Ronacher published Flask on <b>1 April 2010</b> as a gag — a single-file framework, poking fun at how many Python web frameworks there already were. The joke got a serious reception, people asked where they could download it, so he made it real.</p><p>Sixteen years later it is one of the three Python web frameworks that matter, next to Django and FastAPI — and developers use the three about equally.</p>" },
+    { q: "Is Flask the framework Python job adverts ask for most?", tag: "trap",
+      a: "<p><b>No — it is used as much as the others, but named about half as often.</b></p><p><b>Usage:</b> Stack Overflow 2025 — FastAPI 14.8%, Flask 14.4%, Django 12.6%. JetBrains and PSF Python Developers Survey 2024 — FastAPI 38%, Django 35%, Flask 34%.</p><p><b>Adverts:</b> 52 full-stack Python postings tracked on DOU, closed ones included — FastAPI 26, Django 19, Flask 8, and only one of the eight asks for Flask on its own. ITJobsWatch, UK permanent jobs, six months to 15 November 2026 — FastAPI 236, Django 203, Flask 104.</p><p>Which is why the talk teaches Flask as the clearest window onto what the other two are doing, not as the framework on the advert.</p>" },
     { q: "What does &ldquo;microframework&rdquo; mean — and what does it <em>not</em> mean?", tag: "trap",
       a: "<p>It does <b>not</b> mean Flask is for small projects. It means <b>the core makes very few decisions on your behalf</b>.</p><p>Flask gives you routing, templating and a request object — and then it stops. No database layer, no form validation, no user model. You add those through extensions, if and when you need them.</p>" },
     { q: "State the upside and the downside of that trade.",
