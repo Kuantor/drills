@@ -207,7 +207,7 @@ footer b{color:var(--gold-lt)}
 
 <script>
 const ACTS = [
-  { title: "What Flask is", note: "Slides 2–3. The word 'micro' is the one people get wrong.", qs: [
+  { title: "What Flask is", note: "Slides 2–5. The word 'micro' is the one people get wrong.", qs: [
     { q: "In one line, what is Flask — and what does &ldquo;a Flask app is a WSGI app&rdquo; mean in practice?",
       a: "<p>A <b>web application framework written in Python</b>, created by Armin Ronacher of the Pocoo group, maintained today by <b>Pallets</b>.</p><p>When you write <code>app = Flask(__name__)</code>, that object <b>already is the callable Gunicorn will call</b>. Flask does not replace WSGI; it sits on it — which is why the same file runs unchanged in production.</p>" },
     { q: "Tell the April Fools story.",
@@ -219,7 +219,7 @@ const ACTS = [
     { q: "State the upside and the downside of that trade.",
       a: "<p><b>Upside:</b> a small app stays genuinely small.<br><b>Downside:</b> every project has to make the same structural decisions again.</p>" },
   ]},
-  { title: "The two pillars", note: "Slides 4–6. Knowing the split is what makes tracebacks readable.", qs: [
+  { title: "The two pillars", note: "Slides 6–8. Knowing the split is what makes tracebacks readable.", qs: [
     { q: "Werkzeug — what is it, what does the name mean, and what does it own?",
       a: "<p><b>German for &ldquo;tool&rdquo;.</b> A <b>WSGI toolkit</b> — the piece that deals with the protocol. It wraps the raw environ dictionary into a request object and builds the response.</p><p>It also owns three things you use constantly: the <b>URL map</b> (turns <code>/blog/42</code> into a call to your function with 42 already an integer), the <b>development server</b> that <code>app.run()</code> gives you, and the <b>debugger</b> — the traceback page where every frame has a live Python console.</p>" },
     { q: "Jinja2 — what does it do, and name the two features worth the price of admission?",
@@ -233,7 +233,7 @@ const ACTS = [
     { q: "What does the <code>safe</code> filter do, and what is the rule about it?", tag: "trap",
       a: "<p>It <b>switches autoescaping off</b> for a value. Occasionally necessary — and it should <b>always be deliberate</b>, because it hands back the XSS hole escaping was closing.</p>" },
   ]},
-  { title: "What templating actually is", note: "Slide 7. The concept people nod along to without it landing.", qs: [
+  { title: "What templating actually is", note: "Slide 9. The concept people nod along to without it landing.", qs: [
     { q: "Define a template in one sentence.",
       a: "<p>A <b>document with named gaps in it</b>. You hand the engine two things — the template and a bag of values — and it gives you back finished HTML. That is the whole idea.</p>" },
     { q: "Three reasons to template rather than glue strings together in Python.",
@@ -241,7 +241,7 @@ const ACTS = [
     { q: "Complete the rule of thumb: templates format data — they should not ___", tag: "trap",
       a: "<p>&hellip; <b>decide things</b>.</p><p>If you find a nested if-else pyramid in a template, <b>that decision belongs back in Python</b>.</p>" },
   ]},
-  { title: "The six-line app", note: "Slide 8. Every argument in it is doing work.", qs: [
+  { title: "The six-line app", note: "Slide 10. Every argument in it is doing work.", qs: [
     { q: "Why does the <code>__name__</code> argument matter more than it looks?", tag: "trap",
       a: "<p>It tells Flask <b>where this file lives on disk</b>, which is how it later finds your <code>templates</code> and <code>static</code> folders.</p><p>Pass the wrong thing and <b>Flask cannot find your HTML</b>.</p>" },
     { q: "What is a view, and what happens when one returns a plain string?",
@@ -251,7 +251,7 @@ const ACTS = [
     { q: "<code>app.run()</code> — what is it for, and what replaces it in production?", tag: "apply",
       a: "<p>Development only. It starts the development server on <b>localhost port 5000</b>.</p><p>In production a <b>real WSGI server imports the app object</b> instead — which is exactly the PythonAnywhere pipeline from the WSGI talk.</p>" },
   ]},
-  { title: "Routing", note: "Slides 9–11. One asymmetry here bites everybody exactly once.", qs: [
+  { title: "Routing", note: "Slides 11–13. One asymmetry here bites everybody exactly once.", qs: [
     { q: "The route decorator is sugar for what — and when would you call the underlying thing yourself?",
       a: "<p>It calls <code>app.add_url_rule()</code>. You call that directly when the <b>view function lives in another module</b> and you are wiring things up centrally.</p><p>Either way the effect is the same: an entry goes into Werkzeug's URL map.</p>" },
     { q: "Which HTTP method does a route answer by default, and how do you accept a form submission?", tag: "syntax",
@@ -266,7 +266,7 @@ const ACTS = [
       a: "<p>You pass the <b>name of a view function</b>, not a path — plus any parameters as keyword arguments. Flask assembles the URL.</p><p><b>1.</b> Change a route later and every link follows automatically.<br><b>2.</b> Parameters get escaped properly.<br><b>3.</b> It respects any prefix the app is mounted under.<br><b>4.</b> It is how you link to static files.</p>",
       why: "The trick to remember: you name the function, and Flask works out the path." },
   ]},
-  { title: "Request, templates, static", note: "Slides 12–14.", qs: [
+  { title: "Request, templates, static", note: "Slides 14–16.", qs: [
     { q: "What <em>is</em> the request object, really — and name the attributes you will actually use.",
       a: "<p>It is <b>the environ dictionary from the WSGI talk, wrapped up nicely</b>.</p><p><code>request.method</code> — the HTTP verb.<br><code>request.form</code> — submitted form fields.<br><code>request.args</code> — the query string, everything after the question mark.<br>Also <code>cookies</code>, <code>files</code> for uploads, and <code>json</code> for a JSON body.</p>" },
     { q: "<code>request</code> is never passed into the view — so why does it always refer to the right one? And what is the classic error?", tag: "trap",
@@ -278,7 +278,7 @@ const ACTS = [
     { q: "Static files: which folder, how do you link to one, and who should serve them in production?", tag: "apply",
       a: "<p>A folder called <code>static</code>, served at the <code>/static</code> path. Link with <code>url_for('static', filename=…)</code> — writing the path by hand works right up until the app moves under a sub-path or onto a CDN, and then every link breaks at once.</p><p>In production the job belongs to <b>nginx or your hosting platform</b>. The front server handles TLS and static files because it is fast at exactly those things. <b>Letting a Python worker serve a logo is a waste of a worker.</b></p>" },
   ]},
-  { title: "Structure, the rest of the core, and the payoff", note: "Slides 15, 17–20.", qs: [
+  { title: "Structure, the rest of the core, and the payoff", note: "Slides 17, 19–22.", qs: [
     { q: "The three pieces of a Flask project on disk — and the two moves when it grows.",
       a: "<p><code>app.py</code>, a <code>templates</code> folder, a <code>static</code> folder (plus <code>requirements.txt</code>).</p><p>When it grows: split features into <b>blueprints</b> — sub-applications with their own routes and templates — and build the app inside a function, conventionally <b>create_app</b>, so tests can create their own instance with their own configuration.</p>",
       why: "One file is genuinely fine to start. For an app of that size, splitting it up would be ceremony, not engineering." },
