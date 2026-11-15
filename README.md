@@ -8,9 +8,9 @@ Interactive knowledge-check drills — standalone HTML pages.
 - **Interview preparation**, both built in Anton's study wikis and published like the Python drills — the wiki's page unchanged, plus five Open Graph tags after the viewport line:
   - 🎯 [Full-Stack Python](https://kuantor.github.io/drills/full-stack-python-interview.html) — 118 questions in fifteen acts, weighted by what the tracked full-stack Python postings ask for; 40 of them senior.
   - 🏗️ [System Design](https://kuantor.github.io/drills/system-design.html) — 74 questions: all 60 scenario drills from the System Design wiki as multiple choice, plus 14 open questions on method and fundamentals.
-- 🐍 Python Full-Stack — 26 drills, one per *Ship It Live!* talk, grouped on the [index](https://kuantor.github.io/drills/):
+- 🐍 Python Full-Stack — 27 drills, one per *Ship It Live!* talk, grouped on the [index](https://kuantor.github.io/drills/):
   - **Career and craft:** Full Stack Dev, Soft Skills, 15 Web Dev Tools, Seniority
-  - **The web stack:** WSGI, Flask, ORMs, Async Python, Networking, FastAPI, MQTT
+  - **The web stack:** WSGI, Flask, ORMs, Async Python, Networking, FastAPI, Django, MQTT
   - **Production:** Security, Authentication, Testing, Caching, Profiling, Observability, Docker
   - **Python internals:** GIL, Descriptors, Imports, Type Hints, Bytecode
   - **AI:** MCP, RAG, AI Training
