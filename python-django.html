@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta property="og:title" content="Django Drill — Ship It Live!" />
+<meta property="og:description" content="Interactive self-test: Django." />
+<meta property="og:image" content="https://kuantor.github.io/drills/background.jpg" />
+<meta property="og:url" content="https://kuantor.github.io/drills/python-django.html" />
+<meta property="og:type" content="website" />
+<style>
+  :root{
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  body{margin:0}
+  img{max-width:100%}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+<title>Django Drill</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a single reading column of question cards, grouped into seven acts
+   that follow the talk. Palette lifted from the Ship It Live deck builder so
+   this reads as part of the series: roasted brown ground, brass accents. */
+:root{
+  --ground:#1A150E;
+  --surface:#262014;
+  --card:#312918;
+  --edge:#4A3D22;
+  --cream:#F1EADA;
+  --tan:#AC9F84;
+  --gold:#C8A24B;
+  --gold-lt:#E8CD86;
+  --teal:#6FB0A6;
+  --terra:#D0845A;
+  --sage:#8BA678;
+  --serif:"Source Serif 4",Cambria,Georgia,serif;
+  --sans:"Public Sans",Calibri,-apple-system,system-ui,sans-serif;
+  --mono:"IBM Plex Mono",Consolas,ui-monospace,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  background:var(--ground);color:var(--cream);font-family:var(--sans);
+  font-size:16px;line-height:1.55;margin:0;
+}
+.wrap{max-width:780px;margin:0 auto;padding-inline:16px;padding-block:40px 64px}
+
+header h1{
+  font-family:var(--serif);font-weight:700;color:var(--gold);
+  font-size:clamp(2rem,7vw,3rem);line-height:1.05;margin:0 0 .3em;text-wrap:balance;
+}
+.kicker{
+  font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--tan);margin:0 0 1.6rem;
+}
+.lede{color:var(--tan);font-size:1.05rem;margin:0 0 2rem;max-width:62ch}
+.lede strong{color:var(--cream);font-weight:600}
+
+.board{
+  position:sticky;top:env(safe-area-inset-top,0px);z-index:10;
+  background:var(--surface);border:1px solid var(--edge);border-radius:10px;
+  padding:14px 16px;margin-bottom:2.4rem;
+  display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;
+}
+.tally{display:flex;gap:18px;flex:1 1 auto;min-width:0}
+.stat{display:flex;flex-direction:column;line-height:1.15}
+.stat b{
+  font-family:var(--mono);font-size:1.25rem;font-weight:500;
+  font-variant-numeric:tabular-nums;color:var(--gold-lt);
+}
+.stat span{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--tan)}
+.stat.ok b{color:var(--sage)}
+.stat.no b{color:var(--terra)}
+.bar{flex:1 1 100%;height:4px;background:var(--edge);border-radius:2px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--gold);transition:width .3s ease}
+button{font-family:var(--sans);font-size:.85rem;cursor:pointer;border-radius:7px;transition:background .15s,border-color .15s,color .15s}
+button:focus-visible{outline:2px solid var(--gold-lt);outline-offset:2px}
+.ghost{background:transparent;border:1px solid var(--edge);color:var(--tan);padding:7px 13px}
+.ghost:hover{border-color:var(--gold);color:var(--gold-lt)}
+
+h2{
+  font-family:var(--serif);font-size:1.45rem;font-weight:600;color:var(--gold);
+  margin:2.8rem 0 .2rem;display:flex;align-items:baseline;gap:.6rem;text-wrap:balance;
+}
+h2 em{
+  font-family:var(--mono);font-style:normal;font-size:.7rem;color:var(--tan);
+  letter-spacing:.1em;flex:0 0 auto;
+}
+.act-note{color:var(--tan);font-size:.9rem;margin:0 0 1.4rem}
+
+.q{background:var(--card);border:1px solid var(--edge);border-radius:10px;padding:18px 20px;margin-bottom:14px}
+.q[data-state="ok"]{border-color:color-mix(in srgb,var(--sage) 55%,var(--edge))}
+.q[data-state="no"]{border-color:color-mix(in srgb,var(--terra) 55%,var(--edge))}
+.qhead{display:flex;gap:12px;align-items:flex-start}
+.num{
+  font-family:var(--mono);font-size:.78rem;color:var(--gold);
+  flex:0 0 auto;padding-top:.2em;font-variant-numeric:tabular-nums;
+}
+.prompt{margin:0;flex:1 1 auto;min-width:0;font-size:1rem}
+.prompt code,.a code{
+  font-family:var(--mono);font-size:.86em;background:var(--ground);
+  border:1px solid var(--edge);border-radius:4px;padding:.08em .35em;color:var(--gold-lt);
+}
+.tag{
+  display:inline-block;font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;
+  text-transform:uppercase;padding:.2em .5em;border-radius:4px;margin-left:.5rem;
+  vertical-align:.12em;border:1px solid;
+}
+.tag.numbers{color:var(--gold-lt);border-color:color-mix(in srgb,var(--gold) 45%,transparent)}
+.tag.trap{color:var(--terra);border-color:color-mix(in srgb,var(--terra) 45%,transparent)}
+.tag.apply{color:var(--teal);border-color:color-mix(in srgb,var(--teal) 45%,transparent)}
+
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;padding-left:calc(.78rem + 12px)}
+.reveal{background:transparent;border:1px solid var(--gold);color:var(--gold-lt);padding:7px 15px}
+.reveal:hover{background:color-mix(in srgb,var(--gold) 14%,transparent)}
+.mark{border:1px solid var(--edge);background:transparent;padding:7px 15px}
+.mark.yes{color:var(--sage)}
+.mark.yes:hover,.mark.yes[aria-pressed="true"]{background:color-mix(in srgb,var(--sage) 18%,transparent);border-color:var(--sage)}
+.mark.nope{color:var(--terra)}
+.mark.nope:hover,.mark.nope[aria-pressed="true"]{background:color-mix(in srgb,var(--terra) 18%,transparent);border-color:var(--terra)}
+
+.a{
+  margin:14px 0 0;padding:14px 16px;background:var(--ground);
+  border-left:3px solid var(--gold);border-radius:0 7px 7px 0;font-size:.96rem;
+}
+.a p{margin:0 0 .7em}
+.a p:last-child{margin-bottom:0}
+.a b{color:var(--gold-lt);font-weight:600}
+.a .why{color:var(--tan);font-size:.9rem;display:block;margin-top:.7em;padding-top:.7em;border-top:1px solid var(--edge)}
+
+details.ref{margin-top:3rem;border:1px solid var(--edge);border-radius:10px;background:var(--surface)}
+details.ref summary{
+  cursor:pointer;padding:14px 18px;font-family:var(--mono);font-size:.78rem;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--gold);
+}
+details.ref summary:focus-visible{outline:2px solid var(--gold-lt);outline-offset:-2px}
+.tablewrap{overflow-x:auto;padding:0 18px 18px}
+table{border-collapse:collapse;width:100%;min-width:460px;font-size:.92rem}
+th,td{text-align:right;padding:8px 10px;border-bottom:1px solid var(--edge)}
+th:first-child,td:first-child{text-align:left}
+thead th{color:var(--tan);font-weight:500;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase}
+tbody td{font-family:var(--mono);font-variant-numeric:tabular-nums}
+tbody td:first-child{font-family:var(--sans)}
+.win{color:var(--sage)}
+.lose{color:var(--terra)}
+.refnote{padding:0 18px 18px;margin:0;color:var(--tan);font-size:.85rem}
+
+footer{margin-top:3rem;padding-top:1.6rem;border-top:1px solid var(--edge);color:var(--tan);font-size:.88rem}
+footer b{color:var(--gold-lt)}
+#missed{margin:.8rem 0 0;padding-left:1.1rem}
+#missed li{margin-bottom:.3rem}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+<header>
+  <p class="kicker">Ship It Live! &middot; self-test</p>
+  <h1>Django Drill</h1>
+  <p class="lede"><style>.tag.syntax{color:var(--sage);border-color:color-mix(in srgb,var(--sage) 45%,transparent)}</style>Thirty-six questions on <strong>Django for a Flask Developer</strong>. Answer out loud before revealing, then mark yourself honestly. The hinge is <strong>Django has chosen already</strong>: learn what it chose &mdash; and count your queries.</p>
+</header>
+
+<div class="board">
+  <div class="tally">
+    <div class="stat"><b id="done">0</b><span>answered</span></div>
+    <div class="stat ok"><b id="right">0</b><span>got it</span></div>
+    <div class="stat no"><b id="wrong">0</b><span>missed</span></div>
+  </div>
+  <button class="ghost" id="reset">Reset</button>
+  <div class="bar"><i id="fill"></i></div>
+</div>
+
+<main id="quiz"></main>
+
+<details class="ref">
+  <summary>Reference &mdash; Flask to Django, and the saved run</summary>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Flask</th><th>Django</th></tr></thead>
+    <tbody>
+      <tr><td>app = Flask(__name__)</td><td>startproject + settings.py</td></tr>
+      <tr><td>a blueprint</td><td>an app, in INSTALLED_APPS</td></tr>
+      <tr><td>@app.route</td><td>path(...) in urls.py, with a name</td></tr>
+      <tr><td>url_for("bp.view")</td><td class="win">reverse("app:name")</td></tr>
+      <tr><td>Flask-SQLAlchemy + Flask-Migrate</td><td>models + makemigrations / migrate</td></tr>
+      <tr><td>Flask-WTF</td><td>ModelForm + {% csrf_token %}</td></tr>
+      <tr><td>Flask-Admin, or by hand</td><td class="win">admin.py</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>What the saved run shows</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr><td>card.topic.name for 12 cards</td><td class="lose">13 queries</td></tr>
+      <tr><td>... with select_related("topic")</td><td>1 query</td></tr>
+      <tr><td>topics' cards / with prefetch_related</td><td>4 / 2 queries</td></tr>
+      <tr><td>a POST without the CSRF token</td><td class="lose">403</td></tr>
+      <tr><td>reverse("card-list") with DRF mounted</td><td class="lose">/api/cards/</td></tr>
+      <tr><td>Host: evil.example</td><td class="lose">400</td></tr>
+      <tr><td>check --deploy on a fresh project</td><td>6 findings</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>Django 6.1.3, DRF 3.18.3, Django Ninja 1.8.0, Python 3.14.3; from <code>verify_snippets.py</code>, 15 November 2026.</p>
+</details>
+
+<footer>
+  <p id="verdict">Nothing answered yet.</p>
+  <ul id="missed" hidden></ul>
+</footer>
+</div>
+
+<script>
+const ACTS = [
+  { title: "The project, settings and URLs", note: "Slides 2–7.", qs: [
+    { q: "Flask, FastAPI, Django: one phrase each for the philosophy.",
+      a: "<p>Flask: <b>you choose</b> every piece. FastAPI: <b>types do the work</b> (Pydantic). Django: <b>chosen for you</b> — ORM, migrations, admin, auth, forms, CSRF.</p>" },
+    { q: "How many of the 52 tracked DOU postings name Django, and how does that compare with Flask?", tag: "numbers",
+      a: "<p><b>19</b> against Flask’s <b>8</b> (FastAPI 26). In the UK: 203 adverts against 104 — about twice as often.</p>" },
+    { q: "Which two commands create a project and an app?", tag: "syntax",
+      a: "<p><code>django-admin startproject cards_site</code>, then inside it <code>python manage.py startapp cards</code>.</p>" },
+    { q: "Project or app — what is the difference?",
+      a: "<p>The <b>project</b> is the site and its settings; an <b>app</b> is one feature (models, views, admin, migrations), and a project holds many.</p>" },
+    { q: "You created an app and wrote models, but makemigrations finds nothing. Why?", tag: "trap",
+      a: "<p>The app is not in <b>INSTALLED_APPS</b>. Until it is listed there, Django does not see its models.</p>" },
+    { q: "Why are templates kept in <code>cards/templates/cards/</code>, with the app name twice?",
+      a: "<p>All apps’ templates share <b>one namespace</b>; the inner folder keeps <code>cards/list.html</code> from clashing with another app’s <code>list.html</code>.</p>" },
+    { q: "What is MIDDLEWARE, in Flask terms?",
+      a: "<p>An ordered list every request passes through — sessions, CSRF, auth — before the view: Flask’s <code>before_request</code> hooks, as configuration.</p>" },
+    { q: "What does Flask’s request global become in a Django view?", tag: "syntax",
+      a: "<p>The view’s <b>first argument</b>: <code>def card_detail(request, card_id)</code>. No context global.</p>" },
+    { q: "Flask’s <code>url_for</code> in Django?", tag: "syntax",
+      a: "<p><code>reverse(\"cards:list\")</code> in Python, <code>{% url \"cards:list\" %}</code> in a template.</p>" },
+    { q: "<code>redirect(\"card-list\")</code> went to <code>/api/cards/</code>. Why, and the fix?", tag: "trap",
+      a: "<p>DRF’s router also names its routes <code>card-list</code> and <code>card-detail</code>. Fix: <code>app_name = \"cards\"</code> in the app’s urls.py, and <code>reverse(\"cards:list\")</code>. Namespace every app.</p>" },
+    { q: "What is <code>get_object_or_404</code>?",
+      a: "<p>A shortcut: <code>Model.objects.get(...)</code>, or raise <code>Http404</code> if it does not exist — three lines you would write anyway.</p>" },
+  ]},
+  { title: "Templates, models, migrations and QuerySets", note: "Slides 8–12.", qs: [
+    { q: "Name two ways Django templates are stricter than Jinja2.", tag: "trap",
+      a: "<p>No method calls with arguments (attributes only), and less logic in general — it belongs in the view. Jinja2 itself is available as a backend.</p>" },
+    { q: "What does <code>{% empty %}</code> do?", tag: "syntax",
+      a: "<p>Inside a <code>{% for %}</code>, it renders when the list is empty: “no cards yet”.</p>" },
+    { q: "Which primary key does a model get if you declare none?",
+      a: "<p>An auto-incrementing <code>id</code>.</p>" },
+    { q: "What does <code>related_name=\"cards\"</code> on a ForeignKey give you?", tag: "syntax",
+      a: "<p>The reverse accessor: <code>topic.cards.all()</code>. Without it, Django names it <code>topic.card_set</code>.</p>" },
+    { q: "Django’s ORM against SQLAlchemy: how do you save?",
+      a: "<p>Through the object: <code>card.save()</code> (Active Record). SQLAlchemy saves through a session: <code>session.add(card); session.commit()</code> (Data Mapper).</p>" },
+    { q: "makemigrations against migrate?",
+      a: "<p><b>makemigrations</b> compares models with existing migrations and writes the difference as a Python file. <b>migrate</b> applies migrations the database has not seen.</p>" },
+    { q: "How many migrations did a fresh project with one app apply, and why so many?", tag: "numbers",
+      a: "<p><b>19</b>: the batteries — auth, admin, sessions, contenttypes — have tables and migrations of their own.</p>" },
+    { q: "How do you stop a PR that changed a model without its migration?", tag: "apply",
+      a: "<p>Run <code>python manage.py makemigrations --check --dry-run</code> in CI: it fails when a migration is missing.</p>" },
+    { q: "<code>qs = Card.objects.filter(level=\"C1\")</code> — how many queries? Then <code>list(qs)</code> twice?", tag: "trap",
+      a: "<p><b>0</b>, then <b>1</b>, then <b>0</b>: QuerySets are lazy, and an evaluated QuerySet caches its rows.</p>" },
+    { q: "Card.objects.get(pk=999) when there is no such card?", tag: "trap",
+      a: "<p>It raises <code>Card.DoesNotExist</code> — not None. (<code>.first()</code> returns None.)</p>" },
+    { q: "Twelve cards, the loop reads <code>card.topic.name</code>. How many queries, and the fix?", tag: "trap",
+      a: "<p><b>13</b> — one for the cards, one per topic. <code>select_related(\"topic\")</code> makes it <b>1</b>: a JOIN.</p>" },
+    { q: "select_related or prefetch_related?", tag: "apply",
+      a: "<p><b>select_related</b> for a ForeignKey going forward (a JOIN, one query). <b>prefetch_related</b> for the reverse side or many-to-many (two queries, joined in Python): 4 → 2 for three topics’ cards.</p>" },
+    { q: "How do you keep N+1 from coming back?", tag: "apply",
+      a: "<p>A test with <code>assertNumQueries(1)</code> around the view or the loop.</p>" },
+  ]},
+  { title: "Forms, the admin, APIs and production", note: "Slides 13–19.", qs: [
+    { q: "What does a ModelForm give you?",
+      a: "<p>Fields and validation read from the model — <code>choices</code>, <code>max_length</code> — and <code>form.save()</code>.</p>" },
+    { q: "A POST arrives without the CSRF token. What happens?", tag: "trap",
+      a: "<p><b>403 Forbidden</b>, from CsrfViewMiddleware. The form needs <code>{% csrf_token %}</code>. Django fails closed.</p>" },
+    { q: "What did Flask need Flask-WTF for that Django does by default?",
+      a: "<p>Form validation with errors back on the page, and the CSRF token on every POST.</p>" },
+    { q: "Write the admin for Card with columns, a filter and search.", tag: "syntax",
+      a: "<p><code>@admin.register(Card)</code><br><code>class CardAdmin(admin.ModelAdmin):</code><br><code>&nbsp;&nbsp;list_display = [\"word\", \"translation\", \"level\", \"topic\"]</code><br><code>&nbsp;&nbsp;list_filter = [\"level\", \"topic\"]; search_fields = [\"word\"]</code></p>" },
+    { q: "Who is the Django admin for?", tag: "trap",
+      a: "<p><b>Staff</b> — trusted users editing data. Not customers.</p>" },
+    { q: "DRF or Django Ninja — what is the difference in style?",
+      a: "<p>DRF: serializers, viewsets and a router — the established choice. Ninja: Pydantic schemas and typed functions, FastAPI’s style, Swagger docs generated.</p>" },
+    { q: "A bad <code>level</code> sent to each API: which status codes?", tag: "trap",
+      a: "<p>DRF: <b>400</b> with a message per field. Ninja: <b>422</b>, Pydantic’s, as in FastAPI.</p>" },
+    { q: "The three settings to change for production?", tag: "apply",
+      a: "<p><b>DEBUG = False</b>, <b>ALLOWED_HOSTS</b> set, <b>SECRET_KEY</b> long, random and from the environment — never the generated django-insecure one.</p>" },
+    { q: "A request with <code>Host: evil.example</code> on a site with ALLOWED_HOSTS set?", tag: "trap",
+      a: "<p><b>400 Bad Request</b> (DisallowedHost), before any view runs.</p>" },
+    { q: "Which command lists what is unsafe in your settings, and how many findings on a fresh project?", tag: "numbers",
+      a: "<p><code>python manage.py check --deploy</code>: <b>6</b> — secure session and CSRF cookies, the HTTPS redirect, HSTS, the short key, a development-only mail backend.</p>" },
+    { q: "Why would you pick Django over Flask — in one sentence?", tag: "apply",
+      a: "<p>Batteries included: ORM, migrations, admin, auth, forms and CSRF, chosen and integrated — less to decide, more to learn.</p>" },
+    { q: "Where is FastAPI the better fit, and where Django?", tag: "apply",
+      a: "<p>FastAPI: APIs and AI services, async-first, validation by types. Django: content-heavy sites and back offices, where the admin and ORM pay off.</p>" },
+  ]},
+];
+
+const quiz = document.getElementById("quiz");
+const state = new Map();
+let n = 0;
+const total = ACTS.reduce((s, a) => s + a.qs.length, 0);
+
+ACTS.forEach((act, ai) => {
+  const h = document.createElement("h2");
+  h.innerHTML = `${act.title} <em>Act ${ai + 1}</em>`;
+  quiz.appendChild(h);
+  const note = document.createElement("p");
+  note.className = "act-note";
+  note.textContent = act.note;
+  quiz.appendChild(note);
+
+  act.qs.forEach(item => {
+    n += 1;
+    const id = n;
+    const card = document.createElement("section");
+    card.className = "q";
+    card.dataset.id = id;
+    const tag = item.tag ? `<span class="tag ${item.tag}">${item.tag}</span>` : "";
+    card.innerHTML = `
+      <div class="qhead">
+        <span class="num">${String(id).padStart(2, "0")}</span>
+        <p class="prompt">${item.q}${tag}</p>
+      </div>
+      <div class="a" id="a${id}" hidden>
+        ${item.a}${item.why ? `<span class="why">${item.why}</span>` : ""}
+      </div>
+      <div class="actions">
+        <button class="reveal" type="button">Show answer</button>
+        <button class="mark yes" type="button" aria-pressed="false" hidden>Got it</button>
+        <button class="mark nope" type="button" aria-pressed="false" hidden>Missed</button>
+      </div>`;
+    quiz.appendChild(card);
+
+    const ans = card.querySelector(".a");
+    const reveal = card.querySelector(".reveal");
+    const yes = card.querySelector(".mark.yes");
+    const nope = card.querySelector(".mark.nope");
+
+    reveal.addEventListener("click", () => {
+      const open = !ans.hidden;
+      ans.hidden = open;
+      reveal.textContent = open ? "Show answer" : "Hide answer";
+      yes.hidden = nope.hidden = open;
+    });
+    const mark = (v) => {
+      state.set(id, state.get(id) === v ? null : v);
+      const cur = state.get(id);
+      card.dataset.state = cur || "";
+      yes.setAttribute("aria-pressed", String(cur === "ok"));
+      nope.setAttribute("aria-pressed", String(cur === "no"));
+      score();
+    };
+    yes.addEventListener("click", () => mark("ok"));
+    nope.addEventListener("click", () => mark("no"));
+  });
+});
+
+const elDone = document.getElementById("done");
+const elRight = document.getElementById("right");
+const elWrong = document.getElementById("wrong");
+const fill = document.getElementById("fill");
+const verdict = document.getElementById("verdict");
+const missedList = document.getElementById("missed");
+
+function score() {
+  let ok = 0, no = 0;
+  state.forEach(v => { if (v === "ok") ok++; else if (v === "no") no++; });
+  const done = ok + no;
+  elDone.textContent = done;
+  elRight.textContent = ok;
+  elWrong.textContent = no;
+  fill.style.width = `${(done / total) * 100}%`;
+
+  missedList.innerHTML = "";
+  if (!done) {
+    verdict.textContent = "Nothing answered yet.";
+    missedList.hidden = true;
+    return;
+  }
+  const pct = Math.round((ok / done) * 100);
+  verdict.innerHTML = done === total
+    ? `All ${total} answered — <b>${ok} right, ${no} missed (${pct}%)</b>.`
+    : `<b>${done} of ${total}</b> answered — ${ok} right, ${no} missed (${pct}%).`;
+
+  const misses = [];
+  state.forEach((v, id) => { if (v === "no") misses.push(id); });
+  if (misses.length) {
+    missedList.hidden = false;
+    misses.sort((a, b) => a - b).forEach(id => {
+      const li = document.createElement("li");
+      const p = document.querySelector(`.q[data-id="${id}"] .prompt`);
+      li.textContent = `${String(id).padStart(2, "0")} — ${p.textContent.replace(/\s*(numbers|trap|apply)\s*$/, "")}`;
+      li.style.cursor = "pointer";
+      li.addEventListener("click", () => {
+        document.querySelector(`.q[data-id="${id}"]`).scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+      missedList.appendChild(li);
+    });
+  } else {
+    missedList.hidden = true;
+  }
+}
+
+document.getElementById("reset").addEventListener("click", () => {
+  state.clear();
+  document.querySelectorAll(".q").forEach(c => {
+    c.dataset.state = "";
+    c.querySelector(".a").hidden = true;
+    c.querySelector(".reveal").textContent = "Show answer";
+    c.querySelector(".mark.yes").hidden = true;
+    c.querySelector(".mark.nope").hidden = true;
+    c.querySelectorAll(".mark").forEach(b => b.setAttribute("aria-pressed", "false"));
+  });
+  score();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+score();
+</script>
+
+</body>
+</html>
