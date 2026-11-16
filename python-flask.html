@@ -164,7 +164,7 @@ footer b{color:var(--gold-lt)}
 <header>
   <p class="kicker">Ship It Live! &middot; self-test</p>
   <h1>Flask Drill</h1>
-  <p class="lede">Forty-two questions on <strong>Flask — From the WSGI Contract to a Working App</strong>. Answer out loud before revealing, then mark yourself honestly. The traps matter most here: this talk is mostly concepts, and the gotchas are what an interviewer probes.</p>
+  <p class="lede">Twenty-five questions on <strong>Flask — From the WSGI Contract to a Working App</strong>. Answer out loud before revealing, then mark yourself honestly. The traps matter most here: this talk is mostly concepts, and the gotchas are what an interviewer probes.</p>
 </header>
 
 <div class="board">
@@ -207,19 +207,19 @@ footer b{color:var(--gold-lt)}
 
 <script>
 const ACTS = [
-  { title: "What Flask is", note: "Slides 2–4. The word 'micro' is the one people get wrong.", qs: [
+  { title: "What Flask is", note: "Slides 2–5. The word 'micro' is the one people get wrong.", qs: [
     { q: "In one line, what is Flask — and what does &ldquo;a Flask app is a WSGI app&rdquo; mean in practice?",
       a: "<p>A <b>web application framework written in Python</b>, created by Armin Ronacher of the Pocoo group, maintained today by <b>Pallets</b>.</p><p>When you write <code>app = Flask(__name__)</code>, that object <b>already is the callable Gunicorn will call</b>. Flask does not replace WSGI; it sits on it — which is why the same file runs unchanged in production.</p>" },
     { q: "Tell the April Fools story.",
-      a: "<p>Ronacher published Flask on <b>1 April 2010</b> as a gag — a single-file framework, poking fun at how many Python web frameworks there already were. The joke got a serious reception, people asked where they could download it, so he made it real.</p><p>Sixteen years later it is one of the three Python web frameworks that matter, next to Django and FastAPI — and developers use the three about equally.</p>" },
+      a: "<p>On <b>1 April 2010</b> Ronacher published <b>denied</b>, &ldquo;the next generation Python micro-web-framework, wrapped in a single portable library&rdquo;: one file that was really a zip of Werkzeug, Jinja2 and simplejson with about 160 lines of glue, an invented author and a screencast in a fake French accent. It mocked how microframeworks sold themselves.</p><p>It got 10,000+ screencast downloads, and people asked for the code. Two weeks later, on <b>16 April 2010</b>, came <b>Flask 0.1</b>: &ldquo;a microframework based on Werkzeug, Jinja2 and good intentions&rdquo;. Sixteen years on, developers use it about as much as Django and FastAPI.</p>" },
     { q: "Who wrote Werkzeug, Jinja and Flask — and what came first?",
-      a: "<p><b>Armin Ronacher</b>, Austrian, online as mitsuhiko. <b>Jinja</b> and <b>Werkzeug</b> came first, in 2007 — Jinja when he was 17, with a syntax his own announcement called &ldquo;Django-like&rdquo;. <b>Flask</b> followed on 1 April 2010, at 20, as a joke that bundled both into one file.</p>" },
+      a: "<p><b>Armin Ronacher</b>, Austrian, online as mitsuhiko. <b>Jinja</b> and <b>Werkzeug</b> came first, in 2007 — Jinja when he was 17, with a syntax his own announcement called &ldquo;Django-like&rdquo;. <b>Flask</b> followed in April 2010, at 20 — two weeks after <i>denied</i>, an April Fools joke that bundled both into one file.</p>" },
     { q: "What does &ldquo;microframework&rdquo; mean — and what does it <em>not</em> mean?", tag: "trap",
       a: "<p>It does <b>not</b> mean Flask is for small projects. It means <b>the core makes very few decisions on your behalf</b>.</p><p>Flask gives you routing, templating and a request object — and then it stops. No database layer, no form validation, no user model. You add those through extensions, if and when you need them.</p>" },
     { q: "State the upside and the downside of that trade.",
       a: "<p><b>Upside:</b> a small app stays genuinely small.<br><b>Downside:</b> every project has to make the same structural decisions again.</p>" },
   ]},
-  { title: "The two pillars", note: "Slides 5–8. Knowing the split is what makes tracebacks readable.", qs: [
+  { title: "The two pillars", note: "Slides 6–8 and 11. Knowing the split is what makes tracebacks readable.", qs: [
     { q: "Werkzeug — what is it, what does the name mean, and what does it own?",
       a: "<p><b>German for &ldquo;tool&rdquo;.</b> A <b>WSGI toolkit</b> — the piece that deals with the protocol. It wraps the raw environ dictionary into a request object and builds the response.</p><p>It also owns three things you use constantly: the <b>URL map</b> (turns <code>/blog/42</code> into a call to your function with 42 already an integer), the <b>development server</b> that <code>app.run()</code> gives you, and the <b>debugger</b> — the traceback page where every frame has a live Python console.</p>" },
     { q: "Jinja2 — what does it do, and name the two features worth the price of admission?",
@@ -239,11 +239,13 @@ const ACTS = [
     { q: "Define a template in one sentence.",
       a: "<p>A <b>document with named gaps in it</b>. You hand the engine two things — the template and a bag of values — and it gives you back finished HTML. That is the whole idea.</p>" },
     { q: "Three reasons to template rather than glue strings together in Python.",
-      a: "<p><b>Readable</b> — the file resembles the page, so you can see its shape and your editor can help.<br><b>Safe</b> — values get escaped on the way in; gluing user data into strings builds an XSS hole.<br><b>Reusable</b> — one layout can be inherited by every page in the site.</p>" },
+      a: "<p><b>Readable</b> — the file resembles the page, so you can see its shape and your editor can help.<br><b>Safe</b> — every value is escaped as it goes into the page; gluing user data into strings builds an XSS hole.<br><b>Reusable</b> — one layout can be inherited by every page in the site.</p>" },
     { q: "Complete the rule of thumb: templates format data — they should not ___", tag: "trap",
       a: "<p>&hellip; <b>decide things</b>.</p><p>If you find a nested if-else pyramid in a template, <b>that decision belongs back in Python</b>.</p>" },
   ]},
-  { title: "The six-line app", note: "Slide 10. Every argument in it is doing work.", qs: [
+  { title: "The seven-line app", note: "Slide 10. Every argument in it is doing work.", qs: [
+    { q: "The April Fools hello world had six lines; Flask&rsquo;s has seven. Which line is extra, and why does Flask insist on it?", tag: "apply",
+      a: "<p><code>app = Flask(__name__)</code> — an <b>explicit application object</b>. The joke&rsquo;s <code>from deny import *</code> hid the app behind globals.</p><p>Flask&rsquo;s design notes give the reasons: you can create <b>more than one app</b> (a fresh one per test), you can <b>subclass</b> it, and <code>__name__</code> tells it <b>where its templates and static files are</b>. It is also what makes a <code>create_app()</code> factory possible.</p>" },
     { q: "Why does the <code>__name__</code> argument matter more than it looks?", tag: "trap",
       a: "<p>It tells Flask <b>where this file lives on disk</b>, which is how it later finds your <code>templates</code> and <code>static</code> folders.</p><p>Pass the wrong thing and <b>Flask cannot find your HTML</b>.</p>" },
     { q: "What is a view, and what happens when one returns a plain string?",
@@ -253,60 +255,18 @@ const ACTS = [
     { q: "<code>app.run()</code> — what is it for, and what replaces it in production?", tag: "apply",
       a: "<p>Development only. It starts the development server on <b>localhost port 5000</b>.</p><p>In production a <b>real WSGI server imports the app object</b> instead — which is exactly the PythonAnywhere pipeline from the WSGI talk.</p>" },
   ]},
-  { title: "Routing", note: "Slides 11–13. One asymmetry here bites everybody exactly once.", qs: [
-    { q: "The route decorator is sugar for what — and when would you call the underlying thing yourself?",
-      a: "<p>It calls <code>app.add_url_rule()</code>. You call that directly when the <b>view function lives in another module</b> and you are wiring things up centrally.</p><p>Either way the effect is the same: an entry goes into Werkzeug's URL map.</p>" },
-    { q: "Which HTTP method does a route answer by default, and how do you accept a form submission?", tag: "syntax",
-      a: "<p><b>GET only</b>, by default. To accept a form you list them explicitly: <code>methods=[\"GET\", \"POST\"]</code>.</p>" },
-    { q: "Trailing slashes — state the asymmetry exactly.", tag: "trap",
-      a: "<p>A rule <b>ending in a slash</b> is canonical: requesting it <b>without</b> the slash <b>redirects politely</b>.</p><p>A rule with <b>no</b> trailing slash, requested <b>with</b> one, is a <b>404</b>.</p><p>It is not symmetric, and it will bite you.</p>" },
-    { q: "Name the four converters and what each accepts.", tag: "syntax",
-      a: "<p><b>string</b> — the default, anything without a slash.<br><b>int</b><br><b>float</b><br><b>path</b> — like string but permits slashes, so it can capture a whole sub-path.</p>" },
-    { q: "Why is a typed rule like <code>&lt;int:id&gt;</code> doing more work than a cast?", tag: "apply",
-      a: "<p><code>/blog/42</code> calls your function with the <b>integer</b> 42, already converted. But <code>/blog/abc</code> <b>does not match the rule at all</b>, so Flask returns a <b>404 before a single line of your code runs</b>.</p><p>That is <b>free input validation at the very edge of the application</b>. You never write the check, and the bad request never gets in.</p>" },
-    { q: "<code>url_for()</code> — what do you pass it, and give three reasons to use it.",
-      a: "<p>You pass the <b>name of a view function</b>, not a path — plus any parameters as keyword arguments. Flask assembles the URL.</p><p><b>1.</b> Change a route later and every link follows automatically.<br><b>2.</b> Parameters get escaped properly.<br><b>3.</b> It respects any prefix the app is mounted under.<br><b>4.</b> It is how you link to static files.</p>",
-      why: "The trick to remember: you name the function, and Flask works out the path." },
-  ]},
-  { title: "Request, templates, static", note: "Slides 14–16.", qs: [
-    { q: "What <em>is</em> the request object, really — and name the attributes you will actually use.",
-      a: "<p>It is <b>the environ dictionary from the WSGI talk, wrapped up nicely</b>.</p><p><code>request.method</code> — the HTTP verb.<br><code>request.form</code> — submitted form fields.<br><code>request.args</code> — the query string, everything after the question mark.<br>Also <code>cookies</code>, <code>files</code> for uploads, and <code>json</code> for a JSON body.</p>" },
-    { q: "<code>request</code> is never passed into the view — so why does it always refer to the right one? And what is the classic error?", tag: "trap",
-      a: "<p>It is imported as a global, and <b>Flask's request context</b> makes it refer to the request being handled right now, even with several in flight.</p><p>The flip side: <b>&ldquo;Working outside of request context&rdquo;</b> — you touched <code>request</code> where there is no request: a background thread, a CLI command, or at import time.</p>" },
-    { q: "Describe the one-URL-two-methods pattern, and why the redirect at the end is not decoration.", tag: "apply",
-      a: "<p>One route accepting GET and POST: a <b>GET shows the form, a POST processes it</b>, and you tell them apart with <code>request.method</code>.</p><p>The POST then <b>redirects</b> using <code>url_for()</code> — <b>redirect-after-POST stops the browser resubmitting the form when someone hits refresh</b>.</p>" },
-    { q: "Where does Flask look for templates, and why does it find that folder?",
-      a: "<p>A folder called <code>templates</code>, <b>sitting next to your application module</b> — and it finds it <b>because of the <code>__name__</code> argument</b> you passed at the start.</p><p>You do not configure this. You just have to spell the folder correctly.</p>" },
-    { q: "Static files: which folder, how do you link to one, and who should serve them in production?", tag: "apply",
-      a: "<p>A folder called <code>static</code>, served at the <code>/static</code> path. Link with <code>url_for('static', filename=…)</code> — writing the path by hand works right up until the app moves under a sub-path or onto a CDN, and then every link breaks at once.</p><p>In production the job belongs to <b>nginx or your hosting platform</b>. The front server handles TLS and static files because it is fast at exactly those things. <b>Letting a Python worker serve a logo is a waste of a worker.</b></p>" },
-  ]},
-  { title: "Structure, the rest of the core, and the payoff", note: "Slides 17, 19–27.", qs: [
-    { q: "The three pieces of a Flask project on disk — and the two moves when it grows.",
-      a: "<p><code>app.py</code>, a <code>templates</code> folder, a <code>static</code> folder (plus <code>requirements.txt</code>).</p><p>When it grows: split features into <b>blueprints</b> — sub-applications with their own routes and templates — and build the app inside a function, conventionally <b>create_app</b>, so tests can create their own instance with their own configuration.</p>",
-      why: "One file is genuinely fine to start. For an app of that size, splitting it up would be ceremony, not engineering." },
-    { q: "Flask's session — signed or encrypted? And the consequence.", tag: "trap",
-      a: "<p><b>Signed, not encrypted.</b> The data actually lives in the browser, signed with your secret key so the user cannot tamper with it — but <b>the user can read it</b>.</p><p>So: <b>never put anything secret in a session</b>.</p>" },
-    { q: "Cookies: where do you set them, and where do you read them?", tag: "trap",
-      a: "<p>You <b>set</b> them on the <b>response</b> object and <b>read</b> them from the <b>request</b> object. That distinction trips people up.</p>" },
-    { q: "File uploads arrive in <code>request.files</code>. What must you always do first?", tag: "trap",
-      a: "<p>Run the filename through <b><code>secure_filename()</code></b> before saving it.</p><p>The name the browser sent you is <b>user input</b>, and user input has been known to contain <code>../</code>.</p>" },
+  { title: "Extensions, the real app, and the payoff", note: "Slides 12–16.", qs: [
     { q: "Name four extensions and what each adds.",
       a: "<p><b>Flask-SQLAlchemy</b> — an ORM.<br><b>Flask-Migrate</b> — schema migrations.<br><b>Flask-WTF</b> — forms with validation, and CSRF protection.<br><b>Flask-Login</b> — who is signed in.<br>Also Flask-Mail and Flask-Limiter.</p>",
       why: "CSRF protection matters: any app using cookie sessions genuinely needs it." },
     { q: "The <code>init_app</code> two-step — what is the pattern, and why does it exist?",
       a: "<p>You create the extension object at module level <b>with no app</b> — <code>db = SQLAlchemy()</code> — and later call <code>db.init_app(app)</code> once the app exists.</p><p>That dance is what lets <b>one extension serve several application instances</b>, and it is the reason the create-app factory pattern pays off.</p>" },
-    { q: "Four reasons to reach for Flask — and the closing line.",
-      a: "<p><b>Nothing is hidden</b> — routes, templates and the request object are nearly the entire model. Very little magic: what you see is what runs.<br><b>It is still just WSGI</b> — everything runs unchanged on Gunicorn, Waitress, PythonAnywhere.<br><b>You choose the pieces</b> — no database or form layer is imposed.<br><b>It scales down honestly</b> — a six-line app really does stay six lines.</p><p>The close: <b>&ldquo;Learn WSGI once, and every Python web framework makes sense. Learn Flask, and you can build on it the same afternoon.&rdquo;</b></p>" },
     { q: "What is the point you leave the audience with about KuantorFlow?", tag: "apply",
-      a: "<p>Not that the project is large. It is that <b>nothing new had to be learned to start it</b> — the six-line app and this real project <b>differ in quantity, not in kind</b>.</p>" },
-    { q: "What does a <code>create_app()</code> factory give you that a module-level <code>app</code> does not?", tag: "apply",
-      a: "<p><b>Config in, app out</b> — every test builds its own app, so two apps never share state.</p><p>It is also where blueprints are registered and extensions bound with <code>init_app(app)</code>, which keeps imports from going circular.</p>" },
-    { q: "A <code>before_request</code> hook returns a response. What happens to the view?", tag: "trap",
-      a: "<p>It is <b>skipped</b>: that response goes out instead, and <code>after_request</code> still runs on it. The example's maintenance switch returns a 503 this way.</p><p><code>teardown_appcontext</code> runs always, even after an exception — the place to close a database session.</p>" },
-    { q: "Can a user read Flask's session cookie? Can they change it?", tag: "trap",
-      a: "<p><b>Read: yes</b> — it is base64 JSON, no key needed.<br><b>Change: no</b> — the signature is made with <code>SECRET_KEY</code>; a forged cookie fails it and Flask silently drops the session. Signed means tamper-proof, not private.</p>" },
+      a: "<p>Not that the project is large. It is that <b>nothing new had to be learned to start it</b> — the seven-line app and this real project <b>differ in quantity, not in kind</b>.</p>" },
     { q: "Is Flask the framework Python job adverts ask for most?", tag: "trap",
       a: "<p><b>No — it is used as much as the others, but named about half as often.</b></p><p><b>Usage:</b> Stack Overflow 2025 — FastAPI 14.8%, Flask 14.4%, Django 12.6%. JetBrains and PSF Python Developers Survey 2024 — FastAPI 38%, Django 35%, Flask 34%.</p><p><b>Adverts:</b> 52 full-stack Python postings tracked on DOU, closed ones included — FastAPI 26, Django 19, Flask 8, and only one of the eight asks for Flask on its own. ITJobsWatch, UK permanent jobs, six months to 15 November 2026 — FastAPI 236, Django 203, Flask 104.</p><p>Which is why the talk teaches Flask as the clearest window onto what the other two are doing, not as the framework on the advert.</p>" },
+    { q: "Four reasons to reach for Flask — and the closing line.",
+      a: "<p><b>Nothing is hidden</b> — routes, templates and the request object are nearly the entire model. Very little magic: what you see is what runs.<br><b>It is still just WSGI</b> — everything runs unchanged on Gunicorn, Waitress, PythonAnywhere.<br><b>You choose the pieces</b> — no database or form layer is imposed.<br><b>It scales down honestly</b> — a seven-line app really does stay seven lines.</p><p>The close: <b>&ldquo;Learn WSGI once, and every Python web framework makes sense. Learn Flask, and you can build on it the same afternoon.&rdquo;</b></p>" },
   ]},
 ];
 
