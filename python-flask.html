@@ -243,7 +243,7 @@ const ACTS = [
     { q: "Complete the rule of thumb: templates format data — they should not ___", tag: "trap",
       a: "<p>&hellip; <b>decide things</b>.</p><p>If you find a nested if-else pyramid in a template, <b>that decision belongs back in Python</b>.</p>" },
   ]},
-  { title: "The six-line app", note: "Slide 10. Every argument in it is doing work.", qs: [
+  { title: "The seven-line app", note: "Slide 10. Every argument in it is doing work.", qs: [
     { q: "Why does the <code>__name__</code> argument matter more than it looks?", tag: "trap",
       a: "<p>It tells Flask <b>where this file lives on disk</b>, which is how it later finds your <code>templates</code> and <code>static</code> folders.</p><p>Pass the wrong thing and <b>Flask cannot find your HTML</b>.</p>" },
     { q: "What is a view, and what happens when one returns a plain string?",
@@ -260,11 +260,11 @@ const ACTS = [
     { q: "The <code>init_app</code> two-step — what is the pattern, and why does it exist?",
       a: "<p>You create the extension object at module level <b>with no app</b> — <code>db = SQLAlchemy()</code> — and later call <code>db.init_app(app)</code> once the app exists.</p><p>That dance is what lets <b>one extension serve several application instances</b>, and it is the reason the create-app factory pattern pays off.</p>" },
     { q: "What is the point you leave the audience with about KuantorFlow?", tag: "apply",
-      a: "<p>Not that the project is large. It is that <b>nothing new had to be learned to start it</b> — the six-line app and this real project <b>differ in quantity, not in kind</b>.</p>" },
+      a: "<p>Not that the project is large. It is that <b>nothing new had to be learned to start it</b> — the seven-line app and this real project <b>differ in quantity, not in kind</b>.</p>" },
     { q: "Is Flask the framework Python job adverts ask for most?", tag: "trap",
       a: "<p><b>No — it is used as much as the others, but named about half as often.</b></p><p><b>Usage:</b> Stack Overflow 2025 — FastAPI 14.8%, Flask 14.4%, Django 12.6%. JetBrains and PSF Python Developers Survey 2024 — FastAPI 38%, Django 35%, Flask 34%.</p><p><b>Adverts:</b> 52 full-stack Python postings tracked on DOU, closed ones included — FastAPI 26, Django 19, Flask 8, and only one of the eight asks for Flask on its own. ITJobsWatch, UK permanent jobs, six months to 15 November 2026 — FastAPI 236, Django 203, Flask 104.</p><p>Which is why the talk teaches Flask as the clearest window onto what the other two are doing, not as the framework on the advert.</p>" },
     { q: "Four reasons to reach for Flask — and the closing line.",
-      a: "<p><b>Nothing is hidden</b> — routes, templates and the request object are nearly the entire model. Very little magic: what you see is what runs.<br><b>It is still just WSGI</b> — everything runs unchanged on Gunicorn, Waitress, PythonAnywhere.<br><b>You choose the pieces</b> — no database or form layer is imposed.<br><b>It scales down honestly</b> — a six-line app really does stay six lines.</p><p>The close: <b>&ldquo;Learn WSGI once, and every Python web framework makes sense. Learn Flask, and you can build on it the same afternoon.&rdquo;</b></p>" },
+      a: "<p><b>Nothing is hidden</b> — routes, templates and the request object are nearly the entire model. Very little magic: what you see is what runs.<br><b>It is still just WSGI</b> — everything runs unchanged on Gunicorn, Waitress, PythonAnywhere.<br><b>You choose the pieces</b> — no database or form layer is imposed.<br><b>It scales down honestly</b> — a seven-line app really does stay seven lines.</p><p>The close: <b>&ldquo;Learn WSGI once, and every Python web framework makes sense. Learn Flask, and you can build on it the same afternoon.&rdquo;</b></p>" },
   ]},
 ];
 
