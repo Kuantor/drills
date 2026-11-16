@@ -219,7 +219,7 @@ const ACTS = [
     { q: "State the upside and the downside of that trade.",
       a: "<p><b>Upside:</b> a small app stays genuinely small.<br><b>Downside:</b> every project has to make the same structural decisions again.</p>" },
   ]},
-  { title: "The two pillars", note: "Slides 6–9. Knowing the split is what makes tracebacks readable.", qs: [
+  { title: "The two pillars", note: "Slides 6–8 and 11. Knowing the split is what makes tracebacks readable.", qs: [
     { q: "Werkzeug — what is it, what does the name mean, and what does it own?",
       a: "<p><b>German for &ldquo;tool&rdquo;.</b> A <b>WSGI toolkit</b> — the piece that deals with the protocol. It wraps the raw environ dictionary into a request object and builds the response.</p><p>It also owns three things you use constantly: the <b>URL map</b> (turns <code>/blog/42</code> into a call to your function with 42 already an integer), the <b>development server</b> that <code>app.run()</code> gives you, and the <b>debugger</b> — the traceback page where every frame has a live Python console.</p>" },
     { q: "Jinja2 — what does it do, and name the two features worth the price of admission?",
@@ -235,7 +235,7 @@ const ACTS = [
     { q: "Why must Werkzeug's in-browser debugger never be reachable in production?", tag: "trap",
       a: "<p>Its console runs <b>any Python inside the server process</b>, as the server's user. The PIN that guards it is derived from details of the machine, not random — a speed bump, not a lock.</p><p>So: localhost only, debug switched by <code>--debug</code> or <code>FLASK_DEBUG</code> and off by default, and in production a real WSGI server with logging.</p>" },
   ]},
-  { title: "What templating actually is", note: "Slide 10. The concept people nod along to without it landing.", qs: [
+  { title: "What templating actually is", note: "Slide 9. The concept people nod along to without it landing.", qs: [
     { q: "Define a template in one sentence.",
       a: "<p>A <b>document with named gaps in it</b>. You hand the engine two things — the template and a bag of values — and it gives you back finished HTML. That is the whole idea.</p>" },
     { q: "Three reasons to template rather than glue strings together in Python.",
@@ -243,7 +243,7 @@ const ACTS = [
     { q: "Complete the rule of thumb: templates format data — they should not ___", tag: "trap",
       a: "<p>&hellip; <b>decide things</b>.</p><p>If you find a nested if-else pyramid in a template, <b>that decision belongs back in Python</b>.</p>" },
   ]},
-  { title: "The seven-line app", note: "Slide 11. Every argument in it is doing work.", qs: [
+  { title: "The seven-line app", note: "Slide 10. Every argument in it is doing work.", qs: [
     { q: "The April Fools hello world had six lines; Flask&rsquo;s has seven. Which line is extra, and why does Flask insist on it?", tag: "apply",
       a: "<p><code>app = Flask(__name__)</code> — an <b>explicit application object</b>. The joke&rsquo;s <code>from deny import *</code> hid the app behind globals.</p><p>Flask&rsquo;s design notes give the reasons: you can create <b>more than one app</b> (a fresh one per test), you can <b>subclass</b> it, and <code>__name__</code> tells it <b>where its templates and static files are</b>. It is also what makes a <code>create_app()</code> factory possible.</p>" },
     { q: "Why does the <code>__name__</code> argument matter more than it looks?", tag: "trap",
