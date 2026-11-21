@@ -164,7 +164,7 @@ footer b{color:var(--gold-lt)}
 <header>
   <p class="kicker">Ship It Live! &middot; self-test</p>
   <h1>Flask Drill</h1>
-  <p class="lede">Twenty-six questions on <strong>Flask — From the WSGI Contract to a Working App</strong>. Answer out loud before revealing, then mark yourself honestly. The traps matter most here: this talk is mostly concepts, and the gotchas are what an interviewer probes.</p>
+  <p class="lede">Twenty-nine questions on <strong>Flask — From the WSGI Contract to a Working App</strong>. Answer out loud before revealing, then mark yourself honestly. The traps matter most here: this talk is mostly concepts, and the gotchas are what an interviewer probes.</p>
 </header>
 
 <div class="board">
@@ -211,9 +211,12 @@ const ACTS = [
     { q: "In one line, what is Flask — and what does &ldquo;a Flask app is a WSGI app&rdquo; mean in practice?",
       a: "<p>A <b>web application framework written in Python</b>, created by Armin Ronacher of the Pocoo group, maintained today by <b>Pallets</b>.</p><p>When you write <code>app = Flask(__name__)</code>, that object <b>already is the callable Gunicorn will call</b>. Flask does not replace WSGI; it sits on it — which is why the same file runs unchanged in production.</p>" },
     { q: "Tell the April Fools story.",
-      a: "<p>On <b>April 1, 2010</b> Ronacher published <b>denied</b>, &ldquo;the next generation Python micro-web-framework, wrapped in a single portable library&rdquo;: one file that was really a zip of Werkzeug, Jinja2 and simplejson with about 160 lines of glue, an invented author and a screencast in a fake French accent. It mocked how microframeworks sold themselves.</p><p>It got 10,000+ screencast downloads, and people asked for the code. Two weeks later, on <b>April 16, 2010</b>, came <b>Flask 0.1</b>: &ldquo;a microframework based on Werkzeug, Jinja2 and good intentions&rdquo;. Sixteen years on, developers use it about as much as Django and FastAPI.</p>" },
+      a: "<p>On <b>April 1, 2010</b> Ronacher published <b>denied</b>, &ldquo;the next generation Python micro-web-framework, wrapped in a single portable library&rdquo;: one file that was really a zip of Werkzeug, Jinja2 and simplejson with about 160 lines of glue, an invented author and a screencast in a fake French accent. It mocked how microframeworks sold themselves.</p><p>It got 10,000+ screencast downloads, and people asked for the code. Two weeks later, on <b>April 16, 2010</b>, came <b>Flask 0.1</b>: &ldquo;a microframework based on Werkzeug, Jinja2 and good intentions&rdquo;. The name is a nod to <b>Bottle</b>, another one-file Python microframework; Ronacher&rsquo;s own 2011 slide calls it &ldquo;wordplay on Bottle&rdquo;. Sixteen years on, developers use it about as much as Django and FastAPI.</p>" },
     { q: "Who wrote Werkzeug, Jinja and Flask — and what came first?",
       a: "<p><b>Armin Ronacher</b>, Austrian, online as mitsuhiko. <b>Jinja</b> and <b>Werkzeug</b> came first, in 2007 — Jinja when he was 17, with a syntax his own announcement called &ldquo;Django-like&rdquo;. <b>Flask</b> followed in April 2010, at 20 — two weeks after <i>denied</i>, an April Fools joke that bundled both into one file.</p>" },
+    { q: "Beyond Werkzeug, Jinja and Flask, what else has Ronacher given the Python world?",
+      a: "<p>Under <b>Pocoo</b>, his old community project: he was a major early developer of <b>Pygments</b>, the syntax highlighter, and wrote substantial parts of <b>Sphinx</b>&rsquo;s templates &mdash; Sphinx itself is Georg Brandl&rsquo;s, and it is why Python documentation looks the way it does.</p><p>He <b>co-wrote PEP 372</b> with Raymond Hettinger, who implemented it: the proposal that put <code>OrderedDict</code> into the standard library (Python 2.7 and 3.1). He created <b>Click</b>, the command-line library. And in 2014 the PSF gave him its <b>Community Service Award</b>, for Jinja2, Flask, Logbook and Click.</p>",
+      why: "The trap is credit: he did not write Sphinx or add OrderedDict on his own &mdash; co-wrote and contributed, in both cases." },
     { q: "What does &ldquo;microframework&rdquo; mean — and what does it <em>not</em> mean?", tag: "trap",
       a: "<p>It does <b>not</b> mean Flask is for small projects. It means <b>the core makes very few decisions on your behalf</b>.</p><p>Flask gives you routing, templating and a request object — and then it stops. No database layer, no form validation, no user model. You add those through extensions, if and when you need them.</p>" },
     { q: "State the upside and the downside of that trade.",
@@ -249,7 +252,7 @@ const ACTS = [
     { q: "The April Fools hello world had six lines; Flask&rsquo;s has seven. Which line is extra, and why does Flask insist on it?", tag: "apply",
       a: "<p><code>app = Flask(__name__)</code> — an <b>explicit application object</b>. The joke&rsquo;s <code>from deny import *</code> hid the app behind globals.</p><p>Flask&rsquo;s design notes give the reasons: you can create <b>more than one app</b> (a fresh one per test), you can <b>subclass</b> it, and <code>__name__</code> tells it <b>where its templates and static files are</b>. It is also what makes a <code>create_app()</code> factory possible.</p>" },
     { q: "Why does the <code>__name__</code> argument matter more than it looks?", tag: "trap",
-      a: "<p>It tells Flask <b>where this file lives on disk</b>, which is how it later finds your <code>templates</code> and <code>static</code> folders.</p><p>Pass the wrong thing and <b>Flask cannot find your HTML</b>.</p>" },
+      a: "<p>It tells Flask <b>where this file lives on disk</b>. An internal helper looks the module up in <code>sys.modules</code> and stores its folder as <b><code>app.root_path</code></b>, which is how Flask later finds your <code>templates</code> and <code>static</code> folders.</p><p>Pass the wrong thing and <b>Flask cannot find your HTML</b> &mdash; and it <b>does not complain</b>. It quietly falls back to the folder you started from, which works on your laptop and breaks on the server.</p>" },
     { q: "What is a view, and what happens when one returns a plain string?",
       a: "<p>A <b>view</b> is the function the route decorator binds a URL to. Return a string and Flask <b>wraps it into a proper HTTP 200 response with the right content type</b>.</p>" },
     { q: "What two things does <code>debug=True</code> give you?",
@@ -257,12 +260,15 @@ const ACTS = [
     { q: "<code>app.run()</code> — what is it for, and what replaces it in production?", tag: "apply",
       a: "<p>Development only. It starts the development server on <b>localhost port 5000</b>.</p><p>In production a <b>real WSGI server imports the app object</b> instead — which is exactly the PythonAnywhere pipeline from the WSGI talk.</p>" },
   ]},
-  { title: "Extensions, the real app, and the payoff", note: "Slides 13–17.", qs: [
+  { title: "Extensions, the real app, and the payoff", note: "Slides 13–19.", qs: [
     { q: "Name four extensions and what each adds.",
-      a: "<p><b>Flask-SQLAlchemy</b> — an ORM.<br><b>Flask-Migrate</b> — schema migrations.<br><b>Flask-WTF</b> — forms with validation, and CSRF protection.<br><b>Flask-Login</b> — who is signed in.<br>Also Flask-Mail and Flask-Limiter.</p>",
+      a: "<p><b>Flask-SQLAlchemy</b> — an ORM.<br><b>Flask-Migrate</b> — schema migrations.<br><b>Flask-WTF</b> — wraps the <b>WTForms</b> library: forms with validation, and CSRF protection.<br><b>Flask-Login</b> — who is signed in.<br>Also Flask-Mail and Flask-Limiter.</p>",
       why: "CSRF protection matters: any app using cookie sessions genuinely needs it." },
     { q: "The <code>init_app</code> two-step — what is the pattern, and why does it exist?",
       a: "<p>You create the extension object at module level <b>with no app</b> — <code>db = SQLAlchemy()</code> — and later call <code>db.init_app(app)</code> once the app exists.</p><p>That dance is what lets <b>one extension serve several application instances</b>, and it is the reason the create-app factory pattern pays off.</p>" },
+    { q: "One app, two kinds of response: how does Flask serve a page to the browser and data to JavaScript?", tag: "apply",
+      a: "<p><b>One router does both.</b> When a browser hits <code>/</code>, the view renders a Jinja template and returns HTML. When JavaScript fetches <code>/topics.json</code>, the view returns <code>jsonify(...)</code>.</p><p><code>jsonify</code> takes a dict or a list, serializes it to JSON and sets the <code>application/json</code> header. <b>No separate API framework is needed</b> for interactive features.</p>",
+      why: "Since Flask 2.2 a view can also just return a dict or a list and get the same JSON response; jsonify is the explicit spelling." },
     { q: "What is the point you leave the audience with about KuantorFlow?", tag: "apply",
       a: "<p>Not that the project is large. It is that <b>nothing new had to be learned to start it</b> — the seven-line app and this real project <b>differ in quantity, not in kind</b>.</p>" },
     { q: "Is Flask the framework Python job adverts ask for most?", tag: "trap",
