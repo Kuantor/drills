@@ -283,7 +283,7 @@ const ACTS = [
     { q: "So what is the lesson about counting queries?", tag: "trap",
       a: "<p><b>On a collection, one query is not automatically the cheaper query.</b> The <b>number of rows crossing the network</b> matters more than the number of round trips.</p>" },
   ]},
-  { title: "Catching it, and moving the schema", note: "Slide 10 for echo=True; the rest is on the notes page.", qs: [
+  { title: "Catching it, and moving the schema", note: "Slide 11 for echo=True; the rest is on the notes page.", qs: [
     { q: "Three ways to catch an N+1. Name all three.", tag: "apply",
       a: "<p><b>1.</b> <code>echo=True</code> on <code>create_engine</code> — every statement prints to your console. If a single page request scrolls hundreds of near-identical SELECT WHERE id = lines past you, you have found one.</p><p><b>2.</b> <code>lazy=\"raise\"</code> on a relationship — an accidental lazy load becomes <b>a loud exception instead of a silent query</b>. Turn it on in your test suite and N+1 becomes a failing test rather than a production incident.</p><p><b>3.</b> In Flask, the <b>debug toolbar</b> shows a query count per request in the browser.</p>",
       why: "You will not spot this by reading code — slide 8 proved that. You spot it by looking at the SQL." },
