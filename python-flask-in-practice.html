@@ -245,7 +245,7 @@ const ACTS = [
     { q: "File uploads arrive in <code>request.files</code>. What must you always do first?", tag: "trap",
       a: "<p>Run the filename through <b><code>secure_filename()</code></b> before saving it.</p><p>The name the browser sent you is <b>user input</b>, and user input has been known to contain <code>../</code>.</p>" },
     { q: "What does a <code>create_app()</code> factory give you that a module-level <code>app</code> does not?", tag: "apply",
-      a: "<p><b>Config in, app out</b> — every test builds its own app, so two apps never share state.</p><p>It is also where blueprints are registered and extensions bound with <code>init_app(app)</code>, which keeps imports from going circular.</p>" },
+      a: "<p><b>Config in, app out</b> — every test builds its own app, <code>app = create_app(TESTING=True)</code>, with its own settings, so two apps never share state.</p><p>It is also where blueprints are registered and extensions bound with <code>init_app(app)</code>, which keeps imports from going circular.</p>" },
     { q: "A <code>before_request</code> hook returns a response. What happens to the view?", tag: "trap",
       a: "<p>It is <b>skipped</b>: that response goes out instead, and <code>after_request</code> still runs on it. The example's maintenance switch returns a 503 this way.</p><p><code>teardown_appcontext</code> runs always, even after an exception — the place to close a database session.</p>" },
     { q: "Can a user read Flask's session cookie? Can they change it?", tag: "trap",
