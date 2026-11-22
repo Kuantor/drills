@@ -218,9 +218,9 @@ const ACTS = [
     { q: "So what does an ORM actually do about the mismatch?", tag: "trap",
       a: "<p>It is <b>the adapter you put in that junction</b>. It <b>does not remove the mismatch — it moves it somewhere you can manage.</b></p>" },
     { q: "Life without an ORM works. Name the three problems anyway.",
-      a: "<p><b>1.</b> The column order appears <b>twice</b> — in the SELECT and in the unpacking. Add a column in the middle and <code>row[1]</code> silently becomes the wrong field. Nothing raises; you just get wrong data, quietly, forever.</p><p><b>2.</b> You get back a <b>tuple</b> — no behaviour, no validation, no methods. Data with the meaning stripped off.</p><p><b>3.</b> Want the author? That is <b>a second query, and joining the results is your problem, every time</b>.</p>" },
+      a: "<p><b>1.</b> The column order appears <b>twice</b> — in the SELECT and in the unpacking. Add a column in the middle and <code>row[1]</code> silently becomes the wrong field. Nothing raises; you just get wrong data, quietly, forever.</p><p><b>2.</b> You get back a <b>tuple</b> — no behavior, no validation, no methods. Data with the meaning stripped off.</p><p><b>3.</b> Want the author? That is <b>a second query, and joining the results is your problem, every time</b>.</p>" },
   ]},
-  { title: "The mapping, and SQLAlchemy", note: "Slides 5–8. Three sentences, then everything follows.", qs: [
+  { title: "The mapping, and SQLAlchemy", note: "Slides 5–6, and the notes page for declarative mapping. Three sentences, then everything follows.", qs: [
     { q: "The whole idea in three correspondences.",
       a: "<p>A <b>class</b> maps to a <b>table</b>. An <b>instance</b> maps to a <b>row</b>. An <b>attribute</b> maps to a <b>column</b>.</p><p>Everything else in the talk follows from those three sentences.</p>" },
     { q: "What do you get from the mapping? Four things.",
@@ -241,7 +241,7 @@ const ACTS = [
     { q: "<code>relationship()</code> — what is it, and what does <code>back_populates</code> do?", tag: "trap",
       a: "<p>It is <b>not a column</b> — there is no relationship column in the table. It is <b>the join, expressed once, in Python</b>.</p><p><code>back_populates</code> keeps the two sides in sync: append an article to an author's list and <b>the article's author attribute updates in memory immediately, before any SQL runs at all</b>.</p>" },
   ]},
-  { title: "The session and the identity map", note: "Slides 9–10. Two named patterns, both older than most frameworks.", qs: [
+  { title: "The session and the identity map", note: "Slide 7, and the notes page for the identity map. Two named patterns, both older than most frameworks.", qs: [
     { q: "The three steps of the Unit of Work.",
       a: "<p><b>1. You change objects.</b> Add an article, or just assign to a title. Nothing has gone to the database.</p><p><b>2. Flush.</b> The session works out which statements are needed and emits them <b>in dependency order</b> — parents before children, so a foreign key never points at a row that does not exist. You did not write that ordering; it was derived from your object graph.</p><p><b>3. Commit</b>, which ends the transaction and calls flush for you if you have not.</p>",
       why: "Unit of Work comes from Martin Fowler's Patterns of Enterprise Application Architecture, 2002 — as does the identity map." },
@@ -253,9 +253,9 @@ const ACTS = [
       a: "<p>Without it, two queries touching the same row hand you <b>two copies</b>, and changing one would not change the other. <b>You would spend your life reconciling duplicates.</b></p><p>With it, mutation inside a session is coherent: there is exactly one Article 42 and everybody is holding it.</p>" },
     { q: "Two of its three consequences — including the one that produces a named error.",
       a: "<p><b>1.</b> Asking for a row you already loaded <b>costs nothing</b> — no query is issued.</p><p><b>2.</b> It is why objects <b>go stale after a commit</b>: attributes expire and reload on next access, and if the session has closed you get <b>DetachedInstanceError</b> — the object in your hand is a ghost, still looks like data, but the session that gave it life is gone.</p>",
-      why: "The third consequence is deliberately left hanging for four minutes, because it changes the punchline of the next section." },
+      why: "The third consequence changes how bad N+1 looks in your tests: the next act shows how." },
   ]},
-  { title: "The hinge", note: "Slides 11–13. Four lines that review clean.", qs: [
+  { title: "The hinge", note: "Slides 8–9. Four lines that review clean.", qs: [
     { q: "The four lines look fine. Where is the tell?", tag: "trap",
       a: "<p><code>a.author</code>. It reads like an attribute access — the same shape as <code>a.title</code>, one character earlier on the same line.</p><p>But <b>the author was never loaded</b>, so the first time you touch that attribute <b>SQLAlchemy quietly issues a query to fetch it</b>.</p>" },
     { q: "What is that behaviour called, and who turned it on?", tag: "trap",
@@ -264,14 +264,14 @@ const ACTS = [
     { q: "Give the number, where the name comes from, and how it was obtained.", tag: "numbers",
       a: "<p><b>101.</b> One query for the list of articles, then one more for each of the hundred authors. <b>One plus N</b> — that is where the name comes from.</p><p>And it is <b>measured, not estimated</b>: hooked to SQLAlchemy's <b><code>before_cursor_execute</code></b> event, counting what actually reached the driver.</p>" },
     { q: "Why does this bug survive so long in real codebases?", tag: "apply",
-      a: "<p>Locally, against <b>SQLite on your laptop with a hundred test rows</b>, those 101 queries take a couple of milliseconds. Nobody notices. Tests are green.</p><p>Against a real database over a network at <b>roughly a millisecond of round trip each</b>, the same page takes <b>a fifth of a second longer than it needs to</b>.</p><p>And <b>it never crashes. It will never crash.</b> It just gets slightly worse every month as your data grows.</p>" },
+      a: "<p>Locally, against <b>SQLite on your laptop with a hundred test rows</b>, those 101 queries take a couple of milliseconds. Nobody notices. Tests are green.</p><p>Against a real database over a network at <b>roughly a millisecond of round trip each</b>, the same page takes <b>a tenth of a second longer than it needs to</b>.</p><p>And <b>it never crashes. It will never crash.</b> It just gets slightly worse every month as your data grows.</p>" },
     { q: "Same code, same hundred articles — but you measured eleven queries, not 101. Why?", tag: "numbers",
       a: "<p><b>The identity map.</b> The hundred articles shared only <b>ten authors</b>. Once an author is in the session, touching that author again does not re-query.</p><p>So the real formula is <b>not 1 + N. It is 1 + the number of distinct related rows.</b></p>" },
     { q: "That is better than the textbook version. Why is it much <em>worse</em> for you?", tag: "trap",
       a: "<p>Your <b>test fixtures have three authors</b>. Your <b>staging data has ten</b>. So the page looks completely fine in development and completely fine in CI — and <b>the problem scales with production data, the one environment where nobody measured it</b>.</p><p><b>A bug that hides in your test data and only appears in production is the most expensive kind there is.</b></p>",
       why: "Most write-ups state N+1 as 1+N and stop. The distinct-rows version is what you actually observe with a session-backed ORM." },
   ]},
-  { title: "Two fixes, and which one", note: "Slides 14–15. The part people get wrong.", qs: [
+  { title: "Two fixes, and which one", note: "Slide 10, and the notes page for which one. The part people get wrong.", qs: [
     { q: "<code>joinedload</code> and <code>selectinload</code> — what SQL does each produce?",
       a: "<p><b>joinedload</b> — one query, articles and authors together, with a <b>LEFT OUTER JOIN</b>. One statement instead of 101.</p><p><b>selectinload</b> — one query for the articles, then a second fetching all needed authors at once with <b>WHERE id IN</b>. Two statements, no join.</p><p>Both are <b>eager loading</b>, the opposite of lazy.</p>" },
     { q: "What did not change when you applied the fix?", tag: "apply",
@@ -283,18 +283,18 @@ const ACTS = [
     { q: "So what is the lesson about counting queries?", tag: "trap",
       a: "<p><b>On a collection, one query is not automatically the cheaper query.</b> The <b>number of rows crossing the network</b> matters more than the number of round trips.</p>" },
   ]},
-  { title: "Catching it, and moving the schema", note: "Slides 16–17.", qs: [
+  { title: "Catching it, and moving the schema", note: "Slide 10 for echo=True; the rest is on the notes page.", qs: [
     { q: "Three ways to catch an N+1. Name all three.", tag: "apply",
       a: "<p><b>1.</b> <code>echo=True</code> on <code>create_engine</code> — every statement prints to your console. If a single page request scrolls hundreds of near-identical SELECT WHERE id = lines past you, you have found one.</p><p><b>2.</b> <code>lazy=\"raise\"</code> on a relationship — an accidental lazy load becomes <b>a loud exception instead of a silent query</b>. Turn it on in your test suite and N+1 becomes a failing test rather than a production incident.</p><p><b>3.</b> In Flask, the <b>debug toolbar</b> shows a query count per request in the browser.</p>",
-      why: "You will not spot this by reading code — slide 11 proved that. You spot it by looking at the SQL." },
+      why: "You will not spot this by reading code — slide 8 proved that. You spot it by looking at the SQL." },
     { q: "What is Alembic, who wrote it, and where does the name come from?",
       a: "<p><b>Versioned migration scripts</b>, chained in order, with a table in the database recording where it stands. <b>Same author as SQLAlchemy</b> — Michael Bayer. SQLAlchemy describes your schema; it does not migrate a live database.</p><p>An <b>alembic is a still</b> — the copper vessel alchemists used for distillation, from Arabic <b>al-anbīq</b>. Named as a pun on SQLAlchemy.</p>",
       why: "Which makes the WSGI talk whiskey, the Flask talk a flask, and this one the still — entirely by accident." },
     { q: "What does Alembic's autogenerate get wrong, and what does it cost?", tag: "trap",
-      a: "<p><b>Renames.</b> Rename a column and autogenerate will confidently produce a <b>DROP followed by an ADD</b>. Structurally correct — and it <b>silently destroys every value in that column</b>.</p><p>So read every generated migration before you run it. <b>Autogenerate is a very confident intern</b> — fast, useful, occasionally catastrophic, and it will not apologise.</p>",
+      a: "<p><b>Renames.</b> Rename a column and autogenerate will confidently produce a <b>DROP followed by an ADD</b>. Structurally correct — and it <b>silently destroys every value in that column</b>.</p><p>So read every generated migration before you run it. <b>Autogenerate is a very confident intern</b> — fast, useful, occasionally catastrophic, and it will not apologize.</p>",
       why: "Migrations are the one part of the ORM story where a mistake is not slow. It is gone." },
   ]},
-  { title: "When it is the wrong tool, and the close", note: "Slides 18–19.", qs: [
+  { title: "When it is the wrong tool, and the close", note: "Slide 11, and the notes page for the wrong-tool cases.", qs: [
     { q: "Four cases where you should reach past the ORM.", tag: "apply",
       a: "<p><b>When the query is the point</b> — reporting, analytics, aggregation over large tables.<br><b>Bulk operations</b> — loading a million rows into objects to change one field is enormously wasteful; a set-based UPDATE does it in one statement.<br><b>Vendor-specific features</b> — INSERT ON CONFLICT, window functions, CTEs, JSONB operators, full-text search.<br><b>A schema you do not control</b> — a legacy database with no primary keys can cost more to map than to query directly.</p>" },
     { q: "What makes dropping down cheap in SQLAlchemy specifically?",
